@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Src/Cyphoid.Core/Cyphoid.Core.csproj" />
+  <Project Path="Src/Cyphoid.Tests/Cyphoid.Tests.csproj" Id="044e292e-2fb9-480a-a01f-3f4e23e06200" />
+</Solution>
