@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.Planning
 {
@@ -6,6 +7,11 @@ namespace Cyphoid.Core.Planning
     LogicalPlan Input,
     long Limit) : LogicalPlan
   {
+    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    {
+      throw new NotImplementedException();
+    }
+
     public override void PrettyPrint(StringBuilder sb)
     {
       sb.AppendLine("Limit");

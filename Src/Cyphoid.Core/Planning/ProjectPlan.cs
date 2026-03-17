@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
@@ -7,6 +8,11 @@ namespace Cyphoid.Core.Planning
     LogicalPlan Input,
     IReadOnlyList<ReturnItemNode> Items) : LogicalPlan
   {
+    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    {
+      return factory.BuildProjection(Input.BuildExecutionPlan(factory));
+    }
+
     public override void PrettyPrint(StringBuilder sb)
     {
       sb.Append("Project: ");

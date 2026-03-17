@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
@@ -9,6 +10,11 @@ namespace Cyphoid.Core.Planning
     NodeVariable Destination,
     RelationshipPatternNode Relationship) : LogicalPlan
   {
+    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    {
+      throw new NotImplementedException();
+    }
+
     public override void PrettyPrint(StringBuilder sb)
     {
       sb.AppendLine("Expand");

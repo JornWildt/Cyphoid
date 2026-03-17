@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
@@ -8,6 +9,12 @@ namespace Cyphoid.Core.Planning
     string? Label,
     PropertyMapNode? PropertyMap) : LogicalPlan
   {
+    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    {
+      return factory.BuildNodeScan();
+    }
+    
+    
     public override void PrettyPrint(StringBuilder sb)
     {
       sb.Append("Nodescan (");
