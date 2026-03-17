@@ -27,11 +27,13 @@
 
   public record RelationshipPatternNode(RelationshipDetailNode RelationshipDetail, RelationshipDirectionType RelationshipDirection) : AstNode;
 
-  public record RelationshipDetailNode(string? Variable, string? RelationshipType, PropertyMapNode PropertyMap);
+  public record RelationshipDetailNode(string? Variable, string? RelationshipType, PropertyMapNode PropertyMap) : AstNode;
 
-  public record PropertyMapNode(IReadOnlyList<PropertyEntryNode> Properties);
+  public record PropertyMapNode(IReadOnlyList<PropertyEntryNode> Properties) : AstNode;
 
-  public record PropertyEntryNode(string Identifier, ExprNode Expr);
+  public record PropertyEntryNode(string Identifier, ExprNode Expr) : AstNode;
+
+  public record VariableNode(string Name) : AstNode;
 
   public abstract record ExprNode : AstNode;
 

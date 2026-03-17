@@ -61,8 +61,8 @@ namespace Cyphoid.Core
 
     public override AstNode VisitNodePattern([NotNull] CypherParser.NodePatternContext context)
     {
-      var variable = context.variable();
-      return new NodePatternNode(null, null, null);
+      var variable = Visit<VariableNode>(context.variable());
+      return new NodePatternNode(variable.Name, null, null);
     }
 
 
@@ -77,6 +77,13 @@ namespace Cyphoid.Core
     {
       var value = (IntLiteralNode)Visit(context.integerLiteral());
       return base.VisitLimitClause(context);
+    }
+
+
+    public override AstNode VisitVariable([NotNull] CypherParser.VariableContext context)
+    {
+      var name = context.identifier().GetText();
+      return new VariableNode(name);
     }
 
 
