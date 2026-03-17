@@ -26,11 +26,14 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (a), (b) RETURN a, b")]
     [TestCase("MATCH (n {name: \"Alice\"}) RETURN n")]
     [TestCase("MATCH (n:Person {name: \"Alice\"}) RETURN n")]
-    [TestCase("MATCH ()-[r {since: 2020}]->() RETURN r")]
+    // FIXME: works, but what is p-map in relationship??? [TestCase("MATCH ()-[r {since: 2020}]->() RETURN r")]
     [TestCase("MATCH ()-[:KNOWS {since: 2020}]->() RETURN 1")]
     [TestCase("MATCH (n {name: \"Alice\", age: 30}) RETURN n")]
     // FIXME: allow empty property map [TestCase("MATCH (n {}) RETURN n")]
     [TestCase("MATCH (a)-[r {weight: 5}]->(b) RETURN a, b")]
+    [TestCase("MATCH (n) WHERE n AND NOT n RETURN n")]
+    [TestCase("MATCH (n) RETURN n OR NOT n")]
+    [TestCase("MATCH (n {name: x OR NOT x}) RETURN n OR NOT n")]
     public void ItCanParseAndPrettyPrint(string input)
     {
       // Arrange

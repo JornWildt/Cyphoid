@@ -232,7 +232,7 @@ namespace Cyphoid.Core.SyntaxTree
     public override void PrettyPrint(StringBuilder sb)
     {
       Left.PrettyPrint(sb);
-      sb.Append(" " + Operator + " ");
+      sb.Append(" " + Operator.ToString().ToUpper() + " ");
       Right.PrettyPrint(sb);
     }
   }
@@ -244,7 +244,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public override void PrettyPrint(StringBuilder sb)
     {
-      sb.Append("!");
+      sb.Append("NOT ");
       Expr.PrettyPrint(sb);
     }
   }
