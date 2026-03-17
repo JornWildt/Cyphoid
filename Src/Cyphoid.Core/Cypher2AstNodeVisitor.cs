@@ -4,9 +4,9 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core
 {
-  enum VariableKindType { Node }
+  public enum VariableKindType { Node }
 
-  record VariableDefinition(string Name, VariableKindType Kind, int SlotIndex);
+  public record VariableDefinition(string Name, VariableKindType Kind, int SlotIndex);
 
 
   internal class Cypher2AstNodeVisitor : CypherBaseVisitor<AstNode>
@@ -20,7 +20,6 @@ namespace Cyphoid.Core
     public override AstNode VisitQuery([NotNull] global::CypherParser.QueryContext context)
     {
       var match = Visit<MatchNode>(context.matchClause());
-      ExtractVariableDefinitions(match);
 
       var where = context.whereClause() != null ? Visit<WhereNode>(context.whereClause()) : null;
 
@@ -113,7 +112,8 @@ namespace Cyphoid.Core
       var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
       var label = context.nodeLabel() != null ? Visit<LabelNode>(context.nodeLabel()) : null;
       var propertyMap = context.propertyMap() != null ? Visit<PropertyMapNode>(context.propertyMap()) : null;
-      return new NodePatternNode(variable?.Name, label?.Label, propertyMap);
+      var variableDef = ExtractVariableDefinition(variable, VariableKindType.Node);
+      return new NodePatternNode(variableDef, label?.Label, propertyMap);
     }
 
 
@@ -134,7 +134,8 @@ namespace Cyphoid.Core
       var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
       var relationshipType = context.relationshipTypes() != null ? Visit<IdentifierNode>(context.relationshipTypes()) : null;
       var propertyMap = context.propertyMap() != null ? Visit<PropertyMapNode>(context.propertyMap()) : null;
-      return new RelationshipDetailNode(variable?.Name, relationshipType?.Name, propertyMap);
+      var variableDef = ExtractVariableDefinition(variable, VariableKindType.Node);
+      return new RelationshipDetailNode(variableDef, relationshipType?.Name, propertyMap);
     }
 
 
@@ -311,32 +312,24 @@ namespace Cyphoid.Core
       return (T)result;
     }
 
-
-    void ExtractVariableDefinitions(MatchNode match)
-    {
-      foreach (var p in match.Pattern.Parts)
-      {
-        foreach (var c in p.PatternChain)
-        {
-          ExtractVariableDefinition(c.NodePattern);
-        }
-      }
-    }
-
     
-    private void ExtractVariableDefinition(NodePatternNode nodePattern)
+    private VariableDefinition? ExtractVariableDefinition(VariableNode? variableNode, VariableKindType variableKind)
     {
-      string variableName = nodePattern.Variable ?? NewAnonymousVariable();
+      if (variableNode == null)
+        return null;
+
+      string variableName = variableNode?.Name ?? NewAnonymousVariable(); // FIXME: Anonymous? Useful? Unused.
       if (VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
       {
-        if (variableDefinition.Kind != VariableKindType.Node)
+        if (variableDefinition.Kind != variableKind)
           throw new InvalidOperationException($"Variable '{variableName}' reused as '{variableDefinition.Kind}' - expected '{VariableKindType.Node}'.");
       }
       else
       {
-        var v = new VariableDefinition(variableName, VariableKindType.Node, VariableDefinitions.Count);
-        VariableDefinitions.Add(variableName, v);
+        variableDefinition = new VariableDefinition(variableName, variableKind, VariableDefinitions.Count);
+        VariableDefinitions.Add(variableName, variableDefinition);
       }
+      return variableDefinition;
     }
 
 
