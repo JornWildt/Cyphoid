@@ -141,6 +141,11 @@ namespace Cyphoid.Core.SyntaxTree
         sb.Append(Variable);
       if (Label != null)
         sb.Append(":" + Label);
+      if (PropertyMap != null)
+      {
+        sb.Append(" ");
+        PropertyMap.PrettyPrint(sb);
+      }
       sb.Append(")");
     }
   }
@@ -174,14 +179,44 @@ namespace Cyphoid.Core.SyntaxTree
         sb.Append(Variable);
       if (RelationshipType != null)
         sb.Append(":" + RelationshipType);
+      if (PropertyMap != null)
+      {
+        sb.Append(" ");
+        PropertyMap.PrettyPrint(sb);
+      }
     }
   }
 
 
-  public record PropertyMapNode(IReadOnlyList<PropertyEntryNode> Properties) : AstNode;
+  public record PropertyMapNode(IReadOnlyList<PropertyEntryNode> Properties) : AstNode
+  {
+    public override void PrettyPrint(StringBuilder sb)
+    {
+      sb.Append("{");
+      bool first = true;
+      foreach (var property in Properties)
+      {
+        if (!first)
+          sb.Append(", ");
+        property.PrettyPrint(sb);
+        first = false;
+      }
+      sb.Append("}");
+    }
+  }
 
-  public record PropertyEntryNode(string Identifier, ExprNode Expr) : AstNode;
+  
+  public record PropertyEntryNode(string Identifier, ExprNode Expr) : AstNode
+  {
+    public override void PrettyPrint(StringBuilder sb)
+    {
+      sb.Append(Identifier + ": ");
+      Expr.PrettyPrint(sb);
+    }
+  }
 
+  
+  
   public record VariableNode(string Name) : AstNode;
 
   public record LabelNode(string Label) : AstNode;

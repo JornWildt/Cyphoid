@@ -52,12 +52,20 @@ relationshipDetail
   | propertyMap
   ;
 
+relationshipTypes
+  : COLON identifier
+  ;
+
 nodeLabel
   : COLON identifier
   ;
 
-relationshipTypes
-  : COLON identifier
+propertyMap
+  : LBRACE propertyEntry (COMMA propertyEntry)* RBRACE
+  ;
+
+propertyEntry
+  : identifier COLON expression
   ;
 
 // -------------------------
@@ -97,14 +105,6 @@ propertyAccess
 
 functionCall
   : identifier LPAREN (expression (COMMA expression)*)? RPAREN
-  ;
-
-propertyMap
-  : LBRACE propertyEntry (COMMA propertyEntry)* RBRACE
-  ;
-
-propertyEntry
-  : identifier COLON expression
   ;
 
 variable

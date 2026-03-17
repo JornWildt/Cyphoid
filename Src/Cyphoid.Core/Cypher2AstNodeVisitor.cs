@@ -112,7 +112,8 @@ namespace Cyphoid.Core
     {
       var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
       var label = context.nodeLabel() != null ? Visit<LabelNode>(context.nodeLabel()) : null;
-      return new NodePatternNode(variable?.Name, label?.Label, null);
+      var propertyMap = context.propertyMap() != null ? Visit<PropertyMapNode>(context.propertyMap()) : null;
+      return new NodePatternNode(variable?.Name, label?.Label, propertyMap);
     }
 
 
@@ -132,7 +133,8 @@ namespace Cyphoid.Core
     {
       var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
       var relationshipType = context.relationshipTypes() != null ? Visit<IdentifierNode>(context.relationshipTypes()) : null;
-      return new RelationshipDetailNode(variable?.Name, relationshipType?.Name, null);
+      var propertyMap = context.propertyMap() != null ? Visit<PropertyMapNode>(context.propertyMap()) : null;
+      return new RelationshipDetailNode(variable?.Name, relationshipType?.Name, propertyMap);
     }
 
 
@@ -150,8 +152,26 @@ namespace Cyphoid.Core
     }
 
 
-    
+    public override AstNode VisitPropertyMap([NotNull] CypherParser.PropertyMapContext context)
+    {
+      var properties = new List<PropertyEntryNode>();
 
+      foreach (var p in context.propertyEntry())
+      {
+        var property = Visit<PropertyEntryNode>(p);
+        properties.Add(property);
+      }
+
+      return new PropertyMapNode(properties);
+    }
+
+
+    public override AstNode VisitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context)
+    {
+      var id = Visit<IdentifierNode>(context.identifier());
+      var expr = Visit<ExprNode>(context.expression());
+      return new PropertyEntryNode(id.Name, expr);
+    }
 
     #region Expressions
 
@@ -261,6 +281,7 @@ namespace Cyphoid.Core
     public override AstNode VisitStringLiteral([NotNull] CypherParser.StringLiteralContext context)
     {
       var text = context.STRING().GetText();
+      text = text.Substring(1, text.Length - 2);
       return new StringLiteralNode(text);
     }
 
