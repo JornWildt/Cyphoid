@@ -15,19 +15,60 @@ namespace Cyphoid.Core
     Dictionary<string, VariableDefinition> VariableDefinitions = new Dictionary<string, VariableDefinition>();
 
 
+    #region Visitors
+
     public override AstNode VisitQuery([NotNull] global::CypherParser.QueryContext context)
     {
       var match = Visit<MatchNode>(context.matchClause());
       ExtractVariableDefinitions(match);
 
-      var limit = Visit<LimitNode>(context.limitClause());
-      return new QueryNode(null!, null, null!, null);
+      var where = context.whereClause() != null ? Visit<WhereNode>(context.whereClause()) : null;
+
+      var @return = Visit<ReturnNode>(context.returnClause());
+
+      var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
+
+      return new QueryNode(match, where, @return, limit);
     }
 
 
     public override AstNode VisitMatchClause([NotNull] CypherParser.MatchClauseContext context)
     {
       return new MatchNode(Visit<PatternNode>(context.pattern()));
+    }
+
+    public override AstNode VisitWhereClause([NotNull] CypherParser.WhereClauseContext context)
+    {
+      var expr = Visit<ExprNode>(context.expression());
+      return new WhereNode(expr);
+    }
+
+
+    public override AstNode VisitReturnClause([NotNull] CypherParser.ReturnClauseContext context)
+    {
+      var items = new List<ReturnItemNode>();
+      
+      foreach (var itemCtx in context.returnItem())
+      {
+        items.Add(Visit<ReturnItemNode>(itemCtx));
+      }
+      
+      return new ReturnNode(items);
+    }
+
+
+    public override AstNode VisitLimitClause([NotNull] global::CypherParser.LimitClauseContext context)
+    {
+      var value = (IntLiteralNode)Visit(context.integerLiteral());
+      return new LimitNode(value.Value);
+    }
+
+
+    public override AstNode VisitReturnItem([NotNull] CypherParser.ReturnItemContext context)
+    {
+      var expr = Visit<ExprNode>(context.expression());
+      var id = context.identifier() != null ? Visit<IdentifierNode>(context.identifier()) : null;
+      return new ReturnItemNode(expr, id);
     }
 
 
@@ -59,24 +100,130 @@ namespace Cyphoid.Core
     }
 
 
-    public override AstNode VisitNodePattern([NotNull] CypherParser.NodePatternContext context)
-    {
-      var variable = Visit<VariableNode>(context.variable());
-      return new NodePatternNode(variable.Name, null, null);
-    }
-
-
     public override AstNode VisitPatternChain([NotNull] CypherParser.PatternChainContext context)
     {
-      //var relPattern = Visit<RelationshipPatternNode>(context.relationshipPattern());
-      return new PatternChainNode(null, null!);
+      var relPattern = Visit<RelationshipPatternNode>(context.relationshipPattern());
+      var nodePattern = Visit<NodePatternNode>(context.nodePattern());
+      return new PatternChainNode(relPattern, nodePattern);
     }
 
 
-    public override AstNode VisitLimitClause([NotNull] global::CypherParser.LimitClauseContext context)
+    public override AstNode VisitNodePattern([NotNull] CypherParser.NodePatternContext context)
     {
-      var value = (IntLiteralNode)Visit(context.integerLiteral());
-      return base.VisitLimitClause(context);
+      var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
+      var label = context.nodeLabel() != null ? Visit<LabelNode>(context.nodeLabel()) : null;
+      return new NodePatternNode(variable?.Name, label?.Label, null);
+    }
+
+
+    public override AstNode VisitRelationshipPattern([NotNull] CypherParser.RelationshipPatternContext context)
+    {
+      var detail = context.relationshipDetail() != null ? Visit<RelationshipDetailNode>(context.relationshipDetail()) : null;
+      var direction = context.ARROW_RIGHT() != null
+        ? RelationshipDirectionType.Right
+        : context.ARROW_LEFT() != null
+          ? RelationshipDirectionType.Left
+          : RelationshipDirectionType.None;
+      return new RelationshipPatternNode(detail, direction);
+    }
+
+
+    public override AstNode VisitRelationshipDetail([NotNull] CypherParser.RelationshipDetailContext context)
+    {
+      var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
+      var relationshipType = context.relationshipTypes() != null ? Visit<IdentifierNode>(context.relationshipTypes()) : null;
+      return new RelationshipDetailNode(variable?.Name, relationshipType?.Name, null);
+    }
+
+
+    public override AstNode VisitRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context)
+    {
+      var id = Visit<IdentifierNode>(context.identifier());
+      return id;
+    }
+
+    
+    public override AstNode VisitNodeLabel([NotNull] CypherParser.NodeLabelContext context)
+    {
+      var label = context.identifier().GetText();
+      return new LabelNode(label);
+    }
+
+
+    
+
+
+    #region Expressions
+
+    public override AstNode VisitExpression([NotNull] CypherParser.ExpressionContext context)
+    {
+      return Visit<ExprNode>(context.orExpression());
+    }
+
+
+    public override AstNode VisitOrExpression([NotNull] CypherParser.OrExpressionContext context)
+    {
+      return VisitBinaryOperator(context.andExpression(), BinaryOperatorType.Or);
+    }
+
+
+    public override AstNode VisitAndExpression([NotNull] CypherParser.AndExpressionContext context)
+    {
+      return VisitBinaryOperator(context.notExpression(), BinaryOperatorType.And);
+    }
+
+
+    protected ExprNode VisitBinaryOperator(IEnumerable<IParseTree> context, BinaryOperatorType op)
+    {
+      var leftExpr = (ExprNode?)null;
+      foreach (var exprCtx in context)
+      {
+        var expr = Visit<ExprNode>(exprCtx);
+        if (leftExpr == null)
+        {
+          leftExpr = expr;
+        }
+        else
+        {
+          leftExpr = new BinaryOperatorNode(leftExpr, expr, op);
+        }
+      }
+      return leftExpr!;
+    }
+
+
+    public override AstNode VisitNotExpression([NotNull] CypherParser.NotExpressionContext context)
+    {
+      if (context.notExpression() != null)
+      {
+        var expr = Visit<ExprNode>(context.notExpression());
+        return new UnaryOperatorNode(UnaryOperatorType.Not, expr);
+      }
+      else
+      {
+        return Visit<ExprNode>(context.primaryExpression());
+      }
+    }
+
+
+    public override AstNode VisitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context)
+    {
+      if (context.literal() != null)
+      {
+        return Visit<ExprNode>(context.literal());
+      }
+      else if (context.variable() != null)
+      {
+        // FIXME: Should not be variable
+        var v = Visit<VariableNode>(context.variable());
+        return new IdentifierNode(v.Name);
+      }
+      else if (context.expression() != null)
+      {
+        return Visit<ExprNode>(context.expression());
+      }
+      else
+        throw new NotImplementedException();
     }
 
 
@@ -86,6 +233,54 @@ namespace Cyphoid.Core
       return new VariableNode(name);
     }
 
+
+    public override AstNode VisitIdentifier([NotNull] CypherParser.IdentifierContext context)
+    {
+      var id = context.IDENTIFIER().GetText();
+      return new IdentifierNode(id);
+    }
+
+    
+    #region Literals
+
+    public override AstNode VisitLiteral([NotNull] CypherParser.LiteralContext context)
+    {
+      if (context.stringLiteral() != null)
+      {
+        return Visit<ExprNode>(context.stringLiteral());
+      }
+      else if (context.integerLiteral() != null)
+      {
+        return Visit<ExprNode>(context.integerLiteral());
+      }
+      else
+        throw new NotImplementedException();
+    }
+
+
+    public override AstNode VisitStringLiteral([NotNull] CypherParser.StringLiteralContext context)
+    {
+      var text = context.STRING().GetText();
+      return new StringLiteralNode(text);
+    }
+
+    
+    public override AstNode VisitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context)
+    {
+      var text = context.INTEGER().GetText();
+      if (!long.TryParse(text, out var value))
+        throw new ArgumentException($"Not an integer: '{text}'.");
+      return new IntLiteralNode(value);
+    }
+
+    #endregion /* Literals */
+
+    #endregion /* Expressions */
+
+    #endregion
+
+
+    #region Utilities
 
     public T Visit<T>(IParseTree tree) where T : AstNode
     {
@@ -129,5 +324,7 @@ namespace Cyphoid.Core
       string name = "anon_" + AnonymousVariableCounter++;
       return name;
     }
+
+    #endregion
   }
 }

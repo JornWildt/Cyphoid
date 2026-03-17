@@ -81,7 +81,7 @@ notExpression
     | primaryExpression
     ;
 
-// (operators not here yet)
+// (all operators not here yet)
 
 primaryExpression
   : literal
@@ -110,6 +110,11 @@ propertyEntry
 variable
   : identifier
   ;
+
+identifier
+  : IDENTIFIER
+  ;
+
 
 // -------------------------
 // Literals
@@ -168,10 +173,6 @@ IDENTIFIER
 
 fragment LETTER : [a-zA-Z_];
 fragment DIGIT  : [0-9];
-
-identifier
-  : IDENTIFIER
-  ;
 
 WS
   : [ \t\r\n]+ -> skip

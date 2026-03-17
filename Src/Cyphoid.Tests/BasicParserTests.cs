@@ -7,49 +7,32 @@ using Cyphoid.Core;
 
 namespace Cyphoid.Tests
 {
-  public class EvalVisitor : CypherBaseVisitor<int>
-  {
-    public override int VisitQuery([NotNull] CypherParser.QueryContext context)
-    {
-      return base.VisitQuery(context);
-    }
-
-    public override int VisitMatchClause([NotNull] CypherParser.MatchClauseContext context)
-    {
-      var x = Visit(context.pattern());
-      return base.VisitMatchClause(context);
-    }
-
-    public override int VisitReturnClause([NotNull] CypherParser.ReturnClauseContext context)
-    {
-      var x = context.returnItem();
-      return base.VisitReturnClause(context);
-    }
-
-    public override int VisitLimitClause([NotNull] CypherParser.LimitClauseContext context)
-    {
-      var x = context.integerLiteral();
-      return base.VisitLimitClause(context);
-    }
-
-
-    public override int VisitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context)
-    {
-      var s = context.INTEGER().GetText();
-      var i = int.Parse(s);
-      return i;
-    }
-  }
-
-
   [TestFixture]
   internal class BasicParserTests
   {
-    [TestCase("MATCH (s:species)\r\nRETURN s\r\nLIMIT 10")]
+    // FIXME: MATCH is optional
+    // [TestCase("RETURN 1")]
+    // [TestCase("RETURN \"Hello\"")]
+    [TestCase("MATCH (n) RETURN n")]
+    [TestCase("MATCH (s:species) RETURN s")]
+    [TestCase("MATCH (s:species) RETURN s LIMIT 10")]
+    [TestCase("MATCH (a)-[]->(b) RETURN a, b")]
+    [TestCase("MATCH (a)<-[]-(b) RETURN a, b")]
+    [TestCase("MATCH (a)-[]-(b) RETURN a, b")]
+    [TestCase("MATCH (a)-[r]->(b) RETURN r")]
+    [TestCase("MATCH ()-[:KNOWS]->() RETURN 1")]
+    // FIXME: not implemented [TestCase("MATCH (n) WHERE n.name = \"Alice\" RETURN n")]
+    [TestCase("MATCH (a), (b) RETURN a, b")]
     public void ItCanParse(string input)
     {
+      // Arrange
       ICypherParser parser = new CypherAstParser();
+
+      // Act
       var queryNode = parser.ParseQuery(input);
+      var output = queryNode.PrettyPrint();
+
+      Assert.That(output, Is.EqualTo(input));
     }
   }
 }
