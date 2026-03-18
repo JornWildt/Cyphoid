@@ -3,8 +3,15 @@ using Cyphoid.Core.Planning;
 
 namespace Cyphoid.Core.SyntaxTree
 {
-  public record QueryNode(MatchNode Match, WhereNode? Where, ReturnNode Return, LimitNode? Limit) : AstNode
+  public record QueryNode(
+    MatchNode Match, 
+    WhereNode? Where, 
+    ReturnNode Return, 
+    LimitNode? Limit,
+    Dictionary<string, VariableDefinition> VariableDefinitions) : AstNode
   {
+    public int RowSize => VariableDefinitions.Count;
+
     public LogicalPlan BuildQueryPlan()
     {
       LogicalPlan plan = Match.BuildQueryPlan();

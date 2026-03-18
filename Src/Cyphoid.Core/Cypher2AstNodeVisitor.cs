@@ -6,7 +6,7 @@ namespace Cyphoid.Core
 {
   public enum VariableKindType { Node }
 
-  public record VariableDefinition(string Name, VariableKindType Kind, int SlotIndex);
+  public record VariableDefinition(bool IsAnonymous, string Name, VariableKindType Kind, int SlotIndex);
 
 
   internal class Cypher2AstNodeVisitor : CypherBaseVisitor<AstNode>
@@ -27,7 +27,7 @@ namespace Cyphoid.Core
 
       var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
 
-      return new QueryNode(match, where, @return, limit);
+      return new QueryNode(match, where, @return, limit, VariableDefinitions);
     }
 
 
@@ -313,12 +313,10 @@ namespace Cyphoid.Core
     }
 
     
-    private VariableDefinition? ExtractVariableDefinition(VariableNode? variableNode, VariableKindType variableKind)
+    private VariableDefinition ExtractVariableDefinition(VariableNode? variableNode, VariableKindType variableKind)
     {
-      if (variableNode == null)
-        return null;
+      string variableName = variableNode?.Name ?? NewAnonymousVariable();
 
-      string variableName = variableNode?.Name ?? NewAnonymousVariable(); // FIXME: Anonymous? Useful? Unused.
       if (VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
       {
         if (variableDefinition.Kind != variableKind)
@@ -326,7 +324,7 @@ namespace Cyphoid.Core
       }
       else
       {
-        variableDefinition = new VariableDefinition(variableName, variableKind, VariableDefinitions.Count);
+        variableDefinition = new VariableDefinition(variableNode == null, variableName, variableKind, VariableDefinitions.Count);
         VariableDefinitions.Add(variableName, variableDefinition);
       }
       return variableDefinition;

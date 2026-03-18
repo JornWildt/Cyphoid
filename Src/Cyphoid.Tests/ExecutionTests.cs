@@ -22,11 +22,25 @@ namespace Cyphoid.Tests
       Graph.AddNode("Lisa", "person");
       Graph.AddNode("Mona", "person");
       Graph.AddNode("Martin", "person");
+
+      Graph.SetNodeProperty("Lisa", "Name", "Lisa Nilson");
+      Graph.SetNodeProperty("Mona", "Name", "Mona Marius");
+      Graph.SetNodeProperty("Martin", "Name", "Martin Mollerup");
+
+      Graph.AddNode("Copenhagen", "city");
+      Graph.AddNode("Oslo", "city");
+      Graph.AddNode("Stockholm", "city");
+      Graph.AddNode("Helsinki", "city");
+
+      Graph.SetNodeProperty("Copenhagen", "Name", "Martin Mollerup");
     }
 
 
-    [TestCase("MATCH (n) RETURN n")]
-    public async Task ItCanExecuteQuery(string input)
+    [TestCase("MATCH (n) RETURN n", 7)]
+    [TestCase("MATCH (n:person) RETURN n", 3)]
+    [TestCase("MATCH (n:city) RETURN n", 4)]
+    [TestCase("MATCH (n:nothing) RETURN n", 0)]
+    public async Task ItCanExecuteQuery(string input, int rowCount)
     {
       // Arrange
       ICypherParser parser = new CypherAstParser();
@@ -36,12 +50,12 @@ namespace Cyphoid.Tests
       var queryNode = parser.ParseQuery(input);
       var plan = queryNode.BuildQueryPlan();
       var execution = plan.BuildExecutionPlan(factory);
-      var context = new QueryContext();
+      var context = new QueryContext(queryNode.RowSize);
 
       var result = execution.ExecuteAsync(context).ToBlockingEnumerable().ToList();
 
       // Assert
-      Assert.That(result.Count, Is.EqualTo(3));
+      Assert.That(result.Count, Is.EqualTo(rowCount));
     }
   }
 }

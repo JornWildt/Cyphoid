@@ -1,6 +1,4 @@
 ﻿namespace Cyphoid.Core.Execution
 {
-  public class QueryContext
-  {
-  }
+  public record QueryContext(int RowSize);
 }

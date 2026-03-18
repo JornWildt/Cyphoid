@@ -6,8 +6,8 @@ namespace Cyphoid.Core.Planning
 {
   public record ExpandPlan(
     LogicalPlan Input,
-    NodeVariable Source,
-    NodeVariable Destination,
+    VariableDefinition Source,
+    VariableDefinition Destination,
     RelationshipPatternNode Relationship) : LogicalPlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
