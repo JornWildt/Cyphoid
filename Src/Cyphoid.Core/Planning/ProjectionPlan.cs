@@ -14,7 +14,10 @@ namespace Cyphoid.Core.Planning
       var projections = new List<ProjectionEvaluator>();
       foreach (var p in Projections)
       {
-        var name = p.Identifier?.Name ?? $"p{num++}";
+        var name = p.Identifier?.Name ??
+          ((p.Expr is VariableExprNode v) ? v.Variable.Name 
+          : (p.Expr is PropertyAccessNode pa) ? pa.Properties[pa.Properties.Count-1]
+          : $"p{num++}");
         var evaluator = p.Expr.BuildEvaluator();
         projections.Add(new ProjectionEvaluator(evaluator, name));
       }

@@ -77,6 +77,12 @@ namespace Cyphoid.Tests
       "RETURN 1", 
       "[{\"p1\":1}]")]
     [TestCase(
+      "MATCH (n:city) RETURN n.size LIMIT 1",
+      "[{\"size\":null}]")]
+    [TestCase(
+      "MATCH (n:city) RETURN n LIMIT 1",
+      "[{\"n\":\"-NODE-\"}]")]
+    [TestCase(
       "MATCH (n:city) RETURN 1 LIMIT 1",
       "[{\"p1\":1}]")]
     [TestCase(
