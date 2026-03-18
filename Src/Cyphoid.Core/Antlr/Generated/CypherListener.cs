@@ -231,6 +231,26 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitNotExpression([NotNull] CypherParser.NotExpressionContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.comparisonExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterComparisonExpression([NotNull] CypherParser.ComparisonExpressionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.comparisonExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitComparisonExpression([NotNull] CypherParser.ComparisonExpressionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.comparisonOperator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.comparisonOperator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.primaryExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

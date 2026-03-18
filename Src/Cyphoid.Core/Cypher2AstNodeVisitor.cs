@@ -222,8 +222,35 @@ namespace Cyphoid.Core
       }
       else
       {
-        return Visit<ExprNode>(context.primaryExpression());
+        return Visit<ExprNode>(context.comparisonExpression());
       }
+    }
+
+
+    public override AstNode VisitComparisonExpression([NotNull] CypherParser.ComparisonExpressionContext context)
+    {
+      var left = Visit<ExprNode>(context.primaryExpression(0));
+      if (context.primaryExpression(1) == null)
+        return left;
+
+      var operatorText = context.comparisonOperator().GetText().ToUpper();
+      var op = operatorText switch
+      {
+        "=" => BinaryOperatorType.EQ,
+        "<>" => BinaryOperatorType.NEQ,
+        "<=" => BinaryOperatorType.LTE,
+        ">=" => BinaryOperatorType.GTE,
+        "<" => BinaryOperatorType.LT,
+        ">" => BinaryOperatorType.GT,
+        "CONTAINS" => BinaryOperatorType.CONTAINS,
+        "STARTS WITH" => BinaryOperatorType.STARTS_WITH,
+        "ENDS WITH" => BinaryOperatorType.ENDS_WITH,
+        _ => throw new NotImplementedException()
+      };
+
+      var right = Visit<ExprNode>(context.primaryExpression(1));
+
+      return new BinaryOperatorNode(left, right, op);
     }
 
 

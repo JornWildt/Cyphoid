@@ -24,6 +24,10 @@ namespace Cyphoid.Core.Execution
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter);
 
+    IOperator BuildFilter(
+      IOperator input, 
+      Func<Row, MixedValue> evaluator);
+
     IOperator BuildLimit(
       IOperator input,
       int limit);

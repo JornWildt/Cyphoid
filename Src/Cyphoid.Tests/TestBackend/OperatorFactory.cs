@@ -1,5 +1,6 @@
 ﻿using Cyphoid.Core;
 using Cyphoid.Core.Execution;
+using Cyphoid.Core.Expressions;
 using Cyphoid.Tests.TestBackend.Operators;
 
 namespace Cyphoid.Tests.TestBackend
@@ -45,6 +46,13 @@ namespace Cyphoid.Tests.TestBackend
         destinationLabel,
         destinationPropertyFilter);
     }
+
+
+    IOperator IOperatorFactory.BuildFilter(IOperator input, Func<Row, MixedValue> evaluator)
+    {
+      return new FilterOperator(Graph, input, evaluator);
+    }
+
 
 
     IOperator IOperatorFactory.BuildLimit(IOperator input, int limit)

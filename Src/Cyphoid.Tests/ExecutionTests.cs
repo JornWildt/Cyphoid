@@ -1,8 +1,9 @@
-﻿using Cyphoid.Core;
+﻿using System.Linq;
+using Cyphoid.Core;
 using Cyphoid.Core.Execution;
+using Cyphoid.Core.SyntaxTree;
 using Cyphoid.Tests.TestBackend;
 using Newtonsoft.Json;
-using System.Linq;
 
 namespace Cyphoid.Tests
 {
@@ -77,7 +78,8 @@ namespace Cyphoid.Tests
       var result = await ExecuteQuery(input);
 
       // Assert
-      Assert.That(result.Count, Is.EqualTo(rowCount));
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+      Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
     }
 
 
@@ -97,26 +99,47 @@ namespace Cyphoid.Tests
     {
       // Act
       var result = await ExecuteQuery(input);
-      var resultJson = JsonConvert.SerializeObject(result);
+      var resultJson = JsonConvert.SerializeObject(result.Rows);
 
       // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
       Assert.That(resultJson, Is.EqualTo(expectedOutputJson));
     }
 
 
-    protected async Task<List<Dictionary<string, object?>>> ExecuteQuery(string input)
+    [TestCase("MATCH (n) WHERE n.isDanish RETURN n", 1)]
+    [TestCase("MATCH (n) WHERE NOT n.isDanish RETURN n", 11)]
+    [TestCase("MATCH (n) WHERE n.name = 'Oslo' RETURN n", 1)]
+    [TestCase("MATCH (n) WHERE n.name <> 'Oslo' RETURN n", 11)]
+    [TestCase("MATCH (n) WHERE n.name = 'Oslo' OR n.name = 'København' RETURN n", 2)]
+    [TestCase("MATCH (n) WHERE n.name = 'Oslo' AND n.name = 'København' RETURN n", 0)]
+    public async Task ItCanApplyWhere(string input, int rowCount)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+      Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
+    }
+
+
+
+    protected async Task<(string Print, List<Dictionary<string, object?>> Rows)> ExecuteQuery(string input)
     {
       ICypherParser parser = new CypherAstParser();
       IOperatorFactory factory = new OperatorFactory(Graph);
 
       var queryNode = parser.ParseQuery(input);
+      var prettyPrint = queryNode.PrettyPrint();
+
       var plan = queryNode.BuildQueryPlan();
       var execution = plan.BuildExecutionPlan(factory);
       var context = new QueryContext(queryNode.RowSize);
 
       var result = await execution.ExecuteAsync(context).ToListAsync();
 
-      return result;
+      return (prettyPrint, result);
     }
   }
 }

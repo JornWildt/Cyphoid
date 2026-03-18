@@ -25,7 +25,7 @@ namespace Cyphoid.Core.SyntaxTree
 
     public override void PrettyPrint(StringBuilder sb)
     {
-      sb.Append(Value);
+      sb.Append(Value.ToString().ToLower());
     }
   }
 

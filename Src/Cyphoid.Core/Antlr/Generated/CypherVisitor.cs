@@ -152,6 +152,18 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitNotExpression([NotNull] CypherParser.NotExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.comparisonExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitComparisonExpression([NotNull] CypherParser.ComparisonExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.comparisonOperator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.primaryExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

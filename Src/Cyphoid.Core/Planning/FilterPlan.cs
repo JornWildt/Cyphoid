@@ -5,12 +5,15 @@ using Cyphoid.Core.SyntaxTree;
 namespace Cyphoid.Core.Planning
 {
   public record FilterPlan(
-    LogicalPlan Input,
+    PipelinePlan Input,
     ExprNode Predicate) : PipelinePlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {
-      throw new NotImplementedException();
+      var evaluator = Predicate.BuildEvaluator();
+      return factory.BuildFilter(
+        Input.BuildExecutionPlan(factory), 
+        evaluator);
     }
 
     public override void PrettyPrint(StringBuilder sb)

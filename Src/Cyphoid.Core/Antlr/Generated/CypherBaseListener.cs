@@ -276,6 +276,30 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitNotExpression([NotNull] CypherParser.NotExpressionContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.comparisonExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterComparisonExpression([NotNull] CypherParser.ComparisonExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.comparisonExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitComparisonExpression([NotNull] CypherParser.ComparisonExpressionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.comparisonOperator"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.comparisonOperator"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.primaryExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

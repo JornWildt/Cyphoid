@@ -86,7 +86,24 @@ andExpression
 
 notExpression
     : NOT notExpression
+    | comparisonExpression
+    ;
+
+comparisonExpression
+    : primaryExpression comparisonOperator primaryExpression
     | primaryExpression
+    ;
+
+comparisonOperator
+    : EQ
+    | NEQ
+    | LT
+    | LTE
+    | GT
+    | GTE
+    | CONTAINS
+    | STARTS WITH
+    | ENDS WITH
     ;
 
 // (all operators not here yet)
@@ -151,6 +168,10 @@ AS         : [Aa][Ss];
 AND        : [Aa][Nn][Dd];
 OR         : [Oo][Rr];
 NOT        : [Nn][Oo][Tt];
+CONTAINS   : [Cc][Oo][Nn][Tt][Aa][Ii][Nn][Ss];
+STARTS     : [Ss][Tt][Aa][Rr][Tt][Ss];
+ENDS       : [Ee][Nn][Dd][Ss];
+WITH       : [Ww][Ii][Tt][Hh];
 TRUE       : [Tt][Rr][Uu][Ee];
 FALSE      : [Ff][Aa][Ll][Ss][Ee];
 
@@ -167,6 +188,13 @@ RBRACE     : '}';
 COMMA      : ',';
 COLON      : ':';
 DOT        : '.';
+
+EQ         : '=';
+NEQ        : '<>';
+LTE        : '<=';
+GTE        : '>=';
+LT         : '<';
+GT         : '>';
 
 INTEGER    : DIGIT+;
 

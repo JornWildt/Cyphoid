@@ -58,13 +58,16 @@ namespace Cyphoid.Core.Expressions
       : throw new NotImplementedException();
 
     public bool AsBool() =>
-        _kind == Kind.Bool ? _bool : throw new InvalidOperationException("Value is not a bool.");
+        _kind == Kind.Bool ? _bool : throw new InvalidOperationException($"Value is not a bool. Got {_kind} {ToString()}.");
+
+    public bool IsAnythingButTrue() =>
+        _kind == Kind.Bool ? !_bool : true;
 
     public long AsInt() =>
-        _kind == Kind.Int ? _int : throw new InvalidOperationException("Value is not an int.");
+        _kind == Kind.Int ? _int : throw new InvalidOperationException($"Value is not an int Got {_kind} {ToString()}.");
 
     public string AsString() =>
-        _kind == Kind.String ? _string! : throw new InvalidOperationException("Value is not a string.");
+        _kind == Kind.String ? _string! : throw new InvalidOperationException($"Value is not a string. Got {_kind} {ToString()}.");
 
     public object AsObject() => Match<object>(
       b => b,

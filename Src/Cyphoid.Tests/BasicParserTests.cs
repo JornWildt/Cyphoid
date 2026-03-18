@@ -5,7 +5,6 @@ namespace Cyphoid.Tests
   [TestFixture]
   internal class BasicParserTests
   {
-    // FIXME: MATCH is optional
     [TestCase("RETURN 1")]
     [TestCase("RETURN \"Hello\"")]
     // RETURN {name: "Alice"}
@@ -17,7 +16,7 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (a)-[]-(b) RETURN a, b")]
     [TestCase("MATCH (a)-[r]->(b) RETURN r")]
     [TestCase("MATCH ()-[:KNOWS]->() RETURN 1")]
-    // FIXME: not implemented [TestCase("MATCH (n) WHERE n.name = \"Alice\" RETURN n")]
+    [TestCase("MATCH (n) WHERE n.name = \"Alice\" RETURN n")]
     [TestCase("MATCH (a), (b) RETURN a, b")]
     [TestCase("MATCH (n {name: \"Alice\"}) RETURN n")]
     [TestCase("MATCH (n:Person {name: \"Alice\"}) RETURN n")]
