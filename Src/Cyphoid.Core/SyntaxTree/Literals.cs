@@ -1,16 +1,24 @@
 ﻿using System.Text;
+using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.SyntaxTree
 {
   public abstract record LiteralValueNode : ExprNode
   {
-    public abstract MixedValue ToMixedValue();
+    public abstract MixedValue ToConstantValue();
   }
+
 
   public record BoolLiteralNode(bool Value) : LiteralValueNode
   {
-    public override MixedValue ToMixedValue()
+    public override Func<Row, MixedValue> BuildEvaluator()
+    {
+      return (Row r) => ToConstantValue();
+    }
+    
+    
+    public override MixedValue ToConstantValue()
     {
       return MixedValue.Bool(Value);
     }
@@ -24,7 +32,13 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record IntLiteralNode(long Value) : LiteralValueNode
   {
-    public override MixedValue ToMixedValue()
+    public override Func<Row, MixedValue> BuildEvaluator()
+    {
+      return (Row r) => ToConstantValue();
+    }
+
+
+    public override MixedValue ToConstantValue()
     {
       return MixedValue.Int(Value);
     }
@@ -38,7 +52,13 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record StringLiteralNode(string Value) : LiteralValueNode
   {
-    public override MixedValue ToMixedValue()
+    public override Func<Row, MixedValue> BuildEvaluator()
+    {
+      return (Row r) => ToConstantValue();
+    }
+
+
+    public override MixedValue ToConstantValue()
     {
       return MixedValue.String(Value);
     }

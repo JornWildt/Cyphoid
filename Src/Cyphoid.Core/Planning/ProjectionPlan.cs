@@ -6,11 +6,22 @@ namespace Cyphoid.Core.Planning
 {
   public record ProjectionPlan(
     PipelinePlan Input,
-    IReadOnlyList<ReturnItemNode> Items) : LogicalPlan
+    IReadOnlyList<ReturnItemNode> Projections) : LogicalPlan
   {
     public IProjectionOperator BuildExecutionPlan(IOperatorFactory factory)
     {
-      return factory.BuildProjection(Input.BuildExecutionPlan(factory));
+      int num = 1;
+      var projections = new List<ProjectionEvaluator>();
+      foreach (var p in Projections)
+      {
+        var name = p.Identifier?.Name ?? $"p{num++}";
+        var evaluator = p.Expr.BuildEvaluator();
+        projections.Add(new ProjectionEvaluator(evaluator, name));
+      }
+      
+      return factory.BuildProjection(
+        Input.BuildExecutionPlan(factory), 
+        projections);
     }
 
     
@@ -18,7 +29,7 @@ namespace Cyphoid.Core.Planning
     {
       sb.Append("Project: ");
       bool first = true;
-      foreach (var i in Items)
+      foreach (var i in Projections)
       {
         if (!first)
           sb.Append(", ");

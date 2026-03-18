@@ -6,8 +6,8 @@ namespace Cyphoid.Tests
   internal class BasicParserTests
   {
     // FIXME: MATCH is optional
-    // [TestCase("RETURN 1")]
-    // [TestCase("RETURN \"Hello\"")]
+    [TestCase("RETURN 1")]
+    [TestCase("RETURN \"Hello\"")]
     // RETURN {name: "Alice"}
     [TestCase("MATCH (n) RETURN n")]
     [TestCase("MATCH (s:species) RETURN s")]

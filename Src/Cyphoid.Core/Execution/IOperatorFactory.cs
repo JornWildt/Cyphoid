@@ -10,18 +10,26 @@ namespace Cyphoid.Core.Execution
 
   public interface IOperatorFactory
   {
+    IOperator BuildEmptyResult();
+
     IOperator BuildNodeScan(
       VariableDefinition variable,
       string? label,
       PropertyFilter? propertyFilter);
 
     IOperator BuildExpand(
-      IOperator source,
+      IOperator input,
       VariableDefinition sourceVariable,
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter);
 
-    IProjectionOperator BuildProjection(IOperator input);
+    IOperator BuildLimit(
+      IOperator input,
+      int limit);
+
+    IProjectionOperator BuildProjection(
+      IOperator input,
+      IReadOnlyList<ProjectionEvaluator> projections);
   }
 }

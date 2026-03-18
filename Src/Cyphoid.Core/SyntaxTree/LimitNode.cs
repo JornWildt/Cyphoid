@@ -3,7 +3,7 @@ using Cyphoid.Core.Planning;
 
 namespace Cyphoid.Core.SyntaxTree
 {
-  public record LimitNode(long Limit) : AstNode
+  public record LimitNode(int Limit) : AstNode
   {
     public PipelinePlan BuildQueryPlan(PipelinePlan input)
     {

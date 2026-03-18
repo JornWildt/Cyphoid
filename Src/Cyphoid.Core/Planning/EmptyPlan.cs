@@ -3,19 +3,17 @@ using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.Planning
 {
-  public record LimitPlan(
-    PipelinePlan Input,
-    int Limit) : PipelinePlan
+  public record EmptyPlan() : PipelinePlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {
-      return factory.BuildLimit(Input.BuildExecutionPlan(factory), Limit);
+      return factory.BuildEmptyResult();
     }
+
 
     public override void PrettyPrint(StringBuilder sb)
     {
-      sb.AppendLine("Limit");
-      Input.PrettyPrint(sb);
+      sb.AppendLine("Empty dataset");
     }
   }
 }

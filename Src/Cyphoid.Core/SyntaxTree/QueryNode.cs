@@ -4,7 +4,7 @@ using Cyphoid.Core.Planning;
 namespace Cyphoid.Core.SyntaxTree
 {
   public record QueryNode(
-    MatchNode Match, 
+    MatchNode? Match, 
     WhereNode? Where, 
     ReturnNode Return, 
     LimitNode? Limit,
@@ -15,7 +15,7 @@ namespace Cyphoid.Core.SyntaxTree
 
     public ProjectionPlan BuildQueryPlan()
     {
-      PipelinePlan plan = Match.BuildQueryPlan();
+      PipelinePlan plan = Match != null ? Match.BuildQueryPlan() : new EmptyPlan();
 
       if (Where != null)
       {
@@ -33,14 +33,20 @@ namespace Cyphoid.Core.SyntaxTree
 
     public override void PrettyPrint(StringBuilder sb)
     {
-      Match.PrettyPrint(sb);
+      Match?.PrettyPrint(sb);
+      
       if (Where != null)
       {
-        sb.Append(" ");
+        if (Match != null)
+          sb.Append(" ");
         Where.PrettyPrint(sb);
       }
-      sb.Append(" ");
+
+      if (Match != null || Where != null)
+        sb.Append(" ");
+
       Return.PrettyPrint(sb);
+      
       if (Limit != null)
       {
         sb.Append(" ");

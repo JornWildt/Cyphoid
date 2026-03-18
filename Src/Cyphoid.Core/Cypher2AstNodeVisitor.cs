@@ -19,7 +19,7 @@ namespace Cyphoid.Core
 
     public override AstNode VisitQuery([NotNull] global::CypherParser.QueryContext context)
     {
-      var match = Visit<MatchNode>(context.matchClause());
+      var match = context.matchClause() != null ? Visit<MatchNode>(context.matchClause()) : null;
 
       var where = context.whereClause() != null ? Visit<WhereNode>(context.whereClause()) : null;
 
@@ -59,7 +59,7 @@ namespace Cyphoid.Core
     public override AstNode VisitLimitClause([NotNull] global::CypherParser.LimitClauseContext context)
     {
       var value = (IntLiteralNode)Visit(context.integerLiteral());
-      return new LimitNode(value.Value);
+      return new LimitNode((int)value.Value);
     }
 
 
@@ -112,7 +112,7 @@ namespace Cyphoid.Core
       var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
       var label = context.nodeLabel() != null ? Visit<LabelNode>(context.nodeLabel()) : null;
       var propertyMap = context.propertyMap() != null ? Visit<PropertyMapNode>(context.propertyMap()) : null;
-      var variableDef = ExtractVariableDefinition(variable, VariableKindType.Node);
+      var variableDef = NewVariableDefinition(variable, VariableKindType.Node);
       return new NodePatternNode(variableDef, label?.Label, propertyMap);
     }
 
@@ -134,7 +134,7 @@ namespace Cyphoid.Core
       var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
       var relationshipType = context.relationshipTypes() != null ? Visit<IdentifierNode>(context.relationshipTypes()) : null;
       var propertyMap = context.propertyMap() != null ? Visit<PropertyMapNode>(context.propertyMap()) : null;
-      var variableDef = ExtractVariableDefinition(variable, VariableKindType.Node);
+      var variableDef = NewVariableDefinition(variable, VariableKindType.Node);
       return new RelationshipDetailNode(variableDef, relationshipType?.Name, propertyMap);
     }
 
@@ -235,19 +235,36 @@ namespace Cyphoid.Core
       }
       else if (context.variable() != null)
       {
-        // FIXME: Should not be variable
         var v = Visit<VariableNode>(context.variable());
-        return new IdentifierNode(v.Name);
+        var vd = FindVariableDefinition(v, VariableKindType.Node);
+        return new VariableExprNode(vd);
       }
       else if (context.expression() != null)
       {
         return Visit<ExprNode>(context.expression());
+      }
+      else if (context.propertyAccess() != null)
+      {
+        return Visit<PropertyAccessNode>(context.propertyAccess());
       }
       else
         throw new NotImplementedException();
     }
 
 
+    public override AstNode VisitPropertyAccess([NotNull] CypherParser.PropertyAccessContext context)
+    {
+      var variable = Visit<VariableNode>(context.variable());
+      var properties = new List<string>();
+      foreach (var p in context.identifier())
+      {
+        var property = Visit<IdentifierNode>(p);
+        properties.Add(property.Name);
+      }
+      return new PropertyAccessNode(FindVariableDefinition(variable, VariableKindType.Node), properties);
+    }
+
+    
     public override AstNode VisitVariable([NotNull] CypherParser.VariableContext context)
     {
       var name = context.identifier().GetText();
@@ -322,7 +339,25 @@ namespace Cyphoid.Core
     }
 
     
-    private VariableDefinition ExtractVariableDefinition(VariableNode? variableNode, VariableKindType variableKind)
+    private VariableDefinition NewVariableDefinition(VariableNode? variableNode, VariableKindType variableKind)
+    {
+      string variableName = variableNode?.Name ?? NewAnonymousVariable();
+
+      if (VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
+      {
+        throw new InvalidOperationException($"Variable '{variableName}' already defined.");
+      }
+      else
+      {
+        variableDefinition = new VariableDefinition(variableNode == null, variableName, variableKind, VariableDefinitions.Count);
+        VariableDefinitions.Add(variableName, variableDefinition);
+      }
+      return variableDefinition;
+    }
+
+
+
+    private VariableDefinition FindVariableDefinition(VariableNode? variableNode, VariableKindType variableKind)
     {
       string variableName = variableNode?.Name ?? NewAnonymousVariable();
 
@@ -333,12 +368,10 @@ namespace Cyphoid.Core
       }
       else
       {
-        variableDefinition = new VariableDefinition(variableNode == null, variableName, variableKind, VariableDefinitions.Count);
-        VariableDefinitions.Add(variableName, variableDefinition);
+        throw new InvalidOperationException($"Undefined variable '{variableName}'.");
       }
       return variableDefinition;
     }
-
 
     private string NewAnonymousVariable()
     {

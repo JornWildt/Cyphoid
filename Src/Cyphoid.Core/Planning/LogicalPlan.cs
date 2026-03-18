@@ -20,7 +20,7 @@ namespace Cyphoid.Core.Planning
     {
       var conditions = propertyMap?
         .Properties?
-        .Select(p => new PropertyFilterCondition(p.Identifier, p.Value.ToMixedValue()))
+        .Select(p => new PropertyFilterCondition(p.Identifier, p.Value.ToConstantValue()))
         .ToList()
         .AsReadOnly();
 

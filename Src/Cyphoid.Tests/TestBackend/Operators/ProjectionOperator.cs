@@ -5,14 +5,17 @@ namespace Cyphoid.Tests.TestBackend.Operators
   internal class ProjectionOperator : OperatorBase, IProjectionOperator
   {
     IOperator Input;
-    
-    
+    IReadOnlyList<ProjectionEvaluator> Projections;
+
+
     public ProjectionOperator(
       InMemoryGraph graph, 
-      IOperator input)
+      IOperator input,
+      IReadOnlyList<ProjectionEvaluator> projections)
       : base(graph)
     {
       Input = input;
+      Projections = projections;
     }
 
     
@@ -20,7 +23,14 @@ namespace Cyphoid.Tests.TestBackend.Operators
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
-        yield return new Dictionary<string, object?>();
+        var output = new Dictionary<string, object?>();
+        foreach (var p in Projections)
+        {
+          var value = p.ExpressionEvaluator(row);
+          var name = p.OutputName;
+          output[name] = value.AsObject(); 
+        }
+        yield return output;
       }
     }
   }

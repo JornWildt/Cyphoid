@@ -14,10 +14,10 @@ namespace Cyphoid.Tests.TestBackend
       Graph = graph;
     }
 
-
-    IProjectionOperator IOperatorFactory.BuildProjection(IOperator input)
+    
+    IOperator IOperatorFactory.BuildEmptyResult()
     {
-      return new ProjectionOperator(Graph, input);
+      return new EmptyResultOperator();
     }
 
 
@@ -44,6 +44,20 @@ namespace Cyphoid.Tests.TestBackend
         destinationVariable,
         destinationLabel,
         destinationPropertyFilter);
+    }
+
+
+    IOperator IOperatorFactory.BuildLimit(IOperator input, int limit)
+    {
+      return new LimitOperator(Graph, input, limit);
+    }
+
+
+    IProjectionOperator IOperatorFactory.BuildProjection(
+      IOperator input,
+      IReadOnlyList<ProjectionEvaluator> projections)
+    {
+      return new ProjectionOperator(Graph, input, projections);
     }
   }
 }

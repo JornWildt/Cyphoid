@@ -1,6 +1,7 @@
 ﻿using Cyphoid.Core;
 using Cyphoid.Core.Execution;
 using Cyphoid.Tests.TestBackend;
+using Newtonsoft.Json;
 using System.Linq;
 
 namespace Cyphoid.Tests
@@ -41,6 +42,7 @@ namespace Cyphoid.Tests
 
       Graph.SetNodeProperty("Copenhagen", "name", "København");
       Graph.SetNodeProperty("Copenhagen", "isDanish", true);
+      Graph.SetNodeProperty("Copenhagen", "population", 1000000);
       Graph.AddEdge("Copenhagen", "Denmark", "located_in");
 
       Graph.SetNodeProperty("Oslo", "name", "Oslo");
@@ -53,6 +55,7 @@ namespace Cyphoid.Tests
     }
 
 
+    [TestCase("RETURN 1", 1)]
     [TestCase("MATCH (n) RETURN n", 12)]
     [TestCase("MATCH (n:person) RETURN n", 3)]
     [TestCase("MATCH (n:city) RETURN n", 4)]
@@ -79,11 +82,25 @@ namespace Cyphoid.Tests
 
 
     [TestCase(
-      "MATCH (n:city {name: \"København\"}) RETURN n.isDanish AS erDansk, n.located_in AS sted", 
-      "[{erDansk:true,sted:\"Denmark\" ]")]
+      "RETURN 1", 
+      "[{\"p1\":1}]")]
+    [TestCase(
+      "MATCH (n:city) RETURN 1 LIMIT 1",
+      "[{\"p1\":1}]")]
+    [TestCase(
+      "MATCH (n:city) RETURN 1 LIMIT 2",
+      "[{\"p1\":1},{\"p1\":1}]")]
+    [TestCase(
+      "MATCH (n:city {name: \"København\"}) RETURN n.isDanish AS erDansk, n.population AS indbyggere",
+      "[{\"erDansk\":true,\"indbyggere\":1000000}]")]
     public async Task ItCanProjectResult(string input, string expectedOutputJson)
     {
+      // Act
+      var result = await ExecuteQuery(input);
+      var resultJson = JsonConvert.SerializeObject(result);
 
+      // Assert
+      Assert.That(resultJson, Is.EqualTo(expectedOutputJson));
     }
 
 

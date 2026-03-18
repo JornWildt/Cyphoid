@@ -1,7 +1,7 @@
 grammar Cypher;
 
 query
-  : matchClause whereClause? returnClause limitClause? EOF
+  : matchClause? whereClause? returnClause limitClause? EOF
   ;
 
 matchClause

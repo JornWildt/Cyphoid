@@ -1,4 +1,6 @@
-﻿namespace Cyphoid.Core.Expressions
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Cyphoid.Core.Expressions
 {
   public readonly struct MixedValue : IEquatable<MixedValue>
   {
@@ -47,14 +49,27 @@
     
     public static MixedValue String(string value) => new(value);
 
-    public bool AsBool =>
+    public static MixedValue FromObject(object? value) =>
+      value is bool b ? Bool(b)
+      : value is int i ? Int(i)
+      : value is long l ? Int(l)
+      : value is string s ? String(s)
+      : value == null ? throw new ArgumentNullException()
+      : throw new NotImplementedException();
+
+    public bool AsBool() =>
         _kind == Kind.Bool ? _bool : throw new InvalidOperationException("Value is not a bool.");
 
-    public long AsInt =>
+    public long AsInt() =>
         _kind == Kind.Int ? _int : throw new InvalidOperationException("Value is not an int.");
 
-    public string AsString =>
+    public string AsString() =>
         _kind == Kind.String ? _string! : throw new InvalidOperationException("Value is not a string.");
+
+    public object AsObject() => Match<object>(
+      b => b,
+      i => i,
+      s => s);
 
     public bool TryGetBool(out bool value)
     {
