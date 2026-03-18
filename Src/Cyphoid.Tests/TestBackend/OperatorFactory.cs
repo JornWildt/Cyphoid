@@ -34,6 +34,8 @@ namespace Cyphoid.Tests.TestBackend
     IOperator IOperatorFactory.BuildExpand(
       IOperator input,
       VariableDefinition sourceVariable,
+      ExpandDirectionType direction,
+      string? relationLabel,
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter)
@@ -42,6 +44,8 @@ namespace Cyphoid.Tests.TestBackend
         Graph,
         input,
         sourceVariable,
+        direction,
+        relationLabel,
         destinationVariable,
         destinationLabel,
         destinationPropertyFilter);

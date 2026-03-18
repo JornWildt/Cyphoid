@@ -89,13 +89,13 @@ namespace Cyphoid.Core.SyntaxTree
     }
   }
 
-  public enum RelationshipDirectionType { Right, Left, None }
+  public enum RelationshipDirectionType { Right, Left, Both }
 
   public record RelationshipPatternNode(RelationshipDetailNode? RelationshipDetail, RelationshipDirectionType RelationshipDirection) : AstNode
   {
     public override void PrettyPrint(StringBuilder sb)
     {
-      if (RelationshipDirection == RelationshipDirectionType.Right || RelationshipDirection == RelationshipDirectionType.None)
+      if (RelationshipDirection == RelationshipDirectionType.Right || RelationshipDirection == RelationshipDirectionType.Both)
         sb.Append("-[");
       else if (RelationshipDirection == RelationshipDirectionType.Left)
         sb.Append("<-[");
@@ -103,7 +103,7 @@ namespace Cyphoid.Core.SyntaxTree
       if (RelationshipDetail != null)
         RelationshipDetail.PrettyPrint(sb);
 
-      if (RelationshipDirection == RelationshipDirectionType.Left || RelationshipDirection == RelationshipDirectionType.None)
+      if (RelationshipDirection == RelationshipDirectionType.Left || RelationshipDirection == RelationshipDirectionType.Both)
         sb.Append("]-");
       else if (RelationshipDirection == RelationshipDirectionType.Right)
         sb.Append("]->");

@@ -16,9 +16,20 @@ namespace Cyphoid.Core.Planning
     {
       // FIXME: No need to calculate this all the time
       var destinationFilter = BuildPropertyFilter(DestinationPropertyMap);
+
+      var direction = Relationship.RelationshipDirection switch
+      {
+        RelationshipDirectionType.Right => ExpandDirectionType.Outgoing,
+        RelationshipDirectionType.Left => ExpandDirectionType.Incoming,
+        RelationshipDirectionType.Both => throw new NotImplementedException("Both directions not supported."),
+        _ => throw new NotImplementedException()
+      };
+
       return factory.BuildExpand(
         Input.BuildExecutionPlan(factory),
         Source,
+        direction,
+        Relationship.RelationshipDetail?.RelationshipType,
         Destination,
         DestinationLabel,
         destinationFilter);

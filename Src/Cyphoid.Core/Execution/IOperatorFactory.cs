@@ -3,10 +3,11 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Execution
 {
-
   public record PropertyFilter(IReadOnlyList<PropertyFilterCondition> Conditions);
 
   public record PropertyFilterCondition(string PropertyName, MixedValue Value);
+
+  public enum ExpandDirectionType { Outgoing, Incoming }
 
   public interface IOperatorFactory
   {
@@ -20,6 +21,8 @@ namespace Cyphoid.Core.Execution
     IOperator BuildExpand(
       IOperator input,
       VariableDefinition sourceVariable,
+      ExpandDirectionType direction,
+      string? relationLabel,
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter);

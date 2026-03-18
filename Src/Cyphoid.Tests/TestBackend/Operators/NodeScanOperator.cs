@@ -34,6 +34,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
         {
           var row = new Row(context.RowSize);
           row.Nodes[Variable.SlotIndex] = new GraphNode(
+            node.Value.Id,
             node.Value.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
             node.Value.Properties.ToDictionary(a => a.Key, a => a.Value));
 

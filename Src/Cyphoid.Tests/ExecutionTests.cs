@@ -8,17 +8,8 @@ using Newtonsoft.Json;
 namespace Cyphoid.Tests
 {
   [TestFixture]
-  internal class ExecutionTests
+  internal class ExecutionTests : TestHelper
   {
-    InMemoryGraph Graph;
-
-
-    public ExecutionTests()
-    {
-      Graph = new InMemoryGraph();
-    }
-
-
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
@@ -51,7 +42,6 @@ namespace Cyphoid.Tests
       Graph.AddEdge("Oslo", "Norway", "located_in");
 
       Graph.SetNodeProperty("Denmark", "name", "Denmark");
-
       Graph.SetNodeProperty("Norway", "name", "Norway");
     }
 
@@ -72,7 +62,7 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n:city)-[]->(c:country {name: \"None\"}) RETURN n", 0)]
     [TestCase("MATCH (n:city)-[]->(c:nothing) RETURN n", 0)]
     [TestCase("MATCH (n:nothing)-[]->(c:country) RETURN n", 0)]
-    public async Task ItCanExecuteQuery(string input, int rowCount)
+    public async Task ItCanExecuteBasicQuery(string input, int rowCount)
     {
       // Act
       var result = await ExecuteQuery(input);
@@ -124,25 +114,6 @@ namespace Cyphoid.Tests
       // Assert
       Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
       Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
-    }
-
-
-
-    protected async Task<(string Print, List<Dictionary<string, object?>> Rows)> ExecuteQuery(string input)
-    {
-      ICypherParser parser = new CypherAstParser();
-      IOperatorFactory factory = new OperatorFactory(Graph);
-
-      var queryNode = parser.ParseQuery(input);
-      var prettyPrint = queryNode.PrettyPrint();
-
-      var plan = queryNode.BuildQueryPlan();
-      var execution = plan.BuildExecutionPlan(factory);
-      var context = new QueryContext(queryNode.RowSize);
-
-      var result = await execution.ExecuteAsync(context).ToListAsync();
-
-      return (prettyPrint, result);
     }
   }
 }

@@ -124,7 +124,7 @@ namespace Cyphoid.Core
         ? RelationshipDirectionType.Right
         : context.ARROW_LEFT() != null
           ? RelationshipDirectionType.Left
-          : RelationshipDirectionType.None;
+          : RelationshipDirectionType.Both;
       return new RelationshipPatternNode(detail, direction);
     }
 
