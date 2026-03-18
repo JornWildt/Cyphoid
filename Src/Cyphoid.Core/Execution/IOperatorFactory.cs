@@ -10,8 +10,6 @@ namespace Cyphoid.Core.Execution
 
   public interface IOperatorFactory
   {
-    IOperator BuildProjection(IOperator input);
-    
     IOperator BuildNodeScan(
       VariableDefinition variable,
       string? label,
@@ -24,5 +22,6 @@ namespace Cyphoid.Core.Execution
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter);
 
+    IOperator BuildProjection(IOperator input);
   }
 }
