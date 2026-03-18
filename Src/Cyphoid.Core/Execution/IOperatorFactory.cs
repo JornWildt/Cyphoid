@@ -1,7 +1,13 @@
-﻿using Cyphoid.Core.SyntaxTree;
+﻿using Cyphoid.Core.Expressions;
+using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Execution
 {
+
+  public record PropertyFilter(IReadOnlyList<PropertyFilterCondition> Conditions);
+
+  public record PropertyFilterCondition(string PropertyName, MixedValue Value);
+
   public interface IOperatorFactory
   {
     IOperator BuildProjection(IOperator input);
@@ -9,6 +15,6 @@ namespace Cyphoid.Core.Execution
     IOperator BuildNodeScan(
       VariableDefinition variable,
       string? label,
-      PropertyMapNode? propertyMap);
+      PropertyFilter? propertyFilter);
   }
 }

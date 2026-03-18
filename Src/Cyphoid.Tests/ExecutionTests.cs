@@ -32,19 +32,28 @@ namespace Cyphoid.Tests
       Graph.AddNode("Stockholm", "city");
       Graph.AddNode("Helsinki", "city");
 
-      Graph.SetNodeProperty("Copenhagen", "Name", "Martin Mollerup");
+      Graph.SetNodeProperty("Copenhagen", "name", "København");
+      Graph.SetNodeProperty("Copenhagen", "isDanish", true);
+      
+      Graph.SetNodeProperty("Oslo", "name", "Oslo");
+      Graph.SetNodeProperty("Oslo", "isNorwegian", true);
     }
 
 
     [TestCase("MATCH (n) RETURN n", 7)]
     [TestCase("MATCH (n:person) RETURN n", 3)]
     [TestCase("MATCH (n:city) RETURN n", 4)]
+    [TestCase("MATCH (n:city {name: \"København\"}) RETURN n", 1)]
+    [TestCase("MATCH (n:city {name: \"Oslo\"}) RETURN n", 1)]
+    [TestCase("MATCH (n:city {name: \"Oslo\", isNorwegian: true}) RETURN n", 1)]
+    [TestCase("MATCH (n:city {name: \"Oslo\", isDanish: true}) RETURN n", 0)]
+    [TestCase("MATCH (n:city {name: \"Unused\"}) RETURN n", 0)]
     [TestCase("MATCH (n:nothing) RETURN n", 0)]
     public async Task ItCanExecuteQuery(string input, int rowCount)
     {
       // Arrange
       ICypherParser parser = new CypherAstParser();
-      IOperatorFactory factory = new TestOperatorFactory(Graph);
+      IOperatorFactory factory = new OperatorFactory(Graph);
 
       // Act
       var queryNode = parser.ParseQuery(input);

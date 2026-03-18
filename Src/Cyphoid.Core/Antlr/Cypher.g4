@@ -65,7 +65,7 @@ propertyMap
   ;
 
 propertyEntry
-  : identifier COLON expression
+  : identifier COLON literal
   ;
 
 // -------------------------
@@ -121,16 +121,22 @@ identifier
 // -------------------------
 
 literal
-  : stringLiteral
+  : boolLiteral
   | integerLiteral
+  | stringLiteral
   ;
 
-stringLiteral
-  : STRING
+boolLiteral
+  : TRUE
+  | FALSE
   ;
 
 integerLiteral
   : INTEGER
+  ;
+
+stringLiteral
+  : STRING
   ;
 
 // =========================
@@ -145,6 +151,8 @@ AS         : [Aa][Ss];
 AND        : [Aa][Nn][Dd];
 OR         : [Oo][Rr];
 NOT        : [Nn][Oo][Tt];
+TRUE       : [Tt][Rr][Uu][Ee];
+FALSE      : [Ff][Aa][Ll][Ss][Ee];
 
 ARROW_RIGHT: '->';
 ARROW_LEFT : '<-';

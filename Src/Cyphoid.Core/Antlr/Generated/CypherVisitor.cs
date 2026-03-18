@@ -104,17 +104,29 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitRelationshipDetail([NotNull] CypherParser.RelationshipDetailContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.relationshipTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.nodeLabel"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitNodeLabel([NotNull] CypherParser.NodeLabelContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CypherParser.relationshipTypes"/>.
+	/// Visit a parse tree produced by <see cref="CypherParser.propertyMap"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context);
+	Result VisitPropertyMap([NotNull] CypherParser.PropertyMapContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.propertyEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.expression"/>.
 	/// </summary>
@@ -158,23 +170,17 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitFunctionCall([NotNull] CypherParser.FunctionCallContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CypherParser.propertyMap"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitPropertyMap([NotNull] CypherParser.PropertyMapContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="CypherParser.propertyEntry"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.variable"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitVariable([NotNull] CypherParser.VariableContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.identifier"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIdentifier([NotNull] CypherParser.IdentifierContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.literal"/>.
 	/// </summary>
@@ -182,11 +188,11 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitLiteral([NotNull] CypherParser.LiteralContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
+	/// Visit a parse tree produced by <see cref="CypherParser.boolLiteral"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitStringLiteral([NotNull] CypherParser.StringLiteralContext context);
+	Result VisitBoolLiteral([NotNull] CypherParser.BoolLiteralContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.integerLiteral"/>.
 	/// </summary>
@@ -194,9 +200,9 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CypherParser.identifier"/>.
+	/// Visit a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitIdentifier([NotNull] CypherParser.IdentifierContext context);
+	Result VisitStringLiteral([NotNull] CypherParser.StringLiteralContext context);
 }

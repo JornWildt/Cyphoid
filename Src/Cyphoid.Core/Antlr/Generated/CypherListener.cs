@@ -151,6 +151,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitRelationshipDetail([NotNull] CypherParser.RelationshipDetailContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.relationshipTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.relationshipTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.nodeLabel"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -161,15 +171,25 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitNodeLabel([NotNull] CypherParser.NodeLabelContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.relationshipTypes"/>.
+	/// Enter a parse tree produced by <see cref="CypherParser.propertyMap"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context);
+	void EnterPropertyMap([NotNull] CypherParser.PropertyMapContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.relationshipTypes"/>.
+	/// Exit a parse tree produced by <see cref="CypherParser.propertyMap"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context);
+	void ExitPropertyMap([NotNull] CypherParser.PropertyMapContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.propertyEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterPropertyEntry([NotNull] CypherParser.PropertyEntryContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.propertyEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.expression"/>.
 	/// </summary>
@@ -241,26 +261,6 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitFunctionCall([NotNull] CypherParser.FunctionCallContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.propertyMap"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterPropertyMap([NotNull] CypherParser.PropertyMapContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.propertyMap"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitPropertyMap([NotNull] CypherParser.PropertyMapContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.propertyEntry"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterPropertyEntry([NotNull] CypherParser.PropertyEntryContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.propertyEntry"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.variable"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -270,6 +270,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitVariable([NotNull] CypherParser.VariableContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.identifier"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterIdentifier([NotNull] CypherParser.IdentifierContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.identifier"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitIdentifier([NotNull] CypherParser.IdentifierContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.literal"/>.
 	/// </summary>
@@ -281,15 +291,15 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitLiteral([NotNull] CypherParser.LiteralContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
+	/// Enter a parse tree produced by <see cref="CypherParser.boolLiteral"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterStringLiteral([NotNull] CypherParser.StringLiteralContext context);
+	void EnterBoolLiteral([NotNull] CypherParser.BoolLiteralContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
+	/// Exit a parse tree produced by <see cref="CypherParser.boolLiteral"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitStringLiteral([NotNull] CypherParser.StringLiteralContext context);
+	void ExitBoolLiteral([NotNull] CypherParser.BoolLiteralContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.integerLiteral"/>.
 	/// </summary>
@@ -301,13 +311,13 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.identifier"/>.
+	/// Enter a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterIdentifier([NotNull] CypherParser.IdentifierContext context);
+	void EnterStringLiteral([NotNull] CypherParser.StringLiteralContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.identifier"/>.
+	/// Exit a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitIdentifier([NotNull] CypherParser.IdentifierContext context);
+	void ExitStringLiteral([NotNull] CypherParser.StringLiteralContext context);
 }

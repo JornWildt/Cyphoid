@@ -4,12 +4,12 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Tests.TestBackend
 {
-  internal class TestOperatorFactory : IOperatorFactory
+  internal class OperatorFactory : IOperatorFactory
   {
     InMemoryGraph Graph;
 
     
-    public TestOperatorFactory(InMemoryGraph graph)
+    public OperatorFactory(InMemoryGraph graph)
     {
       Graph = graph;
     }
@@ -24,9 +24,9 @@ namespace Cyphoid.Tests.TestBackend
     IOperator IOperatorFactory.BuildNodeScan(
       VariableDefinition variable,
       string? label,
-      PropertyMapNode? propertyMap)
+      PropertyFilter? propertyFilter)
     {
-      return new NodeScanOperator(Graph, variable, label, propertyMap);
+      return new NodeScanOperator(Graph, variable, label, propertyFilter);
     }
   }
 }

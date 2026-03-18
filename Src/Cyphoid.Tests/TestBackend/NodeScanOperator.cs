@@ -8,18 +8,18 @@ namespace Cyphoid.Tests.TestBackend
   {
     VariableDefinition Variable;
     string? Label;
-    PropertyMapNode? PropertyMap;
+    PropertyFilter? PropertyFilter;
 
     public NodeScanOperator(
       InMemoryGraph graph,
       VariableDefinition variable,
       string? label,
-      PropertyMapNode? propertyMap)
+      PropertyFilter? propertyFilter)
       : base(graph)
     {
       Variable = variable;
       Label = label;
-      PropertyMap = propertyMap;
+      PropertyFilter = propertyFilter;
     }
 
 
@@ -27,7 +27,8 @@ namespace Cyphoid.Tests.TestBackend
     {
       foreach (var node in Graph.Nodes)
       {
-        if (Label == null || node.Value.Labels.Contains(Label))
+        if ((Label == null || node.Value.Labels.Contains(Label)) && 
+          (PropertyFilter == null || PropertyMatch(node.Value)))
         {
           var row = new Row(context.RowSize);
           // FIXME: Null values???
@@ -37,6 +38,22 @@ namespace Cyphoid.Tests.TestBackend
           yield return row;
         }
       }
+    }
+
+    
+    private bool PropertyMatch(InMemoryGraph.Node node)
+    {
+      foreach (var p in PropertyFilter!.Conditions)
+      {
+        if (!node.Properties.TryGetValue(p.PropertyName, out var propertyValue))
+          return false;
+
+        // FIXME: Expr must be evaluated to constant value
+        if (!p.Value.Equals(propertyValue))
+          return false;
+      }
+
+      return true;
     }
   }
 }

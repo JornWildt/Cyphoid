@@ -170,8 +170,8 @@ namespace Cyphoid.Core
     public override AstNode VisitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context)
     {
       var id = Visit<IdentifierNode>(context.identifier());
-      var expr = Visit<ExprNode>(context.expression());
-      return new PropertyEntryNode(id.Name, expr);
+      var literalValue = Visit<LiteralValueNode>(context.literal());
+      return new PropertyEntryNode(id.Name, literalValue);
     }
 
     #region Expressions
@@ -266,16 +266,34 @@ namespace Cyphoid.Core
 
     public override AstNode VisitLiteral([NotNull] CypherParser.LiteralContext context)
     {
-      if (context.stringLiteral() != null)
+      if (context.boolLiteral() != null)
       {
-        return Visit<ExprNode>(context.stringLiteral());
+        return Visit<LiteralValueNode>(context.boolLiteral());
       }
       else if (context.integerLiteral() != null)
       {
-        return Visit<ExprNode>(context.integerLiteral());
+        return Visit<LiteralValueNode>(context.integerLiteral());
+      }
+      else if (context.stringLiteral() != null)
+      {
+        return Visit<LiteralValueNode>(context.stringLiteral());
       }
       else
         throw new NotImplementedException();
+    }
+
+
+    public override AstNode VisitBoolLiteral([NotNull] CypherParser.BoolLiteralContext context)
+    {
+      return new BoolLiteralNode(context.TRUE() != null);
+    }
+
+    public override AstNode VisitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context)
+    {
+      var text = context.INTEGER().GetText();
+      if (!long.TryParse(text, out var value))
+        throw new ArgumentException($"Not an integer: '{text}'.");
+      return new IntLiteralNode(value);
     }
 
 
@@ -284,15 +302,6 @@ namespace Cyphoid.Core
       var text = context.STRING().GetText();
       text = text.Substring(1, text.Length - 2);
       return new StringLiteralNode(text);
-    }
-
-    
-    public override AstNode VisitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context)
-    {
-      var text = context.INTEGER().GetText();
-      if (!long.TryParse(text, out var value))
-        throw new ArgumentException($"Not an integer: '{text}'.");
-      return new IntLiteralNode(value);
     }
 
     #endregion /* Literals */

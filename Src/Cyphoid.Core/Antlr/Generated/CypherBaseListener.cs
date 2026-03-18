@@ -180,6 +180,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitRelationshipDetail([NotNull] CypherParser.RelationshipDetailContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.relationshipTypes"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.relationshipTypes"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.nodeLabel"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -192,17 +204,29 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitNodeLabel([NotNull] CypherParser.NodeLabelContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.relationshipTypes"/>.
+	/// Enter a parse tree produced by <see cref="CypherParser.propertyMap"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context) { }
+	public virtual void EnterPropertyMap([NotNull] CypherParser.PropertyMapContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.relationshipTypes"/>.
+	/// Exit a parse tree produced by <see cref="CypherParser.propertyMap"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitRelationshipTypes([NotNull] CypherParser.RelationshipTypesContext context) { }
+	public virtual void ExitPropertyMap([NotNull] CypherParser.PropertyMapContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.propertyEntry"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterPropertyEntry([NotNull] CypherParser.PropertyEntryContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.propertyEntry"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -288,30 +312,6 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFunctionCall([NotNull] CypherParser.FunctionCallContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.propertyMap"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterPropertyMap([NotNull] CypherParser.PropertyMapContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.propertyMap"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitPropertyMap([NotNull] CypherParser.PropertyMapContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.propertyEntry"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterPropertyEntry([NotNull] CypherParser.PropertyEntryContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.propertyEntry"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.variable"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -323,6 +323,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitVariable([NotNull] CypherParser.VariableContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.identifier"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterIdentifier([NotNull] CypherParser.IdentifierContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.identifier"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitIdentifier([NotNull] CypherParser.IdentifierContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.literal"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -336,17 +348,17 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitLiteral([NotNull] CypherParser.LiteralContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
+	/// Enter a parse tree produced by <see cref="CypherParser.boolLiteral"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterStringLiteral([NotNull] CypherParser.StringLiteralContext context) { }
+	public virtual void EnterBoolLiteral([NotNull] CypherParser.BoolLiteralContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
+	/// Exit a parse tree produced by <see cref="CypherParser.boolLiteral"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitStringLiteral([NotNull] CypherParser.StringLiteralContext context) { }
+	public virtual void ExitBoolLiteral([NotNull] CypherParser.BoolLiteralContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.integerLiteral"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -360,17 +372,17 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.identifier"/>.
+	/// Enter a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterIdentifier([NotNull] CypherParser.IdentifierContext context) { }
+	public virtual void EnterStringLiteral([NotNull] CypherParser.StringLiteralContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.identifier"/>.
+	/// Exit a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitIdentifier([NotNull] CypherParser.IdentifierContext context) { }
+	public virtual void ExitStringLiteral([NotNull] CypherParser.StringLiteralContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>
