@@ -33,7 +33,6 @@ namespace Cyphoid.Tests.TestBackend.Operators
           (PropertyFilter == null || PropertyMatch(PropertyFilter, node.Value)))
         {
           var row = new Row(context.RowSize);
-          // FIXME: Null values???
           row.Nodes[Variable.SlotIndex] = new GraphNode(
             node.Value.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
             node.Value.Properties.ToDictionary(a => a.Key, a => a.Value));

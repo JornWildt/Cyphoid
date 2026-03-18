@@ -141,6 +141,7 @@ literal
   : boolLiteral
   | integerLiteral
   | stringLiteral
+  | NULL
   ;
 
 boolLiteral
@@ -174,6 +175,7 @@ ENDS       : [Ee][Nn][Dd][Ss];
 WITH       : [Ww][Ii][Tt][Hh];
 TRUE       : [Tt][Rr][Uu][Ee];
 FALSE      : [Ff][Aa][Ll][Ss][Ee];
+NULL       : [Nn][Uu][Ll][Ll];
 
 ARROW_RIGHT: '->';
 ARROW_LEFT : '<-';

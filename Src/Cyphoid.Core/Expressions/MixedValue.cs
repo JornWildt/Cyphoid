@@ -6,7 +6,7 @@ namespace Cyphoid.Core.Expressions
   {
     public enum Kind : byte
     {
-      None = 0,
+      Null = 0,
       Bool = 1,
       Int = 2,
       String = 3
@@ -17,6 +17,14 @@ namespace Cyphoid.Core.Expressions
     private readonly long _int;
     private readonly string? _string;
 
+
+    public MixedValue()
+    {
+      _kind = Kind.Null;
+      _bool = default;
+      _int = default;
+      _string = default;
+    }
 
     private MixedValue(bool value)
     {
@@ -43,6 +51,8 @@ namespace Cyphoid.Core.Expressions
       _string = value;
     }
 
+    public static MixedValue Null() => new();
+
     public static MixedValue Bool(bool value) => new(value);
     
     public static MixedValue Int(long value) => new(value);
@@ -54,8 +64,11 @@ namespace Cyphoid.Core.Expressions
       : value is int i ? Int(i)
       : value is long l ? Int(l)
       : value is string s ? String(s)
-      : value == null ? throw new ArgumentNullException()
+      : value == null ? new()
       : throw new NotImplementedException();
+
+    public bool IsNull() =>
+      _kind == Kind.Null;
 
     public bool AsBool() =>
         _kind == Kind.Bool ? _bool : throw new InvalidOperationException($"Value is not a bool. Got {_kind} {ToString()}.");
@@ -69,7 +82,8 @@ namespace Cyphoid.Core.Expressions
     public string AsString() =>
         _kind == Kind.String ? _string! : throw new InvalidOperationException($"Value is not a string. Got {_kind} {ToString()}.");
 
-    public object AsObject() => Match<object>(
+    public object? AsObject() => Match<object?>(
+      () => null,
       b => b,
       i => i,
       s => s);
@@ -93,20 +107,18 @@ namespace Cyphoid.Core.Expressions
     }
 
     public T Match<T>(
-        Func<bool, T> onBool,
-        Func<long, T> onInt,
-        Func<string, T> onString)
+      Func<T> onNull,
+      Func<bool, T> onBool,
+      Func<long, T> onInt,
+      Func<string, T> onString)
     {
-      ArgumentNullException.ThrowIfNull(onBool);
-      ArgumentNullException.ThrowIfNull(onInt);
-      ArgumentNullException.ThrowIfNull(onString);
-
       return _kind switch
       {
+        Kind.Null => onNull(),
         Kind.Bool => onBool(_bool),
         Kind.Int => onInt(_int),
         Kind.String => onString(_string!),
-        _ => throw new InvalidOperationException("Value is not initialized.")
+        _ => throw new NotImplementedException()
       };
     }
 
@@ -146,10 +158,11 @@ namespace Cyphoid.Core.Expressions
     public override string ToString() =>
       _kind switch
       {
+        Kind.Null => "null",
         Kind.Bool => _bool.ToString(),
         Kind.Int => _int.ToString(),
         Kind.String => _string!,
-        _ => "<unset>"
+        _ => "<undefined>"
       };
   }
 }

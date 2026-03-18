@@ -322,6 +322,10 @@ namespace Cyphoid.Core
       {
         return Visit<LiteralValueNode>(context.stringLiteral());
       }
+      else if (context.NULL() != null)
+      {
+        return new NullLiteralNode();
+      }
       else
         throw new NotImplementedException();
     }

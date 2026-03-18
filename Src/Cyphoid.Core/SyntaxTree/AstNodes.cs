@@ -58,7 +58,7 @@ namespace Cyphoid.Core.SyntaxTree
         if (node.Attributes.TryGetValue(propertyName, out var attributeValue))
           return MixedValue.FromObject(attributeValue);
         else
-          return MixedValue.String("-empty-"); // FIXME: null values????
+          return MixedValue.Null();
       };
     }
     

@@ -108,6 +108,9 @@ namespace Cyphoid.Tests
 
 
     [TestCase("MATCH (n) WHERE n.isDanish RETURN n", 1)]
+    [TestCase("MATCH (n) WHERE n.isDanish = null RETURN n", 11)]
+    [TestCase("MATCH (n) WHERE n.isDanish = true RETURN n", 1)]
+    [TestCase("MATCH (n) WHERE n.isDanish = false RETURN n", 0)]
     [TestCase("MATCH (n) WHERE NOT n.isDanish RETURN n", 11)]
     [TestCase("MATCH (n) WHERE n.name = 'Oslo' RETURN n", 1)]
     [TestCase("MATCH (n) WHERE n.name <> 'Oslo' RETURN n", 11)]

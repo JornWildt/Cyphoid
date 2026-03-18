@@ -10,6 +10,26 @@ namespace Cyphoid.Core.SyntaxTree
   }
 
 
+  public record NullLiteralNode() : LiteralValueNode
+  {
+    public override Func<Row, MixedValue> BuildEvaluator()
+    {
+      return (Row r) => MixedValue.Null();
+    }
+
+
+    public override MixedValue ToConstantValue()
+    {
+      return MixedValue.Null();
+    }
+
+    public override void PrettyPrint(StringBuilder sb)
+    {
+      sb.Append("null");
+    }
+  }
+
+
   public record BoolLiteralNode(bool Value) : LiteralValueNode
   {
     public override Func<Row, MixedValue> BuildEvaluator()
