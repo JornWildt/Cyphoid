@@ -15,7 +15,7 @@ namespace Cyphoid.Tests.TestBackend
     }
 
 
-    IOperator IOperatorFactory.BuildProjection(IOperator input)
+    IProjectionOperator IOperatorFactory.BuildProjection(IOperator input)
     {
       return new ProjectionOperator(Graph, input);
     }

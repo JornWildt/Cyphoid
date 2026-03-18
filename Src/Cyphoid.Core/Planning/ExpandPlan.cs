@@ -5,12 +5,12 @@ using Cyphoid.Core.SyntaxTree;
 namespace Cyphoid.Core.Planning
 {
   public record ExpandPlan(
-    LogicalPlan Input,
+    PipelinePlan Input,
     VariableDefinition Source,
     RelationshipPatternNode Relationship,
     VariableDefinition Destination,
     string? DestinationLabel,
-    PropertyMapNode? DestinationPropertyMap) : LogicalPlan
+    PropertyMapNode? DestinationPropertyMap) : PipelinePlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {

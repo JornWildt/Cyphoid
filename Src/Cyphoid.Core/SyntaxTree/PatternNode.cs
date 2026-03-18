@@ -5,7 +5,7 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record PatternNode(IReadOnlyList<PatternPartNode> Parts) : AstNode
   {
-    public LogicalPlan BuildPlan()
+    public PipelinePlan BuildPlan()
     {
       // FIXME: Only using first part so far
       var part = Parts[0];
@@ -13,7 +13,7 @@ namespace Cyphoid.Core.SyntaxTree
       // Parse guarantees existence of initial (left most) node.
       var initialNodePattern = part.PatternChain[0].NodePattern;
 
-      LogicalPlan plan = new NodeScanPlan(
+      PipelinePlan plan = new NodeScanPlan(
         initialNodePattern.Variable,
         initialNodePattern.Label,
         initialNodePattern.PropertyMap);

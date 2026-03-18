@@ -5,7 +5,7 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record LimitNode(long Limit) : AstNode
   {
-    public LogicalPlan BuildQueryPlan(LogicalPlan input)
+    public PipelinePlan BuildQueryPlan(PipelinePlan input)
     {
       return new LimitPlan(input, Limit);
     }

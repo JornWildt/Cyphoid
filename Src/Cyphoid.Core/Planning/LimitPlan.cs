@@ -5,7 +5,7 @@ namespace Cyphoid.Core.Planning
 {
   public record LimitPlan(
     LogicalPlan Input,
-    long Limit) : LogicalPlan
+    long Limit) : PipelinePlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {

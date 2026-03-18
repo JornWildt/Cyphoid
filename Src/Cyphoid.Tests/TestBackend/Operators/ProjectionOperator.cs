@@ -2,23 +2,25 @@
 
 namespace Cyphoid.Tests.TestBackend.Operators
 {
-  internal class ProjectionOperator : OperatorBase, IOperator
+  internal class ProjectionOperator : OperatorBase, IProjectionOperator
   {
     IOperator Input;
     
     
-    public ProjectionOperator(InMemoryGraph graph, IOperator input)
+    public ProjectionOperator(
+      InMemoryGraph graph, 
+      IOperator input)
       : base(graph)
     {
       Input = input;
     }
 
     
-    async IAsyncEnumerable<Row> IOperator.ExecuteAsync(QueryContext context)
+    async IAsyncEnumerable<Dictionary<string, object?>> IProjectionOperator.ExecuteAsync(QueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
-        yield return row;
+        yield return new Dictionary<string, object?>();
       }
     }
   }

@@ -5,7 +5,7 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record MatchNode(PatternNode Pattern) : AstNode
   {
-    public LogicalPlan BuildQueryPlan()
+    public PipelinePlan BuildQueryPlan()
     {
       return Pattern.BuildPlan();
     }

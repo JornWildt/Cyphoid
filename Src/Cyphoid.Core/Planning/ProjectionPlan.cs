@@ -4,15 +4,16 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
 {
-  public record ProjectPlan(
-    LogicalPlan Input,
+  public record ProjectionPlan(
+    PipelinePlan Input,
     IReadOnlyList<ReturnItemNode> Items) : LogicalPlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public IProjectionOperator BuildExecutionPlan(IOperatorFactory factory)
     {
       return factory.BuildProjection(Input.BuildExecutionPlan(factory));
     }
 
+    
     public override void PrettyPrint(StringBuilder sb)
     {
       sb.Append("Project: ");

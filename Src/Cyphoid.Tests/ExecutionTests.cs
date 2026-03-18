@@ -10,7 +10,7 @@ namespace Cyphoid.Tests
   {
     InMemoryGraph Graph;
 
-    
+
     public ExecutionTests()
     {
       Graph = new InMemoryGraph();
@@ -42,13 +42,13 @@ namespace Cyphoid.Tests
       Graph.SetNodeProperty("Copenhagen", "name", "København");
       Graph.SetNodeProperty("Copenhagen", "isDanish", true);
       Graph.AddEdge("Copenhagen", "Denmark", "located_in");
-      
+
       Graph.SetNodeProperty("Oslo", "name", "Oslo");
       Graph.SetNodeProperty("Oslo", "isNorwegian", true);
       Graph.AddEdge("Oslo", "Norway", "located_in");
 
       Graph.SetNodeProperty("Denmark", "name", "Denmark");
-      
+
       Graph.SetNodeProperty("Norway", "name", "Norway");
     }
 
@@ -70,11 +70,28 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n:nothing)-[]->(c:country) RETURN n", 0)]
     public async Task ItCanExecuteQuery(string input, int rowCount)
     {
-      // Arrange
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Count, Is.EqualTo(rowCount));
+    }
+
+
+    [TestCase(
+      "MATCH (n:city {name: \"København\"}) RETURN n.isDanish AS erDansk, n.located_in AS sted", 
+      "[{erDansk:true,sted:\"Denmark\" ]")]
+    public async Task ItCanProjectResult(string input, string expectedOutputJson)
+    {
+
+    }
+
+
+    protected async Task<List<Dictionary<string, object?>>> ExecuteQuery(string input)
+    {
       ICypherParser parser = new CypherAstParser();
       IOperatorFactory factory = new OperatorFactory(Graph);
 
-      // Act
       var queryNode = parser.ParseQuery(input);
       var plan = queryNode.BuildQueryPlan();
       var execution = plan.BuildExecutionPlan(factory);
@@ -82,8 +99,7 @@ namespace Cyphoid.Tests
 
       var result = await execution.ExecuteAsync(context).ToListAsync();
 
-      // Assert
-      Assert.That(result.Count, Is.EqualTo(rowCount));
+      return result;
     }
   }
 }

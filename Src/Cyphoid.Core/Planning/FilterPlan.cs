@@ -6,7 +6,7 @@ namespace Cyphoid.Core.Planning
 {
   public record FilterPlan(
     LogicalPlan Input,
-    ExprNode Predicate) : LogicalPlan
+    ExprNode Predicate) : PipelinePlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {

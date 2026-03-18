@@ -12,21 +12,22 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public int RowSize => VariableDefinitions.Count;
 
-    public LogicalPlan BuildQueryPlan()
+
+    public ProjectionPlan BuildQueryPlan()
     {
-      LogicalPlan plan = Match.BuildQueryPlan();
+      PipelinePlan plan = Match.BuildQueryPlan();
 
       if (Where != null)
       {
         plan = Where.BuildQueryPlan(plan);
       }
-      
-      plan = Return.BuildQueryPlan(plan);
 
       if (Limit != null)
         plan = Limit.BuildQueryPlan(plan);
 
-      return plan;
+      var projectionPlan = Return.BuildQueryPlan(plan);
+
+      return projectionPlan;
     }
 
 

@@ -7,7 +7,7 @@ namespace Cyphoid.Core.Planning
   public record NodeScanPlan(
     VariableDefinition Variable,
     string? Label,
-    PropertyMapNode? PropertyMap) : LogicalPlan
+    PropertyMapNode? PropertyMap) : PipelinePlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {

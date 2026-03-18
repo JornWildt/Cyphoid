@@ -22,6 +22,6 @@ namespace Cyphoid.Core.Execution
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter);
 
-    IOperator BuildProjection(IOperator input);
+    IProjectionOperator BuildProjection(IOperator input);
   }
 }
