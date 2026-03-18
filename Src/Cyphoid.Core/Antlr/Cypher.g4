@@ -72,39 +72,49 @@ propertyEntry
 // Expressions
 // -------------------------
 
+expressionList
+  : expression (COMMA expression)*
+  | expression?
+  ;
+
 expression
-    : orExpression
-    ;
+  : orExpression
+  ;
 
 orExpression
-    : andExpression (OR andExpression)*
-    ;
+  : andExpression (OR andExpression)*
+  ;
 
 andExpression
-    : notExpression (AND notExpression)*
-    ;
+  : notExpression (AND notExpression)*
+  ;
 
 notExpression
-    : NOT notExpression
-    | comparisonExpression
-    ;
+  : NOT notExpression
+  | comparisonExpression
+  ;
 
 comparisonExpression
-    : primaryExpression comparisonOperator primaryExpression
-    | primaryExpression
-    ;
+  : inExpression comparisonOperator inExpression
+  | inExpression
+  ;
 
 comparisonOperator
-    : EQ
-    | NEQ
-    | LT
-    | LTE
-    | GT
-    | GTE
-    | CONTAINS
-    | STARTS WITH
-    | ENDS WITH
-    ;
+  : EQ
+  | NEQ
+  | LT
+  | LTE
+  | GT
+  | GTE
+  | CONTAINS
+  | STARTS WITH
+  | ENDS WITH
+  ;
+
+inExpression
+  : primaryExpression IN LBRACK expressionList RBRACK
+  | primaryExpression
+  ;
 
 // (all operators not here yet)
 
@@ -172,6 +182,7 @@ NOT        : [Nn][Oo][Tt];
 CONTAINS   : [Cc][Oo][Nn][Tt][Aa][Ii][Nn][Ss];
 STARTS     : [Ss][Tt][Aa][Rr][Tt][Ss];
 ENDS       : [Ee][Nn][Dd][Ss];
+IN         : [Ii][Nn];
 WITH       : [Ww][Ii][Tt][Hh];
 TRUE       : [Tt][Rr][Uu][Ee];
 FALSE      : [Ff][Aa][Ll][Ss][Ee];

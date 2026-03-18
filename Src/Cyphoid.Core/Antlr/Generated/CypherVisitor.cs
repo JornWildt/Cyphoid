@@ -128,6 +128,12 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.expressionList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitExpressionList([NotNull] CypherParser.ExpressionListContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -163,6 +169,12 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.inExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitInExpression([NotNull] CypherParser.InExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.primaryExpression"/>.
 	/// </summary>

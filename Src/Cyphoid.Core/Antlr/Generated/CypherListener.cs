@@ -191,6 +191,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.expressionList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterExpressionList([NotNull] CypherParser.ExpressionListContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.expressionList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitExpressionList([NotNull] CypherParser.ExpressionListContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -250,6 +260,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.inExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInExpression([NotNull] CypherParser.InExpressionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.inExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInExpression([NotNull] CypherParser.InExpressionContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.primaryExpression"/>.
 	/// </summary>

@@ -121,5 +121,19 @@ namespace Cyphoid.Tests
       Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
       Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
     }
+
+
+    [TestCase("MATCH (n) WHERE n.name IN ['Oslo', 'København'] RETURN n.name", 2)]
+    [TestCase("MATCH (n) WHERE n.name IN [n.name] RETURN n.name", 12)]
+    [TestCase("MATCH (n) WHERE n.name IN [] RETURN n.name", 0)]
+    public async Task ItCanHandleInOperator(string input, int rowCount)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+      Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
+    }
   }
 }

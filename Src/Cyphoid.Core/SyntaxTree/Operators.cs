@@ -56,4 +56,36 @@ namespace Cyphoid.Core.SyntaxTree
       Expr.PrettyPrint(sb);
     }
   }
+
+
+  public record InOperatorNode(ExprNode Expr, IReadOnlyList<ExprNode> Items) : ExprNode
+  {
+    public override RowEvaluator BuildEvaluator()
+    {
+      var exprEvaluator = Expr.BuildEvaluator();
+      var itemEvaluators = Items.Select(i => i.BuildEvaluator());
+      return (Row r) =>
+      {
+        var exprValue = exprEvaluator(r);
+        var any = itemEvaluators.Any(e => e(r).Equals(exprValue));
+        return MixedValue.Bool(any);
+      };
+    }
+
+
+    public override void PrettyPrint(StringBuilder sb)
+    {
+      Expr.PrettyPrint(sb);
+      sb.Append(" IN [");
+      bool first = true;
+      foreach (var item in Items)
+      {
+        if (!first)
+          sb.Append(", ");
+        item.PrettyPrint(sb);
+        first = false;
+      }
+      sb.Append("]");
+    }
+  }
 }

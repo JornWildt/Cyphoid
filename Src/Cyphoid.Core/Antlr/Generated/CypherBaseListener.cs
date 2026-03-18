@@ -228,6 +228,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.expressionList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterExpressionList([NotNull] CypherParser.ExpressionListContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.expressionList"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitExpressionList([NotNull] CypherParser.ExpressionListContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -299,6 +311,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.inExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterInExpression([NotNull] CypherParser.InExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.inExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitInExpression([NotNull] CypherParser.InExpressionContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.primaryExpression"/>.
 	/// <para>The default implementation does nothing.</para>

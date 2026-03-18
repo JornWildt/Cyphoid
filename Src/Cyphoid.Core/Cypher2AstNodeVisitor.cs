@@ -229,8 +229,8 @@ namespace Cyphoid.Core
 
     public override AstNode VisitComparisonExpression([NotNull] CypherParser.ComparisonExpressionContext context)
     {
-      var left = Visit<ExprNode>(context.primaryExpression(0));
-      if (context.primaryExpression(1) == null)
+      var left = Visit<ExprNode>(context.inExpression(0));
+      if (context.inExpression(1) == null)
         return left;
 
       var operatorText = context.comparisonOperator().GetText().ToUpper();
@@ -248,11 +248,27 @@ namespace Cyphoid.Core
         _ => throw new NotImplementedException()
       };
 
-      var right = Visit<ExprNode>(context.primaryExpression(1));
+      var right = Visit<ExprNode>(context.inExpression(1));
 
       return new BinaryOperatorNode(left, right, op);
     }
 
+
+    public override AstNode VisitInExpression([NotNull] CypherParser.InExpressionContext context)
+    {
+      var expr = Visit<ExprNode>(context.primaryExpression());
+      if (context.IN() == null || context.expressionList() == null)
+        return expr;
+
+      var list = new List<ExprNode>();
+      foreach (var e in context.expressionList().expression())
+      {
+        var expression = Visit<ExprNode>(e);
+        list.Add(expression);
+      }
+
+      return new InOperatorNode(expr, list);
+    }
 
     public override AstNode VisitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context)
     {
