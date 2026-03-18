@@ -2,5 +2,5 @@
 
 namespace Cyphoid.Core.Execution
 {
-  public record ProjectionEvaluator(Func<Row, MixedValue> ExpressionEvaluator, string OutputName);
+  public record ProjectionEvaluator(RowEvaluator ExpressionEvaluator, string OutputName);
 }

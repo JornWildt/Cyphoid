@@ -11,7 +11,7 @@ namespace Cyphoid.Core.SyntaxTree
     private static readonly string[] OperatorSymbols = ["AND", "OR", "=", "<>", "<=", ">=", "<", ">", "CONTAINS", "STARTS WITH", "ENDS WITH"];
   
 
-    public override Func<Row, MixedValue> BuildEvaluator()
+    public override RowEvaluator BuildEvaluator()
     {
       var leftEvaluator = Left.BuildEvaluator();
       var rightEvaluator = Right.BuildEvaluator();
@@ -43,7 +43,7 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record UnaryOperatorNode(UnaryOperatorType Operator, ExprNode Expr) : ExprNode
   {
-    public override Func<Row, MixedValue> BuildEvaluator()
+    public override RowEvaluator BuildEvaluator()
     {
       var exprEvaluator = Expr.BuildEvaluator();
       return (Row r) => MixedValue.Bool(exprEvaluator(r).IsAnythingButTrue());

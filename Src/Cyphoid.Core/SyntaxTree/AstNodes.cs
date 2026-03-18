@@ -24,13 +24,13 @@ namespace Cyphoid.Core.SyntaxTree
 
   public abstract record ExprNode : AstNode
   {
-    public abstract Func<Row, MixedValue> BuildEvaluator();
+    public abstract RowEvaluator BuildEvaluator();
   }
 
 
   public record VariableExprNode(VariableDefinition Variable) : ExprNode
   {
-    public override Func<Row, MixedValue> BuildEvaluator()
+    public override RowEvaluator BuildEvaluator()
     {
       return (Row r) =>
       {
@@ -49,7 +49,7 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record PropertyAccessNode(VariableDefinition Variable, IReadOnlyList<string> Properties) : ExprNode
   {
-    public override Func<Row, MixedValue> BuildEvaluator()
+    public override RowEvaluator BuildEvaluator()
     {
       return (Row r) =>
       {

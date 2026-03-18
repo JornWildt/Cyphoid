@@ -6,12 +6,12 @@ namespace Cyphoid.Tests.TestBackend.Operators
   internal class FilterOperator : OperatorBase, IOperator
   {
     IOperator Input;
-    Func<Row, MixedValue> PredicateEvaluator;
+    RowEvaluator PredicateEvaluator;
 
     public FilterOperator(
       InMemoryGraph graph,
       IOperator input,
-      Func<Row, MixedValue> predicateEvaluator)
+      RowEvaluator predicateEvaluator)
       : base(graph)
     {
       Input = input;

@@ -9,6 +9,8 @@ namespace Cyphoid.Core.Execution
 
   public enum ExpandDirectionType { Outgoing, Incoming }
 
+  public delegate MixedValue RowEvaluator(Row row);
+
   public interface IOperatorFactory
   {
     IOperator BuildEmptyResult();
@@ -28,8 +30,8 @@ namespace Cyphoid.Core.Execution
       PropertyFilter? destinationPropertyFilter);
 
     IOperator BuildFilter(
-      IOperator input, 
-      Func<Row, MixedValue> evaluator);
+      IOperator input,
+      RowEvaluator evaluator);
 
     IOperator BuildLimit(
       IOperator input,

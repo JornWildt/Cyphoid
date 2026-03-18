@@ -52,7 +52,7 @@ namespace Cyphoid.Tests.TestBackend
     }
 
 
-    IOperator IOperatorFactory.BuildFilter(IOperator input, Func<Row, MixedValue> evaluator)
+    IOperator IOperatorFactory.BuildFilter(IOperator input, RowEvaluator evaluator)
     {
       return new FilterOperator(Graph, input, evaluator);
     }
