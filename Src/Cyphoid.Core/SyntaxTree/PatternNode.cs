@@ -7,16 +7,25 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public LogicalPlan BuildPlan()
     {
-      // FIXME: Handle multiple parts (assuming only and always one)
+      // FIXME: Only using first part so far
+      var part = Parts[0];
 
-      var initialNodePattern = Parts[0].PatternChain[0].NodePattern;
+      // Parse guarantees existence of initial (left most) node.
+      var initialNodePattern = part.PatternChain[0].NodePattern;
 
-      var rootPlan = new NodeScanPlan(
+      var plan = new NodeScanPlan(
         initialNodePattern.Variable,
         initialNodePattern.Label,
         initialNodePattern.PropertyMap);
 
-      return rootPlan;
+      foreach (var chainNode in part.PatternChain.Skip(1))
+      {
+        //var expandPlan = new ExpandPlan(
+        //  plan,
+        //  chainNode.RelationshipPattern.RelationshipDetail.Variable,)
+      }
+
+      return plan;
     }
 
 

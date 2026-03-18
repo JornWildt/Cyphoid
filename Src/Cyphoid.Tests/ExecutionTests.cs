@@ -32,15 +32,23 @@ namespace Cyphoid.Tests
       Graph.AddNode("Stockholm", "city");
       Graph.AddNode("Helsinki", "city");
 
+      Graph.AddNode("Denmark", "country");
+      Graph.AddNode("Norway", "country");
+      Graph.AddNode("Sweden", "country");
+      Graph.AddNode("Germany", "country");
+      Graph.AddNode("England", "country");
+
       Graph.SetNodeProperty("Copenhagen", "name", "København");
       Graph.SetNodeProperty("Copenhagen", "isDanish", true);
+      Graph.AddEdge("Copenhagen", "Denmark", "located_in");
       
       Graph.SetNodeProperty("Oslo", "name", "Oslo");
       Graph.SetNodeProperty("Oslo", "isNorwegian", true);
+      Graph.AddEdge("Oslo", "Norway", "located_in");
     }
 
 
-    [TestCase("MATCH (n) RETURN n", 7)]
+    [TestCase("MATCH (n) RETURN n", 12)]
     [TestCase("MATCH (n:person) RETURN n", 3)]
     [TestCase("MATCH (n:city) RETURN n", 4)]
     [TestCase("MATCH (n:city {name: \"København\"}) RETURN n", 1)]
@@ -49,6 +57,7 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n:city {name: \"Oslo\", isDanish: true}) RETURN n", 0)]
     [TestCase("MATCH (n:city {name: \"Unused\"}) RETURN n", 0)]
     [TestCase("MATCH (n:nothing) RETURN n", 0)]
+    [TestCase("MATCH (n:city)-[]->(c:country) RETURN n", 2)] // Only some cities have been related to a country
     public async Task ItCanExecuteQuery(string input, int rowCount)
     {
       // Arrange
