@@ -1,6 +1,6 @@
 ﻿using Cyphoid.Core;
 using Cyphoid.Core.Execution;
-using Cyphoid.Core.SyntaxTree;
+using Cyphoid.Tests.TestBackend.Operators;
 
 namespace Cyphoid.Tests.TestBackend
 {
@@ -8,13 +8,13 @@ namespace Cyphoid.Tests.TestBackend
   {
     InMemoryGraph Graph;
 
-    
+
     public OperatorFactory(InMemoryGraph graph)
     {
       Graph = graph;
     }
 
-    
+
     IOperator IOperatorFactory.BuildProjection(IOperator input)
     {
       return new ProjectionOperator(Graph, input);
@@ -27,6 +27,23 @@ namespace Cyphoid.Tests.TestBackend
       PropertyFilter? propertyFilter)
     {
       return new NodeScanOperator(Graph, variable, label, propertyFilter);
+    }
+
+
+    IOperator IOperatorFactory.BuildExpand(
+      IOperator input,
+      VariableDefinition sourceVariable,
+      VariableDefinition destinationVariable,
+      string? destinationLabel,
+      PropertyFilter? destinationPropertyFilter)
+    {
+      return new ExpandOperator(
+        Graph,
+        input,
+        sourceVariable,
+        destinationVariable,
+        destinationLabel,
+        destinationPropertyFilter);
     }
   }
 }

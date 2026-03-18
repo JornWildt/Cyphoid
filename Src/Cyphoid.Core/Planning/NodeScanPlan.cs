@@ -11,13 +11,8 @@ namespace Cyphoid.Core.Planning
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {
-      var conditions = PropertyMap?
-        .Properties?
-        .Select(p => new PropertyFilterCondition(p.Identifier, p.Value.ToMixedValue()))
-        .ToList()
-        .AsReadOnly();
-
-      var filter = conditions != null ? new PropertyFilter(conditions) : null;
+      // FIXME: No need to calculate this all the time
+      var filter = BuildPropertyFilter(PropertyMap);
       return factory.BuildNodeScan(Variable, Label, filter);
     }
     

@@ -1,8 +1,7 @@
 ﻿using Cyphoid.Core;
 using Cyphoid.Core.Execution;
-using Cyphoid.Core.SyntaxTree;
 
-namespace Cyphoid.Tests.TestBackend
+namespace Cyphoid.Tests.TestBackend.Operators
 {
   internal class NodeScanOperator : OperatorBase, IOperator
   {
@@ -25,35 +24,23 @@ namespace Cyphoid.Tests.TestBackend
 
     async IAsyncEnumerable<Row> IOperator.ExecuteAsync(QueryContext context)
     {
+      // Just to satisfy "await"
+      await Task.Yield();
+
       foreach (var node in Graph.Nodes)
       {
-        if ((Label == null || node.Value.Labels.Contains(Label)) && 
-          (PropertyFilter == null || PropertyMatch(node.Value)))
+        if ((Label == null || node.Value.Labels.Contains(Label)) &&
+          (PropertyFilter == null || PropertyMatch(PropertyFilter, node.Value)))
         {
           var row = new Row(context.RowSize);
           // FIXME: Null values???
-          var attributes = node.Value.Properties.ToDictionary(a => a.Key, a => a.Value!);
-          row.Nodes[Variable.SlotIndex] = new GraphNode(attributes);
+          row.Nodes[Variable.SlotIndex] = new GraphNode(
+            node.Value.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
+            node.Value.Properties.ToDictionary(a => a.Key, a => a.Value));
 
           yield return row;
         }
       }
-    }
-
-    
-    private bool PropertyMatch(InMemoryGraph.Node node)
-    {
-      foreach (var p in PropertyFilter!.Conditions)
-      {
-        if (!node.Properties.TryGetValue(p.PropertyName, out var propertyValue))
-          return false;
-
-        // FIXME: Expr must be evaluated to constant value
-        if (!p.Value.Equals(propertyValue))
-          return false;
-      }
-
-      return true;
     }
   }
 }

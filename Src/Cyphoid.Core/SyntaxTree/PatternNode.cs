@@ -13,16 +13,22 @@ namespace Cyphoid.Core.SyntaxTree
       // Parse guarantees existence of initial (left most) node.
       var initialNodePattern = part.PatternChain[0].NodePattern;
 
-      var plan = new NodeScanPlan(
+      LogicalPlan plan = new NodeScanPlan(
         initialNodePattern.Variable,
         initialNodePattern.Label,
         initialNodePattern.PropertyMap);
 
+      var previousChainNode = part.PatternChain[0];
       foreach (var chainNode in part.PatternChain.Skip(1))
       {
-        //var expandPlan = new ExpandPlan(
-        //  plan,
-        //  chainNode.RelationshipPattern.RelationshipDetail.Variable,)
+        plan = new ExpandPlan(
+          plan,
+          previousChainNode.NodePattern.Variable,
+          chainNode.RelationshipPattern!,
+          chainNode.NodePattern.Variable,
+          chainNode.NodePattern.Label,
+          chainNode.NodePattern.PropertyMap);
+        previousChainNode = chainNode;
       }
 
       return plan;

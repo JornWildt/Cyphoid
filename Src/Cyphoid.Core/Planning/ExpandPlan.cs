@@ -6,12 +6,22 @@ namespace Cyphoid.Core.Planning
 {
   public record ExpandPlan(
     LogicalPlan Input,
+    VariableDefinition Source,
     RelationshipPatternNode Relationship,
-    VariableDefinition Destination) : LogicalPlan
+    VariableDefinition Destination,
+    string? DestinationLabel,
+    PropertyMapNode? DestinationPropertyMap) : LogicalPlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {
-      throw new NotImplementedException();
+      // FIXME: No need to calculate this all the time
+      var destinationFilter = BuildPropertyFilter(DestinationPropertyMap);
+      return factory.BuildExpand(
+        Input.BuildExecutionPlan(factory),
+        Source,
+        Destination,
+        DestinationLabel,
+        destinationFilter);
     }
 
     public override void PrettyPrint(StringBuilder sb)

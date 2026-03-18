@@ -1,6 +1,7 @@
 ﻿using Cyphoid.Core;
 using Cyphoid.Core.Execution;
 using Cyphoid.Tests.TestBackend;
+using System.Linq;
 
 namespace Cyphoid.Tests
 {
@@ -45,6 +46,10 @@ namespace Cyphoid.Tests
       Graph.SetNodeProperty("Oslo", "name", "Oslo");
       Graph.SetNodeProperty("Oslo", "isNorwegian", true);
       Graph.AddEdge("Oslo", "Norway", "located_in");
+
+      Graph.SetNodeProperty("Denmark", "name", "Denmark");
+      
+      Graph.SetNodeProperty("Norway", "name", "Norway");
     }
 
 
@@ -58,6 +63,11 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n:city {name: \"Unused\"}) RETURN n", 0)]
     [TestCase("MATCH (n:nothing) RETURN n", 0)]
     [TestCase("MATCH (n:city)-[]->(c:country) RETURN n", 2)] // Only some cities have been related to a country
+    [TestCase("MATCH (n:city)-[]->(c:country {name: \"Norway\"}) RETURN n", 1)]
+    [TestCase("MATCH (n:city)-[]->(c:country {name: \"Denmark\"}) RETURN n", 1)]
+    [TestCase("MATCH (n:city)-[]->(c:country {name: \"None\"}) RETURN n", 0)]
+    [TestCase("MATCH (n:city)-[]->(c:nothing) RETURN n", 0)]
+    [TestCase("MATCH (n:nothing)-[]->(c:country) RETURN n", 0)]
     public async Task ItCanExecuteQuery(string input, int rowCount)
     {
       // Arrange
@@ -70,7 +80,7 @@ namespace Cyphoid.Tests
       var execution = plan.BuildExecutionPlan(factory);
       var context = new QueryContext(queryNode.RowSize);
 
-      var result = execution.ExecuteAsync(context).ToBlockingEnumerable().ToList();
+      var result = await execution.ExecuteAsync(context).ToListAsync();
 
       // Assert
       Assert.That(result.Count, Is.EqualTo(rowCount));

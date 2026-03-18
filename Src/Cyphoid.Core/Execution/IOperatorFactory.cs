@@ -16,5 +16,13 @@ namespace Cyphoid.Core.Execution
       VariableDefinition variable,
       string? label,
       PropertyFilter? propertyFilter);
+
+    IOperator BuildExpand(
+      IOperator source,
+      VariableDefinition sourceVariable,
+      VariableDefinition destinationVariable,
+      string? destinationLabel,
+      PropertyFilter? destinationPropertyFilter);
+
   }
 }

@@ -8,5 +8,14 @@
     {
       Nodes = new GraphNode[capacity];
     }
+
+
+    public Row Clone()
+    {
+      var clone = new Row(Nodes.Length);
+      for (int i=0; i<Nodes.Length; i++)
+        clone.Nodes[i] = Nodes[i];
+      return clone;
+    }
   }
 }

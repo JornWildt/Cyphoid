@@ -1,6 +1,6 @@
 ﻿using Cyphoid.Core.Execution;
 
-namespace Cyphoid.Tests.TestBackend
+namespace Cyphoid.Tests.TestBackend.Operators
 {
   internal class ProjectionOperator : OperatorBase, IOperator
   {
