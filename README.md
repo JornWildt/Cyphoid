@@ -65,9 +65,10 @@ Cypher executable query plan
 
 For developing the Cyphoid library.
 
-## Building
+## Building a release
 
-Build in release mode to generate NuGet package.
+1. Update version number and more in Cyphoid.Core.csproj.
+1. Build in release mode to generate NuGet package.
 
 ## ANTLR
 The compiler is built using Antlr. See https://github.com/antlr/antlr4/blob/master/doc/getting-started.md

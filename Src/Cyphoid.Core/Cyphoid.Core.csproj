@@ -9,7 +9,7 @@
 
     <!-- NuGet package metadata -->
     <PackageId>Cyphoid</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>Jørn Wildt</Authors>
     <Description>A parser for the Cypher graph query language. It includes a simple implementation of the query language.</Description>
     <PackageTags>parser cypher query language</PackageTags>
@@ -25,6 +25,7 @@
 
   <PropertyGroup>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+    <PackageReleaseNotes>0.2.0 - Added backed reference implementation.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
