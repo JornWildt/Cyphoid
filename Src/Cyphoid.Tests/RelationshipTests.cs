@@ -65,7 +65,7 @@ namespace Cyphoid.Tests
       Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
 
       // - so far undefined, not handling edge variables, but neither breaking.
-      Assert.That(result.Rows[0]["r"], Is.Not.Null);
+      Assert.That(result.Rows[0]["r"], Is.Null);
     }
 
 

@@ -1,7 +1,6 @@
-﻿using System.Text;
-using Cyphoid.Core.Execution;
+﻿using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
-using Cyphoid.Core.ReferenceBackend;
+using System.Text;
 
 namespace Cyphoid.Core.SyntaxTree
 {
@@ -37,8 +36,8 @@ namespace Cyphoid.Core.SyntaxTree
     {
       return (IRow r) => ToConstantValue();
     }
-    
-    
+
+
     public override MixedValue ToConstantValue()
     {
       return MixedValue.Bool(Value);

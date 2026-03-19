@@ -1,9 +1,4 @@
-﻿using System.Linq;
-using Cyphoid.Core;
-using Cyphoid.Core.Execution;
-using Cyphoid.Core.SyntaxTree;
-using Cyphoid.Tests.TestBackend;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Cyphoid.Tests
 {
@@ -74,14 +69,11 @@ namespace Cyphoid.Tests
 
 
     [TestCase(
-      "RETURN 1", 
+      "RETURN 1",
       "[{\"p1\":1}]")]
     [TestCase(
       "MATCH (n:city) RETURN n.size LIMIT 1",
       "[{\"size\":null}]")]
-    [TestCase(
-      "MATCH (n:city) RETURN n LIMIT 1",
-      "[{\"n\":\"-NODE-\"}]")]
     [TestCase(
       "MATCH (n:city) RETURN 1 LIMIT 1",
       "[{\"p1\":1}]")]

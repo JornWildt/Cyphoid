@@ -36,7 +36,7 @@ namespace Cyphoid.Core.SyntaxTree
       return (IRow r) =>
       {
         var node = r.Nodes[Variable.SlotIndex];
-        return MixedValue.String("-NODE-"); // FIXME: node values????
+        return MixedValue.GraphNode(node);
       };
     }
 
@@ -55,6 +55,8 @@ namespace Cyphoid.Core.SyntaxTree
       return (IRow r) =>
       {
         var node = r.Nodes[Variable.SlotIndex];
+        if (node == null)
+          return MixedValue.Null();
         var propertyName = Properties[0];
         if (node.Attributes.TryGetValue(propertyName, out var attributeValue))
           return MixedValue.FromObject(attributeValue);
