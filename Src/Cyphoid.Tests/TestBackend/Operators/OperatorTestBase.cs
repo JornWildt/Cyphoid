@@ -2,12 +2,12 @@
 
 namespace Cyphoid.Tests.TestBackend.Operators
 {
-  internal abstract class OperatorBase
+  internal abstract class OperatorTestBase
   {
     protected InMemoryGraph Graph;
 
 
-    public OperatorBase(InMemoryGraph graph)
+    public OperatorTestBase(InMemoryGraph graph)
     {
       Graph = graph;
     }

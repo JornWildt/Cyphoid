@@ -1,28 +1,25 @@
 ﻿using Cyphoid.Core.Execution;
-using Cyphoid.Core.Expressions;
-using Cyphoid.Core.ReferenceBackend;
 
-namespace Cyphoid.Tests.TestBackend.Operators
+namespace Cyphoid.Core.ReferenceBackend
 {
-  internal class FilterOperator : OperatorBase, IOperator
+  public class FilterReferenceOperator : IOperator
   {
     IOperator Input;
     RowEvaluator PredicateEvaluator;
 
-    public FilterOperator(
-      InMemoryGraph graph,
+    
+    public FilterReferenceOperator(
       IOperator input,
       RowEvaluator predicateEvaluator)
-      : base(graph)
     {
       Input = input;
       PredicateEvaluator = predicateEvaluator;
     }
 
 
-    async IAsyncEnumerable<Row> IOperator.ExecuteAsync(QueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
     {
-      await foreach(var row in Input.ExecuteAsync(context))
+      await foreach (var row in Input.ExecuteAsync(context))
       {
         var ok = PredicateEvaluator(row);
         if (!ok.IsAnythingButTrue())

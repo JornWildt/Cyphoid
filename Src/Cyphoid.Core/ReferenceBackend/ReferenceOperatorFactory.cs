@@ -32,16 +32,26 @@ namespace Cyphoid.Core.ReferenceBackend
     protected virtual IOperator BuildEmptyResult()
       => new EmptyResultReferenceOperator();
 
+    
     protected virtual IOperator BuildFilter(IOperator input, RowEvaluator evaluator)
-      => new FilterReferenceOperator(Graph, input, evaluator);
+      => new FilterReferenceOperator(input, evaluator);
 
-    protected abstract IOperator BuildLimit(IOperator input, int limit);
-    protected abstract IProjectionOperator BuildProjection(IOperator input, IReadOnlyList<ProjectionEvaluator> projections);
+    
+    protected virtual IOperator BuildLimit(IOperator input, int limit)
+      => new LimitReferenceOperator(input, limit);
+
+    protected virtual IProjectionOperator BuildProjection(IOperator input, IReadOnlyList<ProjectionEvaluator> projections)
+      => new ProjectionReferenceOperator(input, projections);
 
     #endregion
+
+
+    #region Backend implementation specific
 
     protected abstract IOperator BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter);
     
     protected abstract IOperator BuildExpand(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter);
+
+    #endregion
   }
 }

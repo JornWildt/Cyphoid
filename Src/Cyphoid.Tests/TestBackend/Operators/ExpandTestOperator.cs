@@ -4,7 +4,7 @@ using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Tests.TestBackend.Operators
 {
-  internal class ExpandOperator : OperatorBase, IOperator
+  internal class ExpandTestOperator : OperatorTestBase, IOperator
   {
     IOperator Input;
     VariableDefinition SourceVariable;
@@ -15,7 +15,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     PropertyFilter? DestinationPropertyFilter;
 
 
-    public ExpandOperator(
+    public ExpandTestOperator(
       InMemoryGraph graph,
       IOperator input,
       VariableDefinition sourceVariable,
@@ -36,7 +36,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    IAsyncEnumerable<Row> IOperator.ExecuteAsync(QueryContext context)
+    IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
     {
       if (Direction == ExpandDirectionType.Outgoing)
         return OutgoingAsync(context);
@@ -47,7 +47,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    async IAsyncEnumerable<Row> OutgoingAsync(QueryContext context)
+    async IAsyncEnumerable<IRow> OutgoingAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
@@ -81,7 +81,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    async IAsyncEnumerable<Row> IncomingAsync(QueryContext context)
+    async IAsyncEnumerable<IRow> IncomingAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {

@@ -6,7 +6,7 @@ namespace Cyphoid.Core.ReferenceBackend
   {
     #region IRow
 
-    IReadOnlyList<IGraphNode> IRow.Nodes => Nodes;
+    IGraphNode[] IRow.Nodes => Nodes;
 
     IRow IRow.Clone()
     {

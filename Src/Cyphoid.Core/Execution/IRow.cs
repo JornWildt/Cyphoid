@@ -2,7 +2,7 @@
 {
   public interface IRow
   {
-    IReadOnlyList<IGraphNode> Nodes { get; }
+    IGraphNode[] Nodes { get; }
     IRow Clone();
   }
 }

@@ -4,6 +4,6 @@ namespace Cyphoid.Core.Execution
 {
   public interface IProjectionOperator
   {
-    IAsyncEnumerable<Dictionary<string,object?>> ExecuteAsync(QueryContext context);
+    IAsyncEnumerable<IDictionary<string,object?>> ExecuteAsync(IQueryContext context);
   }
 }

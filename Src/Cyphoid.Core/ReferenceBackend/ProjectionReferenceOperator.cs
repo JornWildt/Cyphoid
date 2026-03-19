@@ -1,26 +1,23 @@
 ﻿using Cyphoid.Core.Execution;
-using Cyphoid.Core.ReferenceBackend;
 
-namespace Cyphoid.Tests.TestBackend.Operators
+namespace Cyphoid.Core.ReferenceBackend
 {
-  internal class ProjectionOperator : OperatorBase, IProjectionOperator
+  public class ProjectionReferenceOperator : IProjectionOperator
   {
     IOperator Input;
     IReadOnlyList<ProjectionEvaluator> Projections;
 
 
-    public ProjectionOperator(
-      InMemoryGraph graph, 
+    public ProjectionReferenceOperator(
       IOperator input,
       IReadOnlyList<ProjectionEvaluator> projections)
-      : base(graph)
     {
       Input = input;
       Projections = projections;
     }
 
-    
-    async IAsyncEnumerable<Dictionary<string, object?>> IProjectionOperator.ExecuteAsync(QueryContext context)
+
+    async IAsyncEnumerable<IDictionary<string, object?>> IProjectionOperator.ExecuteAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
@@ -29,7 +26,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
         {
           var value = p.ExpressionEvaluator(row);
           var name = p.OutputName;
-          output[name] = value.AsObject(); 
+          output[name] = value.AsObject();
         }
         yield return output;
       }

@@ -4,13 +4,13 @@ using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Tests.TestBackend.Operators
 {
-  internal class NodeScanOperator : OperatorBase, IOperator
+  internal class NodeScanTestOperator : OperatorTestBase, IOperator
   {
     VariableDefinition Variable;
     string? Label;
     PropertyFilter? PropertyFilter;
 
-    public NodeScanOperator(
+    public NodeScanTestOperator(
       InMemoryGraph graph,
       VariableDefinition variable,
       string? label,
@@ -23,7 +23,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    async IAsyncEnumerable<Row> IOperator.ExecuteAsync(QueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
     {
       // Just to satisfy "await"
       await Task.Yield();
@@ -33,7 +33,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
         if ((Label == null || node.Value.Labels.Contains(Label)) &&
           (PropertyFilter == null || PropertyMatch(PropertyFilter, node.Value)))
         {
-          var row = new Row(context.RowSize);
+          IRow row = new Row(context.RowSize);
           row.Nodes[Variable.SlotIndex] = new GraphNode(
             node.Value.Id,
             node.Value.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),

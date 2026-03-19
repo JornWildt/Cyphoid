@@ -1,5 +1,6 @@
 ﻿using Cyphoid.Core;
 using Cyphoid.Core.Execution;
+using Cyphoid.Core.ReferenceBackend;
 using Cyphoid.Tests.TestBackend;
 
 namespace Cyphoid.Tests
@@ -9,10 +10,10 @@ namespace Cyphoid.Tests
     protected InMemoryGraph Graph = new InMemoryGraph();
 
 
-    protected async Task<(string Print, List<Dictionary<string, object?>> Rows)> ExecuteQuery(string input)
+    protected async Task<(string Print, List<IDictionary<string, object?>> Rows)> ExecuteQuery(string input)
     {
       ICypherParser parser = new CypherAstParser();
-      IOperatorFactory factory = new OperatorFactory(Graph);
+      IOperatorFactory factory = new TestOperatorFactory(Graph);
 
       var queryNode = parser.ParseQuery(input);
       var prettyPrint = queryNode.PrettyPrint();
