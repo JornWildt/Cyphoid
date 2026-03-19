@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Library</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <!-- NuGet package metadata -->
     <PackageId>Cyphoid</PackageId>
@@ -17,9 +18,19 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Title>Cyphoid</Title>
     <Copyright>(C) 2026 - Jørn Wildt</Copyright>
-    <PackageProjectUrl>https://github.com/JornWildt/Cyphoid</PackageProjectUrl>    
+    <PackageProjectUrl>https://github.com/JornWildt/Cyphoid</PackageProjectUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>    
   </PropertyGroup>
 
+  <PropertyGroup>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  
   <ItemGroup>
     <Folder Include="Antlr\Generated\" />
   </ItemGroup>

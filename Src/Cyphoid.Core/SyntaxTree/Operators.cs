@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.SyntaxTree
 {
@@ -17,10 +18,10 @@ namespace Cyphoid.Core.SyntaxTree
       var rightEvaluator = Right.BuildEvaluator();
       return Operator switch
       {
-        BinaryOperatorType.And => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() && rightEvaluator(r).AsBool()),
-        BinaryOperatorType.Or => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
-        BinaryOperatorType.EQ => (Row r) => MixedValue.Bool(leftEvaluator(r).Equals(rightEvaluator(r))),
-        BinaryOperatorType.NEQ => (Row r) => MixedValue.Bool(!leftEvaluator(r).Equals(rightEvaluator(r))),
+        BinaryOperatorType.And => (IRow r) => MixedValue.Bool(leftEvaluator(r).AsBool() && rightEvaluator(r).AsBool()),
+        BinaryOperatorType.Or => (IRow r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
+        BinaryOperatorType.EQ => (IRow r) => MixedValue.Bool(leftEvaluator(r).Equals(rightEvaluator(r))),
+        BinaryOperatorType.NEQ => (IRow r) => MixedValue.Bool(!leftEvaluator(r).Equals(rightEvaluator(r))),
         //BinaryOperatorType.LTE => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
         //BinaryOperatorType.GTE => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
         //BinaryOperatorType.LT => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
@@ -46,7 +47,7 @@ namespace Cyphoid.Core.SyntaxTree
     public override RowEvaluator BuildEvaluator()
     {
       var exprEvaluator = Expr.BuildEvaluator();
-      return (Row r) => MixedValue.Bool(exprEvaluator(r).IsAnythingButTrue());
+      return (IRow r) => MixedValue.Bool(exprEvaluator(r).IsAnythingButTrue());
     }
 
 
@@ -64,7 +65,7 @@ namespace Cyphoid.Core.SyntaxTree
     {
       var exprEvaluator = Expr.BuildEvaluator();
       var itemEvaluators = Items.Select(i => i.BuildEvaluator());
-      return (Row r) =>
+      return (IRow r) =>
       {
         var exprValue = exprEvaluator(r);
         var any = itemEvaluators.Any(e => e(r).Equals(exprValue));

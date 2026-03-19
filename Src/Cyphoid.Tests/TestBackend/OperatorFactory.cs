@@ -1,11 +1,12 @@
 ﻿using Cyphoid.Core;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.ReferenceBackend;
 using Cyphoid.Tests.TestBackend.Operators;
 
 namespace Cyphoid.Tests.TestBackend
 {
-  internal class OperatorFactory : IOperatorFactory
+  internal class OperatorFactory : ReferenceOperatorFactory
   {
     InMemoryGraph Graph;
 

@@ -1,5 +1,4 @@
 ﻿using Cyphoid.Core.Expressions;
-using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Execution
 {
@@ -9,7 +8,7 @@ namespace Cyphoid.Core.Execution
 
   public enum ExpandDirectionType { Outgoing, Incoming }
 
-  public delegate MixedValue RowEvaluator(Row row);
+  public delegate MixedValue RowEvaluator(IRow row);
 
   public interface IOperatorFactory
   {

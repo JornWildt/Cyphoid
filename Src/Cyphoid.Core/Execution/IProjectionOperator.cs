@@ -1,8 +1,9 @@
-﻿namespace Cyphoid.Core.Execution
+﻿using Cyphoid.Core.ReferenceBackend;
+
+namespace Cyphoid.Core.Execution
 {
   public interface IProjectionOperator
   {
-    // FIXME: object or MixedValue???
     IAsyncEnumerable<Dictionary<string,object?>> ExecuteAsync(QueryContext context);
   }
 }

@@ -1,7 +1,9 @@
-﻿namespace Cyphoid.Core.Execution
+﻿using Cyphoid.Core.ReferenceBackend;
+
+namespace Cyphoid.Core.Execution
 {
   public interface IOperator
   {
-    IAsyncEnumerable<Row> ExecuteAsync(QueryContext context);
+    IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context);
   }
 }

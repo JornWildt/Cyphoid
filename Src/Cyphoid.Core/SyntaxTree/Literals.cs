@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.SyntaxTree
 {
@@ -14,7 +15,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public override RowEvaluator BuildEvaluator()
     {
-      return (Row r) => MixedValue.Null();
+      return (IRow r) => MixedValue.Null();
     }
 
 
@@ -34,7 +35,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public override RowEvaluator BuildEvaluator()
     {
-      return (Row r) => ToConstantValue();
+      return (IRow r) => ToConstantValue();
     }
     
     
@@ -54,7 +55,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public override RowEvaluator BuildEvaluator()
     {
-      return (Row r) => ToConstantValue();
+      return (IRow r) => ToConstantValue();
     }
 
 
@@ -74,7 +75,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public override RowEvaluator BuildEvaluator()
     {
-      return (Row r) => ToConstantValue();
+      return (IRow r) => ToConstantValue();
     }
 
 

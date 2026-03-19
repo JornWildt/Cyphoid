@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.SyntaxTree
 {
@@ -32,7 +33,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public override RowEvaluator BuildEvaluator()
     {
-      return (Row r) =>
+      return (IRow r) =>
       {
         var node = r.Nodes[Variable.SlotIndex];
         return MixedValue.String("-NODE-"); // FIXME: node values????
@@ -51,7 +52,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public override RowEvaluator BuildEvaluator()
     {
-      return (Row r) =>
+      return (IRow r) =>
       {
         var node = r.Nodes[Variable.SlotIndex];
         var propertyName = Properties[0];
