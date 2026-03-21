@@ -25,15 +25,15 @@ namespace Cyphoid.Core.SyntaxTree
 
   public abstract record ExprNode : AstNode
   {
-    public abstract RowEvaluator BuildEvaluator();
+    public abstract RowEvaluator<TId> BuildEvaluator<TId>() where TId : IEquatable<TId>;
   }
 
 
   public record VariableExprNode(VariableDefinition Variable) : ExprNode
   {
-    public override RowEvaluator BuildEvaluator()
+    public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
-      return (IRow r) =>
+      return (IRow<TId> r) =>
       {
         var node = r.Nodes[Variable.SlotIndex];
         return MixedValue.GraphNode(node);
@@ -50,9 +50,9 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record PropertyAccessNode(VariableDefinition Variable, IReadOnlyList<string> Properties) : ExprNode
   {
-    public override RowEvaluator BuildEvaluator()
+    public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
-      return (IRow r) =>
+      return (IRow<TId> r) =>
       {
         var node = r.Nodes[Variable.SlotIndex];
         if (node == null)

@@ -2,26 +2,26 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public abstract class ReferenceOperatorFactory : IOperatorFactory
+  public abstract class ReferenceOperatorFactory<TId> : IOperatorFactory<TId> where TId : IEquatable<TId>
   {
     #region IOperatorFactory
 
-    IOperator IOperatorFactory.BuildEmptyResult()
+    IOperator<TId> IOperatorFactory<TId>.BuildEmptyResult()
       => BuildEmptyResult();
 
-    IOperator IOperatorFactory.BuildExpand(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
+    IOperator<TId> IOperatorFactory<TId>.BuildExpand(IOperator<TId> input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
       => BuildExpand(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
 
-    IOperator IOperatorFactory.BuildFilter(IOperator input, RowEvaluator evaluator)
+    IOperator<TId> IOperatorFactory<TId>.BuildFilter(IOperator<TId> input, RowEvaluator<TId> evaluator)
       => BuildFilter(input, evaluator);
 
-    IOperator IOperatorFactory.BuildLimit(IOperator input, int limit)
+    IOperator<TId> IOperatorFactory<TId>.BuildLimit(IOperator<TId> input, int limit)
       => BuildLimit(input, limit);
 
-    IOperator IOperatorFactory.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter)
+    IOperator<TId> IOperatorFactory<TId>.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter)
       => BuildNodeScan(variable, label, propertyFilter);
 
-    IProjectionOperator IOperatorFactory.BuildProjection(IOperator input, IReadOnlyList<ProjectionEvaluator> projections)
+    IProjectionOperator IOperatorFactory<TId>.BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
       => BuildProjection(input, projections);
 
     #endregion
@@ -29,28 +29,28 @@ namespace Cyphoid.Core.ReferenceBackend
 
     #region Reference implementation
 
-    protected virtual IOperator BuildEmptyResult()
-      => new EmptyResultReferenceOperator();
+    protected virtual IOperator<TId> BuildEmptyResult()
+      => new EmptyResultReferenceOperator<TId>();
 
     
-    protected virtual IOperator BuildFilter(IOperator input, RowEvaluator evaluator)
-      => new FilterReferenceOperator(input, evaluator);
+    protected virtual IOperator<TId> BuildFilter(IOperator<TId> input, RowEvaluator<TId> evaluator)
+      => new FilterReferenceOperator<TId>(input, evaluator);
 
     
-    protected virtual IOperator BuildLimit(IOperator input, int limit)
-      => new LimitReferenceOperator(input, limit);
+    protected virtual IOperator<TId> BuildLimit(IOperator<TId> input, int limit)
+      => new LimitReferenceOperator<TId>(input, limit);
 
-    protected virtual IProjectionOperator BuildProjection(IOperator input, IReadOnlyList<ProjectionEvaluator> projections)
-      => new ProjectionReferenceOperator(input, projections);
+    protected virtual IProjectionOperator BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
+      => new ProjectionReferenceOperator<TId>(input, projections);
 
     #endregion
 
 
     #region Backend implementation specific
 
-    protected abstract IOperator BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter);
+    protected abstract IOperator<TId> BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter);
     
-    protected abstract IOperator BuildExpand(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter);
+    protected abstract IOperator<TId> BuildExpand(IOperator<TId> input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter);
 
     #endregion
   }

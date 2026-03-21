@@ -5,7 +5,7 @@ using Cyphoid.Tests.TestBackend.Operators;
 
 namespace Cyphoid.Tests.TestBackend
 {
-  internal class TestOperatorFactory : ReferenceOperatorFactory
+  internal class TestOperatorFactory : ReferenceOperatorFactory<string>
   {
     InMemoryGraph Graph;
 
@@ -16,14 +16,14 @@ namespace Cyphoid.Tests.TestBackend
     }
 
 
-    protected override IOperator BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter)
+    protected override IOperator<string> BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter)
     {
-      return new NodeScanTestOperator(Graph, variable, label, propertyFilter);
+      return new NodeScanTestOperator<string>(Graph, variable, label, propertyFilter);
     }
 
 
-    protected override IOperator BuildExpand(
-      IOperator input,
+    protected override IOperator<string> BuildExpand(
+      IOperator<string> input,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
       string? relationLabel,
@@ -31,7 +31,7 @@ namespace Cyphoid.Tests.TestBackend
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter)
     {
-      return new ExpandTestOperator(
+      return new ExpandTestOperator<string>(
         Graph,
         input,
         sourceVariable,

@@ -2,8 +2,8 @@
 
 namespace Cyphoid.Core.Execution
 {
-  public interface IOperator
+  public interface IOperator<TId> where TId : IEquatable<TId>
   {
-    IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context);
+    IAsyncEnumerable<IRow<TId>> ExecuteAsync(IQueryContext context);
   }
 }

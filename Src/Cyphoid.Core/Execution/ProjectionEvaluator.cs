@@ -1,4 +1,4 @@
 ﻿namespace Cyphoid.Core.Execution
 {
-  public record ProjectionEvaluator(RowEvaluator ExpressionEvaluator, string OutputName);
+  public record ProjectionEvaluator<TId>(RowEvaluator<TId> ExpressionEvaluator, string OutputName) where TId : IEquatable<TId>;
 }

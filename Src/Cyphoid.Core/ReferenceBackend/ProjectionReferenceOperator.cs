@@ -2,15 +2,15 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class ProjectionReferenceOperator : IProjectionOperator
+  public class ProjectionReferenceOperator<TId> : IProjectionOperator where TId : IEquatable<TId>
   {
-    IOperator Input;
-    IReadOnlyList<ProjectionEvaluator> Projections;
+    IOperator<TId> Input;
+    IReadOnlyList<ProjectionEvaluator<TId>> Projections;
 
 
     public ProjectionReferenceOperator(
-      IOperator input,
-      IReadOnlyList<ProjectionEvaluator> projections)
+      IOperator<TId> input,
+      IReadOnlyList<ProjectionEvaluator<TId>> projections)
     {
       Input = input;
       Projections = projections;

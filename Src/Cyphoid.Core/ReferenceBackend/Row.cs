@@ -2,13 +2,13 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class Row : IRow
+  public class Row<TId> : IRow<TId> where TId : IEquatable<TId>
   {
     #region IRow
 
-    IGraphNode[] IRow.Nodes => Nodes;
+    IGraphNode<TId>[] IRow<TId>.Nodes => Nodes;
 
-    IRow IRow.Clone()
+    IRow<TId> IRow<TId>.Clone()
     {
       return Clone();
     }
@@ -16,17 +16,17 @@ namespace Cyphoid.Core.ReferenceBackend
     #endregion
 
 
-    protected IGraphNode[] Nodes { get; private init; }
+    protected IGraphNode<TId>[] Nodes { get; private init; }
 
     public Row(int capacity)
     {
-      Nodes = new IGraphNode[capacity];
+      Nodes = new IGraphNode<TId>[capacity];
     }
 
 
-    protected Row Clone()
+    protected Row<TId> Clone()
     {
-      var clone = new Row(Nodes.Length);
+      var clone = new Row<TId>(Nodes.Length);
       for (int i=0; i<Nodes.Length; i++)
         clone.Nodes[i] = Nodes[i];
       return clone;

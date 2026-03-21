@@ -1,8 +1,8 @@
 ﻿namespace Cyphoid.Core.Execution
 {
-  public interface IRow
+  public interface IRow<TId> where TId : IEquatable<TId>
   {
-    IGraphNode?[] Nodes { get; }
-    IRow Clone();
+    IGraphNode<TId>?[] Nodes { get; }
+    IRow<TId> Clone();
   }
 }

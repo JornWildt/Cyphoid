@@ -5,9 +5,9 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record WhereNode(ExprNode Expr) : AstNode
   {
-    public PipelinePlan BuildQueryPlan(PipelinePlan input)
+    public PipelinePlan<TId> BuildQueryPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
     {
-      return new FilterPlan(input, Expr);
+      return new FilterPlan<TId>(input, Expr);
     }
     
     

@@ -15,7 +15,7 @@ namespace Cyphoid.Tests
 
       // Act
       var queryNode = parser.ParseQuery(input);
-      var plan = queryNode.BuildQueryPlan();
+      var plan = queryNode.BuildQueryPlan<string>();
       var output = plan.PrettyPrint();
 
       Console.WriteLine("***  " + input);

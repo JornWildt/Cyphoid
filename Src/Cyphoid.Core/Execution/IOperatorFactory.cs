@@ -8,19 +8,19 @@ namespace Cyphoid.Core.Execution
 
   public enum ExpandDirectionType { Outgoing, Incoming }
 
-  public delegate MixedValue RowEvaluator(IRow row);
+  public delegate MixedValue RowEvaluator<TId>(IRow<TId> row) where TId : IEquatable<TId>;
 
-  public interface IOperatorFactory
+  public interface IOperatorFactory<TId> where TId : IEquatable<TId>
   {
-    IOperator BuildEmptyResult();
+    IOperator<TId> BuildEmptyResult();
 
-    IOperator BuildNodeScan(
+    IOperator<TId> BuildNodeScan(
       VariableDefinition variable,
       string? label,
       PropertyFilter? propertyFilter);
 
-    IOperator BuildExpand(
-      IOperator input,
+    IOperator<TId> BuildExpand(
+      IOperator<TId> input,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
       string? relationLabel,
@@ -28,16 +28,16 @@ namespace Cyphoid.Core.Execution
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter);
 
-    IOperator BuildFilter(
-      IOperator input,
-      RowEvaluator evaluator);
+    IOperator<TId> BuildFilter(
+      IOperator<TId> input,
+      RowEvaluator<TId> evaluator);
 
-    IOperator BuildLimit(
-      IOperator input,
+    IOperator<TId> BuildLimit(
+      IOperator<TId> input,
       int limit);
 
     IProjectionOperator BuildProjection(
-      IOperator input,
-      IReadOnlyList<ProjectionEvaluator> projections);
+      IOperator<TId> input,
+      IReadOnlyList<ProjectionEvaluator<TId>> projections);
   }
 }

@@ -4,15 +4,15 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
 {
-  public record FilterPlan(
-    PipelinePlan Input,
-    ExprNode Predicate) : PipelinePlan
+  public record FilterPlan<TId>(
+    PipelinePlan<TId> Input,
+    ExprNode Predicate) : PipelinePlan<TId> where TId : IEquatable<TId>
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
-      var evaluator = Predicate.BuildEvaluator();
+      var evaluator = Predicate.BuildEvaluator<TId>();
       return factory.BuildFilter(
-        Input.BuildExecutionPlan(factory), 
+        Input.BuildExecutionPlan(factory),
         evaluator);
     }
 

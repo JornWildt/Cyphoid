@@ -2,14 +2,14 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class LimitReferenceOperator : IOperator
+  public class LimitReferenceOperator<TId> : IOperator<TId> where TId : IEquatable<TId>
   {
-    IOperator Input;
+    IOperator<TId> Input;
     int Limit;
 
 
     public LimitReferenceOperator(
-      IOperator input,
+      IOperator<TId> input,
       int limit)
     {
       Input = input;
@@ -17,7 +17,7 @@ namespace Cyphoid.Core.ReferenceBackend
     }
 
 
-    IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
+    IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context)
     {
       return Input.ExecuteAsync(context).Take(Limit);
     }

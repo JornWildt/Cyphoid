@@ -5,9 +5,9 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record LimitNode(int Limit) : AstNode
   {
-    public PipelinePlan BuildQueryPlan(PipelinePlan input)
+    public PipelinePlan<TId> BuildQueryPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
     {
-      return new LimitPlan(input, Limit);
+      return new LimitPlan<TId>(input, Limit);
     }
     
     

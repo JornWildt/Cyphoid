@@ -4,12 +4,12 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
 {
-  public record NodeScanPlan(
+  public record NodeScanPlan<TId>(
     VariableDefinition Variable,
     string? Label,
-    PropertyMapNode? PropertyMap) : PipelinePlan
+    PropertyMapNode? PropertyMap) : PipelinePlan<TId> where TId : IEquatable<TId>
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
       // FIXME: No need to calculate this all the time
       var filter = BuildPropertyFilter(PropertyMap);

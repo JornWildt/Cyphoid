@@ -4,22 +4,22 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
 {
-  public record ProjectionPlan(
-    PipelinePlan Input,
-    IReadOnlyList<ReturnItemNode> Projections) : LogicalPlan
+  public record ProjectionPlan<TId>(
+    PipelinePlan<TId> Input,
+    IReadOnlyList<ReturnItemNode> Projections) : LogicalPlan<TId> where TId : IEquatable<TId>
   {
-    public IProjectionOperator BuildExecutionPlan(IOperatorFactory factory)
+    public IProjectionOperator BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
       int num = 1;
-      var projections = new List<ProjectionEvaluator>();
+      var projections = new List<ProjectionEvaluator<TId>>();
       foreach (var p in Projections)
       {
         var name = p.Identifier?.Name ??
           ((p.Expr is VariableExprNode v) ? v.Variable.Name 
           : (p.Expr is PropertyAccessNode pa) ? pa.Properties[pa.Properties.Count-1]
           : $"p{num++}");
-        var evaluator = p.Expr.BuildEvaluator();
-        projections.Add(new ProjectionEvaluator(evaluator, name));
+        var evaluator = p.Expr.BuildEvaluator<TId>();
+        projections.Add(new ProjectionEvaluator<TId>(evaluator, name));
       }
       
       return factory.BuildProjection(

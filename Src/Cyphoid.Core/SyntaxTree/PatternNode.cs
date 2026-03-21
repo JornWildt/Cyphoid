@@ -5,7 +5,7 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record PatternNode(IReadOnlyList<PatternPartNode> Parts) : AstNode
   {
-    public PipelinePlan BuildPlan()
+    public PipelinePlan<TId> BuildPlan<TId>() where TId : IEquatable<TId>
     {
       // FIXME: Only using first part so far
       var part = Parts[0];
@@ -13,7 +13,7 @@ namespace Cyphoid.Core.SyntaxTree
       // Parse guarantees existence of initial (left most) node.
       var initialNodePattern = part.PatternChain[0].NodePattern;
 
-      PipelinePlan plan = new NodeScanPlan(
+      PipelinePlan<TId> plan = new NodeScanPlan<TId>(
         initialNodePattern.Variable,
         initialNodePattern.Label,
         initialNodePattern.PropertyMap);
@@ -21,7 +21,7 @@ namespace Cyphoid.Core.SyntaxTree
       var previousChainNode = part.PatternChain[0];
       foreach (var chainNode in part.PatternChain.Skip(1))
       {
-        plan = new ExpandPlan(
+        plan = new ExpandPlan<TId>(
           plan,
           previousChainNode.NodePattern.Variable,
           chainNode.RelationshipPattern!,

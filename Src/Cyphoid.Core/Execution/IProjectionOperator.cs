@@ -1,9 +1,7 @@
-﻿using Cyphoid.Core.ReferenceBackend;
-
-namespace Cyphoid.Core.Execution
+﻿namespace Cyphoid.Core.Execution
 {
   public interface IProjectionOperator
   {
-    IAsyncEnumerable<IDictionary<string,object?>> ExecuteAsync(IQueryContext context);
+    IAsyncEnumerable<IDictionary<string, object?>> ExecuteAsync(IQueryContext context);
   }
 }

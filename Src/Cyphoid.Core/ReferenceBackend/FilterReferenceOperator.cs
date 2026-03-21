@@ -2,22 +2,22 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class FilterReferenceOperator : IOperator
+  public class FilterReferenceOperator<TId> : IOperator<TId> where TId : IEquatable<TId>
   {
-    IOperator Input;
-    RowEvaluator PredicateEvaluator;
+    IOperator<TId> Input;
+    RowEvaluator<TId> PredicateEvaluator;
 
     
     public FilterReferenceOperator(
-      IOperator input,
-      RowEvaluator predicateEvaluator)
+      IOperator<TId> input,
+      RowEvaluator<TId> predicateEvaluator)
     {
       Input = input;
       PredicateEvaluator = predicateEvaluator;
     }
 
 
-    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {

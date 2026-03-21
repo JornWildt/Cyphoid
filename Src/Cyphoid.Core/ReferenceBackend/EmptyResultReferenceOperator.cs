@@ -2,16 +2,16 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class EmptyResultReferenceOperator : IOperator
+  public class EmptyResultReferenceOperator<TId> : IOperator<TId> where TId : IEquatable<TId>
   {
-    IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context) => ExecuteAsync(context);
+    IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context) => ExecuteAsync(context);
 
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     
-    protected virtual async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context)
+    protected virtual async IAsyncEnumerable<IRow<TId>> ExecuteAsync(IQueryContext context)
     {
-      yield return new Row(0);
+      yield return new Row<TId>(0);
     }
 
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

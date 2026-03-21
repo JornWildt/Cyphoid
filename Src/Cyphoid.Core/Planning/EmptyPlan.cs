@@ -3,9 +3,9 @@ using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.Planning
 {
-  public record EmptyPlan() : PipelinePlan
+  public record EmptyPlan<TId>() : PipelinePlan<TId> where TId : IEquatable<TId>
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
       return factory.BuildEmptyResult();
     }

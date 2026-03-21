@@ -2,8 +2,8 @@
 
 namespace Cyphoid.Core.Planning
 {
-  public abstract record PipelinePlan : LogicalPlan
+  public abstract record PipelinePlan<TId> : LogicalPlan<TId> where TId : IEquatable<TId>
   {
-    public abstract IOperator BuildExecutionPlan(IOperatorFactory factory);
+    public abstract IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory);
   }
 }

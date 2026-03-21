@@ -4,7 +4,7 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
 {
-  public abstract record LogicalPlan()
+  public abstract record LogicalPlan<TId>() where TId : IEquatable<TId>
   {
     public virtual string PrettyPrint()
     {

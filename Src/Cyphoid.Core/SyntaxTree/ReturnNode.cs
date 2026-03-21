@@ -5,9 +5,9 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record ReturnNode(IReadOnlyList<ReturnItemNode> Items) : AstNode
   {
-    public ProjectionPlan BuildQueryPlan(PipelinePlan input)
+    public ProjectionPlan<TId> BuildQueryPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
     {
-      return new ProjectionPlan(input, Items);
+      return new ProjectionPlan<TId>(input, Items);
     }
 
 

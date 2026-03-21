@@ -12,9 +12,9 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record NullLiteralNode() : LiteralValueNode
   {
-    public override RowEvaluator BuildEvaluator()
+    public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
-      return (IRow r) => MixedValue.Null();
+      return (IRow<TId> r) => MixedValue.Null();
     }
 
 
@@ -32,9 +32,9 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record BoolLiteralNode(bool Value) : LiteralValueNode
   {
-    public override RowEvaluator BuildEvaluator()
+    public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
-      return (IRow r) => ToConstantValue();
+      return (IRow<TId> r) => ToConstantValue();
     }
 
 
@@ -52,9 +52,9 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record IntLiteralNode(long Value) : LiteralValueNode
   {
-    public override RowEvaluator BuildEvaluator()
+    public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
-      return (IRow r) => ToConstantValue();
+      return (IRow<TId> r) => ToConstantValue();
     }
 
 
@@ -72,9 +72,9 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record StringLiteralNode(string Value) : LiteralValueNode
   {
-    public override RowEvaluator BuildEvaluator()
+    public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
-      return (IRow r) => ToConstantValue();
+      return (IRow<TId> r) => ToConstantValue();
     }
 
 

@@ -33,7 +33,7 @@ namespace Cyphoid.Tests
 
     [TestCase(
       "MATCH (n:country) WHERE n.name = 'Germany' RETURN n LIMIT 1",
-      "[{\"n\":{\"Id\":\"Germany\",\"Edges\":{},\"Attributes\":{\"name\":\"Germany\"}}}]")]
+      "[{\"n\":{\"Id\":\"Germany\",\"Type\":\"country\",\"Edges\":{},\"Attributes\":{\"name\":\"Germany\"}}}]")]
     public async Task ItCanReturnFullNodeData(string input, string expectedOutputJson)
     {
       // Act

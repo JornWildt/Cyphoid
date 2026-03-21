@@ -5,9 +5,9 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record MatchNode(PatternNode Pattern) : AstNode
   {
-    public PipelinePlan BuildQueryPlan()
+    public PipelinePlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
     {
-      return Pattern.BuildPlan();
+      return Pattern.BuildPlan<TId>();
     }
 
 

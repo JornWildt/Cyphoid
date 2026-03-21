@@ -12,16 +12,16 @@ namespace Cyphoid.Core.SyntaxTree
     private static readonly string[] OperatorSymbols = ["AND", "OR", "=", "<>", "<=", ">=", "<", ">", "CONTAINS", "STARTS WITH", "ENDS WITH"];
   
 
-    public override RowEvaluator BuildEvaluator()
+    public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
-      var leftEvaluator = Left.BuildEvaluator();
-      var rightEvaluator = Right.BuildEvaluator();
+      var leftEvaluator = Left.BuildEvaluator<TId>();
+      var rightEvaluator = Right.BuildEvaluator<TId>();
       return Operator switch
       {
-        BinaryOperatorType.And => (IRow r) => MixedValue.Bool(leftEvaluator(r).AsBool() && rightEvaluator(r).AsBool()),
-        BinaryOperatorType.Or => (IRow r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
-        BinaryOperatorType.EQ => (IRow r) => MixedValue.Bool(leftEvaluator(r).Equals(rightEvaluator(r))),
-        BinaryOperatorType.NEQ => (IRow r) => MixedValue.Bool(!leftEvaluator(r).Equals(rightEvaluator(r))),
+        BinaryOperatorType.And => (IRow<TId> r) => MixedValue.Bool(leftEvaluator(r).AsBool() && rightEvaluator(r).AsBool()),
+        BinaryOperatorType.Or => (IRow<TId> r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
+        BinaryOperatorType.EQ => (IRow<TId> r) => MixedValue.Bool(leftEvaluator(r).Equals(rightEvaluator(r))),
+        BinaryOperatorType.NEQ => (IRow<TId> r) => MixedValue.Bool(!leftEvaluator(r).Equals(rightEvaluator(r))),
         //BinaryOperatorType.LTE => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
         //BinaryOperatorType.GTE => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
         //BinaryOperatorType.LT => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
@@ -44,10 +44,10 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record UnaryOperatorNode(UnaryOperatorType Operator, ExprNode Expr) : ExprNode
   {
-    public override RowEvaluator BuildEvaluator()
+    public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
-      var exprEvaluator = Expr.BuildEvaluator();
-      return (IRow r) => MixedValue.Bool(exprEvaluator(r).IsAnythingButTrue());
+      var exprEvaluator = Expr.BuildEvaluator<TId>();
+      return (IRow<TId> r) => MixedValue.Bool(exprEvaluator(r).IsAnythingButTrue());
     }
 
 
@@ -61,11 +61,11 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record InOperatorNode(ExprNode Expr, IReadOnlyList<ExprNode> Items) : ExprNode
   {
-    public override RowEvaluator BuildEvaluator()
+    public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
-      var exprEvaluator = Expr.BuildEvaluator();
-      var itemEvaluators = Items.Select(i => i.BuildEvaluator());
-      return (IRow r) =>
+      var exprEvaluator = Expr.BuildEvaluator<TId>();
+      var itemEvaluators = Items.Select(i => i.BuildEvaluator<TId>());
+      return (IRow<TId> r) =>
       {
         var exprValue = exprEvaluator(r);
         var any = itemEvaluators.Any(e => e(r).Equals(exprValue));

@@ -4,9 +4,9 @@ using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Tests.TestBackend.Operators
 {
-  internal class ExpandTestOperator : OperatorTestBase, IOperator
+  internal class ExpandTestOperator<TId> : OperatorTestBase, IOperator<string>
   {
-    IOperator Input;
+    IOperator<string> Input;
     VariableDefinition SourceVariable;
     ExpandDirectionType Direction;
     string? RelationLabel;
@@ -17,7 +17,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
 
     public ExpandTestOperator(
       InMemoryGraph graph,
-      IOperator input,
+      IOperator<string> input,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
       string? relationLabel,
@@ -36,7 +36,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
+    IAsyncEnumerable<IRow<string>> IOperator<string>.ExecuteAsync(IQueryContext context)
     {
       if (Direction == ExpandDirectionType.Outgoing)
         return OutgoingAsync(context);
@@ -47,7 +47,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    async IAsyncEnumerable<IRow> OutgoingAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow<string>> OutgoingAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
@@ -70,8 +70,9 @@ namespace Cyphoid.Tests.TestBackend.Operators
                 (DestinationPropertyFilter == null || PropertyMatch(DestinationPropertyFilter, targetNode)))
               {
                 var newRow = row.Clone();
-                newRow.Nodes[DestinationVariable.SlotIndex] = new GraphNode(
+                newRow.Nodes[DestinationVariable.SlotIndex] = new GraphNode<string>(
                   targetId,
+                  targetNode.Labels.First(),
                   targetNode.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
                   targetNode.Properties);
                 yield return newRow;
@@ -83,7 +84,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    async IAsyncEnumerable<IRow> IncomingAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow<string>> IncomingAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
@@ -113,8 +114,9 @@ namespace Cyphoid.Tests.TestBackend.Operators
                 (DestinationPropertyFilter == null || PropertyMatch(DestinationPropertyFilter, targetNode)))
               {
                 var newRow = row.Clone();
-                newRow.Nodes[DestinationVariable.SlotIndex] = new GraphNode(
+                newRow.Nodes[DestinationVariable.SlotIndex] = new GraphNode<string>(
                   targetId,
+                  targetNode.Labels.First(),
                   targetNode.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
                   targetNode.Properties);
                 yield return newRow;

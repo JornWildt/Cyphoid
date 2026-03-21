@@ -2,8 +2,14 @@
 {
   public interface IGraphNode
   {
-    string Id { get; }
+    string Type { get; }
     Dictionary<string, string> Edges { get; }
     Dictionary<string, object?> Attributes { get; }
+  }
+
+
+  public interface IGraphNode<TId> : IGraphNode where TId : IEquatable<TId>
+  {
+    TId Id { get; }
   }
 }

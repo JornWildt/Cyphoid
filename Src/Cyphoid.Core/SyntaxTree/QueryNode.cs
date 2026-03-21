@@ -13,9 +13,9 @@ namespace Cyphoid.Core.SyntaxTree
     public int RowSize => VariableDefinitions.Count;
 
 
-    public ProjectionPlan BuildQueryPlan()
+    public ProjectionPlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
     {
-      PipelinePlan plan = Match != null ? Match.BuildQueryPlan() : new EmptyPlan();
+      PipelinePlan<TId> plan = Match != null ? Match.BuildQueryPlan<TId>() : new EmptyPlan<TId>();
 
       if (Where != null)
       {
