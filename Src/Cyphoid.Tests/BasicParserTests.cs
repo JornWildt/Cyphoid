@@ -27,6 +27,9 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (a)-[r {weight: 5}]->(b) RETURN a, b")]
     [TestCase("MATCH (n) WHERE n AND NOT n RETURN n")]
     [TestCase("MATCH (n) RETURN n OR NOT n")]
+    [TestCase("MATCH (n) MATCH (o) RETURN n")]
+    [TestCase("MATCH (n) WHERE n.name = \"John\" MATCH (o) RETURN n")]
+    [TestCase("MATCH (n) WHERE n.name = \"John\" MATCH (o) WHERE o.x = n.y RETURN n")]
     public void ItCanParseAndPrettyPrint(string input)
     {
       // Arrange

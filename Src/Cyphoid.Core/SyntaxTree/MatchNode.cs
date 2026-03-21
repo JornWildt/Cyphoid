@@ -7,14 +7,13 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public PipelinePlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
     {
-      return Pattern.BuildPlan<TId>();
+      throw new NotImplementedException();
     }
 
 
     public override void PrettyPrint(StringBuilder sb)
     {
-      sb.Append("MATCH ");
-      Pattern.PrettyPrint(sb);
+      throw new NotImplementedException();
     }
   }
 }

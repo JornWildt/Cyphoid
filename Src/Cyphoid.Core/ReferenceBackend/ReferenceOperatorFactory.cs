@@ -9,6 +9,9 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator<TId> IOperatorFactory<TId>.BuildEmptyResult()
       => BuildEmptyResult();
 
+    IOperator<TId> IOperatorFactory<TId>.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter)
+      => BuildNodeScan(variable, label, propertyFilter);
+
     IOperator<TId> IOperatorFactory<TId>.BuildExpand(IOperator<TId> input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
       => BuildExpand(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
 
@@ -17,9 +20,6 @@ namespace Cyphoid.Core.ReferenceBackend
 
     IOperator<TId> IOperatorFactory<TId>.BuildLimit(IOperator<TId> input, int limit)
       => BuildLimit(input, limit);
-
-    IOperator<TId> IOperatorFactory<TId>.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter)
-      => BuildNodeScan(variable, label, propertyFilter);
 
     IProjectionOperator IOperatorFactory<TId>.BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
       => BuildProjection(input, projections);

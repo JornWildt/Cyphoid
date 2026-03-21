@@ -38,6 +38,12 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitQuery([NotNull] CypherParser.QueryContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMatchWhereClause([NotNull] CypherParser.MatchWhereClauseContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.matchClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -49,6 +55,12 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitWhereClause([NotNull] CypherParser.WhereClauseContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.returnLimitClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitReturnLimitClause([NotNull] CypherParser.ReturnLimitClauseContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.returnClause"/>.
 	/// </summary>

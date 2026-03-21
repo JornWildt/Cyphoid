@@ -41,6 +41,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitQuery([NotNull] CypherParser.QueryContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterMatchWhereClause([NotNull] CypherParser.MatchWhereClauseContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitMatchWhereClause([NotNull] CypherParser.MatchWhereClauseContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.matchClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -60,6 +70,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitWhereClause([NotNull] CypherParser.WhereClauseContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.returnLimitClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterReturnLimitClause([NotNull] CypherParser.ReturnLimitClauseContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.returnLimitClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitReturnLimitClause([NotNull] CypherParser.ReturnLimitClauseContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.returnClause"/>.
 	/// </summary>

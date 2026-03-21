@@ -4,10 +4,8 @@ using Cyphoid.Core.Planning;
 namespace Cyphoid.Core.SyntaxTree
 {
   public record QueryNode(
-    MatchNode? Match, 
-    WhereNode? Where, 
-    ReturnNode Return, 
-    LimitNode? Limit,
+    IReadOnlyList<MatchWhereNode> MatchWhere,
+    ReturnLimitNode ReturnLimit,
     Dictionary<string, VariableDefinition> VariableDefinitions) : AstNode
   {
     public int RowSize => VariableDefinitions.Count;
@@ -15,43 +13,32 @@ namespace Cyphoid.Core.SyntaxTree
 
     public ProjectionPlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
     {
-      PipelinePlan<TId> plan = Match != null ? Match.BuildQueryPlan<TId>() : new EmptyPlan<TId>();
-
-      if (Where != null)
+      var plan = MatchWhere.Count > 0 ? MatchWhere[0].BuildQueryPlan<TId>() : new EmptyPlan<TId>();
+      foreach (var mw in MatchWhere.Skip(1))
       {
-        plan = Where.BuildQueryPlan(plan);
+        var nextPlan = mw.BuildQueryPlan<TId>();
+        // FIXME: Join the plans
       }
-
-      if (Limit != null)
-        plan = Limit.BuildQueryPlan(plan);
-
-      var projectionPlan = Return.BuildQueryPlan(plan);
-
+      var projectionPlan = ReturnLimit.BuildQueryPlan(plan);
       return projectionPlan;
     }
 
 
     public override void PrettyPrint(StringBuilder sb)
     {
-      Match?.PrettyPrint(sb);
-      
-      if (Where != null)
+      var first = true;
+      foreach (var mw in MatchWhere)
       {
-        if (Match != null)
+        if (!first)
           sb.Append(" ");
-        Where.PrettyPrint(sb);
+        mw.PrettyPrint(sb);
+        first = false;
       }
 
-      if (Match != null || Where != null)
+      if (!first)
         sb.Append(" ");
 
-      Return.PrettyPrint(sb);
-      
-      if (Limit != null)
-      {
-        sb.Append(" ");
-        Limit.PrettyPrint(sb);
-      }
+      ReturnLimit.PrettyPrint(sb);
     }
   }
 }

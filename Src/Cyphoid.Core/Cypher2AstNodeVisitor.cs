@@ -19,15 +19,25 @@ namespace Cyphoid.Core
 
     public override AstNode VisitQuery([NotNull] global::CypherParser.QueryContext context)
     {
-      var match = context.matchClause() != null ? Visit<MatchNode>(context.matchClause()) : null;
+      var matchWhere = new List<MatchWhereNode>();
 
+      foreach (var mwc in context.matchWhereClause())
+      {
+        var mw = Visit<MatchWhereNode>(mwc);
+        matchWhere.Add(mw);
+      }
+
+      var returnLimit = Visit<ReturnLimitNode>(context.returnLimitClause());
+
+      return new QueryNode(matchWhere, returnLimit, VariableDefinitions);
+    }
+
+
+    public override AstNode VisitMatchWhereClause([NotNull] CypherParser.MatchWhereClauseContext context)
+    {
+      var match = Visit<MatchNode>(context.matchClause());
       var where = context.whereClause() != null ? Visit<WhereNode>(context.whereClause()) : null;
-
-      var @return = Visit<ReturnNode>(context.returnClause());
-
-      var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
-
-      return new QueryNode(match, where, @return, limit, VariableDefinitions);
+      return new MatchWhereNode(match.Pattern, where?.Expr);
     }
 
 
@@ -36,10 +46,19 @@ namespace Cyphoid.Core
       return new MatchNode(Visit<PatternNode>(context.pattern()));
     }
 
+    
     public override AstNode VisitWhereClause([NotNull] CypherParser.WhereClauseContext context)
     {
       var expr = Visit<ExprNode>(context.expression());
       return new WhereNode(expr);
+    }
+
+
+    public override AstNode VisitReturnLimitClause([NotNull] CypherParser.ReturnLimitClauseContext context)
+    {
+      var @return = Visit<ReturnNode>(context.returnClause());
+      var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
+      return new ReturnLimitNode(@return.Items, limit?.Limit);
     }
 
 

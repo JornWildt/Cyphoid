@@ -127,5 +127,17 @@ namespace Cyphoid.Tests
       Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
       Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
     }
+
+    
+    [TestCase("MATCH (n) MATCH (o) RETURN n", 144)]
+    public async Task ItCanHandleMultipleMatches(string input, int rowCount)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+      Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
+    }
   }
 }

@@ -7,13 +7,13 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public PipelinePlan<TId> BuildQueryPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
     {
-      return new LimitPlan<TId>(input, Limit);
+      throw new NotImplementedException();
     }
-    
-    
+
+
     public override void PrettyPrint(StringBuilder sb)
     {
-      sb.Append("LIMIT " + Limit);
+      throw new NotImplementedException();
     }
   }
 }

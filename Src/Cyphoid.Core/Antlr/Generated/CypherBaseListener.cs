@@ -48,6 +48,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitQuery([NotNull] CypherParser.QueryContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterMatchWhereClause([NotNull] CypherParser.MatchWhereClauseContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitMatchWhereClause([NotNull] CypherParser.MatchWhereClauseContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.matchClause"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -71,6 +83,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitWhereClause([NotNull] CypherParser.WhereClauseContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.returnLimitClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterReturnLimitClause([NotNull] CypherParser.ReturnLimitClauseContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.returnLimitClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitReturnLimitClause([NotNull] CypherParser.ReturnLimitClauseContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.returnClause"/>.
 	/// <para>The default implementation does nothing.</para>

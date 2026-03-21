@@ -1,7 +1,11 @@
 grammar Cypher;
 
 query
-  : matchClause? whereClause? returnClause limitClause? EOF
+  : matchWhereClause* returnLimitClause EOF
+  ;
+
+matchWhereClause
+  : matchClause whereClause?
   ;
 
 matchClause
@@ -10,6 +14,10 @@ matchClause
 
 whereClause
   : WHERE expression
+  ;
+
+returnLimitClause
+  : returnClause limitClause?
   ;
 
 returnClause
