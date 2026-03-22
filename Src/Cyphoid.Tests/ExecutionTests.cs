@@ -138,6 +138,8 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n {name: 'København'}) MATCH (n {name: 'Oslo'}) RETURN n", 0)]
     [TestCase("MATCH (n) MATCH (o)-[]->(n) RETURN n", 2)]
     [TestCase("MATCH (n) MATCH (o)-[]->(o) RETURN n", 0)]
+    [TestCase("MATCH (n:country) MATCH (o)-[:located_in]->(n) RETURN n", 2)]
+    [TestCase("MATCH (n:country) MATCH (o)<-[:located_in]-(n) RETURN n", 0)]
     public async Task ItCanHandleMultipleMatches(string input, int rowCount)
     {
       // Act

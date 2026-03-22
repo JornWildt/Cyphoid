@@ -28,14 +28,24 @@ namespace Cyphoid.Core.ReferenceBackend
             var sourceNode = row.Nodes[SourceVariable.SlotIndex];
             if (sourceNode != null)
             {
-              var matchingEdges = sourceNode.Edges
-                .Where(e => RelationLabel == null || e.Key == RelationLabel);
+              if (Direction == ExpandDirectionType.Outgoing)
+              {
+                var matchingEdges = sourceNode.Edges
+                  .Where(e => RelationLabel == null || e.Key == RelationLabel);
 
-              // FIXME: Direction!!!
+                // FIXME: Edge destination must be TId (not string)
+                if (matchingEdges.Any(e => e.Value == destinationNode.Id.ToString()))
+                  isMatch = true;
+              }
+              else
+              {
+                var matchingEdges = destinationNode.Edges
+                  .Where(e => RelationLabel == null || e.Key == RelationLabel);
 
-              // FIXME: Edge destination must be TId (not string)
-              if (matchingEdges.Any(e => e.Value == destinationNode.Id.ToString()))
-                isMatch = true;
+                // FIXME: Edge destination must be TId (not string)
+                if (matchingEdges.Any(e => e.Value == sourceNode.Id.ToString()))
+                  isMatch = true;
+              }
             }
           }
           else
