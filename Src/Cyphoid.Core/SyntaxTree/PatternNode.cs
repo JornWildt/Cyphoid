@@ -71,13 +71,13 @@ namespace Cyphoid.Core.SyntaxTree
     }
   }
 
-  public record NodePatternNode(VariableDefinition Variable, string? Label, PropertyMapNode? PropertyMap) : AstNode
+  public record NodePatternNode(VariableReference Variable, string? Label, PropertyMapNode? PropertyMap) : AstNode
   {
     public override void PrettyPrint(StringBuilder sb)
     {
       sb.Append("(");
-      if (!Variable.IsAnonymous)
-        sb.Append(Variable.Name);
+      if (!Variable.Definition.IsAnonymous)
+        sb.Append(Variable.Definition.Name);
       if (Label != null)
         sb.Append(":" + Label);
       if (PropertyMap != null)
@@ -110,12 +110,15 @@ namespace Cyphoid.Core.SyntaxTree
     }
   }
 
-  public record RelationshipDetailNode(VariableDefinition Variable, string? RelationshipType, PropertyMapNode? PropertyMap) : AstNode
+  public record RelationshipDetailNode(
+    VariableReference Variable, 
+    string? RelationshipType, 
+    PropertyMapNode? PropertyMap) : AstNode
   {
     public override void PrettyPrint(StringBuilder sb)
     {
-      if (!Variable.IsAnonymous)
-        sb.Append(Variable.Name);
+      if (!Variable.Definition.IsAnonymous)
+        sb.Append(Variable.Definition.Name);
       if (RelationshipType != null)
         sb.Append(":" + RelationshipType);
       if (PropertyMap != null)

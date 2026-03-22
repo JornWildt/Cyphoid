@@ -4,14 +4,20 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core
 {
-  public enum VariableKindType { Node }
+  public enum VariableKindType { Node, Edge }
 
   public record VariableDefinition(bool IsAnonymous, string Name, VariableKindType Kind, int SlotIndex);
+
+  public enum VariableReferenceBindingType { Unbound, Bound }
+  public record VariableReference(VariableReferenceBindingType Binding, VariableDefinition Definition);
 
 
   internal class Cypher2AstNodeVisitor : CypherBaseVisitor<AstNode>
   {
     int AnonymousVariableCounter = 1;
+    int NodeVariableSlotIndex = 0;
+    int EdgeVariableSlotIndex = 0;
+
     Dictionary<string, VariableDefinition> VariableDefinitions = new Dictionary<string, VariableDefinition>();
 
 
@@ -131,8 +137,8 @@ namespace Cyphoid.Core
       var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
       var label = context.nodeLabel() != null ? Visit<LabelNode>(context.nodeLabel()) : null;
       var propertyMap = context.propertyMap() != null ? Visit<PropertyMapNode>(context.propertyMap()) : null;
-      var variableDef = NewVariableDefinition(variable, VariableKindType.Node);
-      return new NodePatternNode(variableDef, label?.Label, propertyMap);
+      var nodeVariableRef = RegisterVariable(variable, VariableKindType.Node);
+      return new NodePatternNode(nodeVariableRef, label?.Label, propertyMap);
     }
 
 
@@ -153,8 +159,8 @@ namespace Cyphoid.Core
       var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
       var relationshipType = context.relationshipTypes() != null ? Visit<IdentifierNode>(context.relationshipTypes()) : null;
       var propertyMap = context.propertyMap() != null ? Visit<PropertyMapNode>(context.propertyMap()) : null;
-      var variableDef = NewVariableDefinition(variable, VariableKindType.Node);
-      return new RelationshipDetailNode(variableDef, relationshipType?.Name, propertyMap);
+      var edgeVariableRef = RegisterVariable(variable, VariableKindType.Edge);
+      return new RelationshipDetailNode(edgeVariableRef, relationshipType?.Name, propertyMap);
     }
 
 
@@ -298,7 +304,7 @@ namespace Cyphoid.Core
       else if (context.variable() != null)
       {
         var v = Visit<VariableNode>(context.variable());
-        var vd = FindVariableDefinition(v, VariableKindType.Node);
+        var vd = FindVariable(v);
         return new VariableExprNode(vd);
       }
       else if (context.expression() != null)
@@ -323,7 +329,7 @@ namespace Cyphoid.Core
         var property = Visit<IdentifierNode>(p);
         properties.Add(property.Name);
       }
-      return new PropertyAccessNode(FindVariableDefinition(variable, VariableKindType.Node), properties);
+      return new PropertyAccessNode(FindVariable(variable), properties);
     }
 
     
@@ -405,41 +411,39 @@ namespace Cyphoid.Core
     }
 
     
-    private VariableDefinition NewVariableDefinition(VariableNode? variableNode, VariableKindType variableKind)
+    private VariableReference RegisterVariable(VariableNode? variableNode, VariableKindType variableKind)
     {
-      string variableName = variableNode?.Name ?? NewAnonymousVariable();
+      string variableName = variableNode?.Name ?? NewAnonymousVariableName();
 
       if (VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
       {
-        throw new InvalidOperationException($"Variable '{variableName}' already defined.");
+        return new VariableReference(VariableReferenceBindingType.Bound, variableDefinition);
       }
       else
       {
-        variableDefinition = new VariableDefinition(variableNode == null, variableName, variableKind, VariableDefinitions.Count);
+        int slotIndex = variableKind == VariableKindType.Node ? NodeVariableSlotIndex++ : EdgeVariableSlotIndex++;
+        variableDefinition = new VariableDefinition(variableNode == null, variableName, variableKind, slotIndex);
         VariableDefinitions.Add(variableName, variableDefinition);
+        
+        return new VariableReference(VariableReferenceBindingType.Unbound, variableDefinition);
       }
-      return variableDefinition;
     }
 
 
 
-    private VariableDefinition FindVariableDefinition(VariableNode? variableNode, VariableKindType variableKind)
+    private VariableDefinition FindVariable(VariableNode? variableNode)
     {
-      string variableName = variableNode?.Name ?? NewAnonymousVariable();
+      string variableName = variableNode?.Name ?? NewAnonymousVariableName();
 
-      if (VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
-      {
-        if (variableDefinition.Kind != variableKind)
-          throw new InvalidOperationException($"Variable '{variableName}' reused as '{variableDefinition.Kind}' - expected '{VariableKindType.Node}'.");
-      }
-      else
+      if (!VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
       {
         throw new InvalidOperationException($"Undefined variable '{variableName}'.");
       }
+
       return variableDefinition;
     }
 
-    private string NewAnonymousVariable()
+    private string NewAnonymousVariableName()
     {
       string name = "anon_" + AnonymousVariableCounter++;
       return name;

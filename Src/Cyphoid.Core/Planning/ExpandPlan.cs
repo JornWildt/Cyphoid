@@ -6,9 +6,9 @@ namespace Cyphoid.Core.Planning
 {
   public record ExpandPlan<TId>(
     PipelinePlan<TId> Input,
-    VariableDefinition Source,
+    VariableReference Source,
     RelationshipPatternNode Relationship,
-    VariableDefinition Destination,
+    VariableReference Destination,
     string? DestinationLabel,
     PropertyMapNode? DestinationPropertyMap) : PipelinePlan<TId> where TId : IEquatable<TId>
   {
@@ -25,12 +25,14 @@ namespace Cyphoid.Core.Planning
         _ => throw new NotImplementedException()
       };
 
+      // FIXME: Check bound/unbound variable
+
       return factory.BuildExpand(
         Input.BuildExecutionPlan(factory),
-        Source,
+        Source.Definition,
         direction,
         Relationship.RelationshipDetail?.RelationshipType,
-        Destination,
+        Destination.Definition,
         DestinationLabel,
         destinationFilter);
     }
