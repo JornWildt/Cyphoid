@@ -57,6 +57,7 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n:city)-[]->(c:country {name: \"None\"}) RETURN n", 0)]
     [TestCase("MATCH (n:city)-[]->(c:nothing) RETURN n", 0)]
     [TestCase("MATCH (n:nothing)-[]->(c:country) RETURN n", 0)]
+    [TestCase("MATCH (o)-[]->(o) RETURN o", 0)]
     public async Task ItCanExecuteBasicQuery(string input, int rowCount)
     {
       // Act
@@ -130,6 +131,8 @@ namespace Cyphoid.Tests
 
     
     [TestCase("MATCH (n) MATCH (o) RETURN n", 144)]
+    [TestCase("MATCH (n) MATCH (o)-[]->(n) RETURN n", 2)]
+    [TestCase("MATCH (n) MATCH (o)-[]->(o) RETURN n", 0)]
     public async Task ItCanHandleMultipleMatches(string input, int rowCount)
     {
       // Act

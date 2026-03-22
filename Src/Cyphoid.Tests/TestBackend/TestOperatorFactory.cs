@@ -22,7 +22,7 @@ namespace Cyphoid.Tests.TestBackend
     }
 
 
-    protected override IOperator<string> BuildExpand(
+    protected override IOperator<string> BuildExpandAll(
       IOperator<string> input,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
@@ -31,7 +31,7 @@ namespace Cyphoid.Tests.TestBackend
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter)
     {
-      return new ExpandTestOperator<string>(
+      return new ExpandAllTestOperator<string>(
         Graph,
         input,
         sourceVariable,

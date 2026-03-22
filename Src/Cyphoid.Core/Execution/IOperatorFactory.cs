@@ -19,7 +19,7 @@ namespace Cyphoid.Core.Execution
       string? label,
       PropertyFilter? propertyFilter);
 
-    IOperator<TId> BuildExpand(
+    IOperator<TId> BuildExpandAll(
       IOperator<TId> input,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
@@ -27,6 +27,19 @@ namespace Cyphoid.Core.Execution
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter);
+
+    IOperator<TId> BuildExpandInto(
+      IOperator<TId> input,
+      VariableDefinition? sourceVariable,
+      ExpandDirectionType? direction,
+      string? relationLabel,
+      VariableDefinition destinationVariable,
+      string? destinationLabel,
+      PropertyFilter? destinationPropertyFilter);
+
+    IOperator<TId> BuildCartesianProduct(
+      IOperator<TId> operator1, 
+      IOperator<TId> operator2);
 
     IOperator<TId> BuildFilter(
       IOperator<TId> input,

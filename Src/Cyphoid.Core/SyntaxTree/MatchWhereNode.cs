@@ -5,9 +5,10 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record MatchWhereNode(PatternNode MatchPattern, ExprNode? WhereExpr) : AstNode
   {
-    public PipelinePlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
+    public PipelinePlan<TId> BuildQueryPlan<TId>(
+      PipelinePlan<TId>? input) where TId : IEquatable<TId>
     {
-      var plan = MatchPattern.BuildPlan<TId>();
+      var plan = MatchPattern.BuildPlan<TId>(input);
       if (WhereExpr != null)
       {
         plan = new FilterPlan<TId>(plan, WhereExpr);

@@ -13,12 +13,14 @@ namespace Cyphoid.Core.SyntaxTree
 
     public ProjectionPlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
     {
-      var plan = MatchWhere.Count > 0 ? MatchWhere[0].BuildQueryPlan<TId>() : new EmptyPlan<TId>();
-      foreach (var mw in MatchWhere.Skip(1))
+      PipelinePlan<TId>? plan = null;
+      foreach (var mw in MatchWhere)
       {
-        var nextPlan = mw.BuildQueryPlan<TId>();
-        // FIXME: Join the plans
+        plan = mw.BuildQueryPlan<TId>(plan);
       }
+      
+      plan = plan ?? new EmptyPlan<TId>();
+
       var projectionPlan = ReturnLimit.BuildQueryPlan(plan);
       return projectionPlan;
     }

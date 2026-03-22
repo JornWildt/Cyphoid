@@ -4,7 +4,7 @@ using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Tests.TestBackend.Operators
 {
-  internal class ExpandTestOperator<TId> : OperatorTestBase, IOperator<string>
+  internal class ExpandAllTestOperator<TId> : OperatorTestBase, IOperator<string>
   {
     IOperator<string> Input;
     VariableDefinition SourceVariable;
@@ -15,7 +15,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     PropertyFilter? DestinationPropertyFilter;
 
 
-    public ExpandTestOperator(
+    public ExpandAllTestOperator(
       InMemoryGraph graph,
       IOperator<string> input,
       VariableDefinition sourceVariable,

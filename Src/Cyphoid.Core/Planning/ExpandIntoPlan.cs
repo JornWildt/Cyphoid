@@ -4,10 +4,10 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
 {
-  public record ExpandPlan<TId>(
+  public record ExpandIntoPlan<TId>(
     PipelinePlan<TId> Input,
-    VariableReference Source,
-    RelationshipPatternNode Relationship,
+    VariableReference? Source,
+    RelationshipPatternNode? Relationship,
     VariableReference Destination,
     string? DestinationLabel,
     PropertyMapNode? DestinationPropertyMap) : PipelinePlan<TId> where TId : IEquatable<TId>
@@ -17,21 +17,20 @@ namespace Cyphoid.Core.Planning
       // FIXME: No need to calculate this all the time
       var destinationFilter = BuildPropertyFilter(DestinationPropertyMap);
 
-      var direction = Relationship.RelationshipDirection switch
+      ExpandDirectionType? direction = Relationship?.RelationshipDirection switch
       {
         RelationshipDirectionType.Right => ExpandDirectionType.Outgoing,
         RelationshipDirectionType.Left => ExpandDirectionType.Incoming,
         RelationshipDirectionType.Both => throw new NotImplementedException("Both directions not supported."),
+        null => (ExpandDirectionType?)null,
         _ => throw new NotImplementedException()
       };
 
-      // FIXME: Check bound/unbound variable
-
-      return factory.BuildExpand(
+      return factory.BuildExpandInto(
         Input.BuildExecutionPlan(factory),
-        Source.Definition,
+        Source?.Definition,
         direction,
-        Relationship.RelationshipDetail?.RelationshipType,
+        Relationship?.RelationshipDetail?.RelationshipType,
         Destination.Definition,
         DestinationLabel,
         destinationFilter);

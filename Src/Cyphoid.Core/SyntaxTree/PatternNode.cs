@@ -5,7 +5,8 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record PatternNode(IReadOnlyList<PatternPartNode> Parts) : AstNode
   {
-    public PipelinePlan<TId> BuildPlan<TId>() where TId : IEquatable<TId>
+    public PipelinePlan<TId> BuildPlan<TId>(
+      PipelinePlan<TId>? input) where TId : IEquatable<TId>
     {
       // FIXME: Only using first part so far
       var part = Parts[0];
@@ -13,21 +14,58 @@ namespace Cyphoid.Core.SyntaxTree
       // Parse guarantees existence of initial (left most) node.
       var initialNodePattern = part.PatternChain[0].NodePattern;
 
-      PipelinePlan<TId> plan = new NodeScanPlan<TId>(
-        initialNodePattern.Variable,
-        initialNodePattern.Label,
-        initialNodePattern.PropertyMap);
+      PipelinePlan<TId> plan;
+      if (initialNodePattern.Variable.Binding == VariableReferenceBindingType.Unbound)
+      {
+        plan = new NodeScanPlan<TId>(
+          initialNodePattern.Variable,
+          initialNodePattern.Label,
+          initialNodePattern.PropertyMap);
+
+        if (input != null)
+        {
+          plan = new CartesianProductPlan<TId>(
+            input,
+            plan);
+        }
+      }
+      else
+      {
+        ArgumentNullException.ThrowIfNull(input, nameof(input));
+
+        plan = new ExpandIntoPlan<TId>(
+          input,
+          null,
+          null,
+          initialNodePattern.Variable,
+          initialNodePattern.Label,
+          initialNodePattern.PropertyMap);
+
+      }
 
       var previousChainNode = part.PatternChain[0];
       foreach (var chainNode in part.PatternChain.Skip(1))
       {
-        plan = new ExpandPlan<TId>(
-          plan,
-          previousChainNode.NodePattern.Variable,
-          chainNode.RelationshipPattern!,
-          chainNode.NodePattern.Variable,
-          chainNode.NodePattern.Label,
-          chainNode.NodePattern.PropertyMap);
+        if (chainNode.NodePattern.Variable.Binding == VariableReferenceBindingType.Unbound)
+        {
+          plan = new ExpandAllPlan<TId>(
+            plan,
+            previousChainNode.NodePattern.Variable,
+            chainNode.RelationshipPattern!,
+            chainNode.NodePattern.Variable,
+            chainNode.NodePattern.Label,
+            chainNode.NodePattern.PropertyMap);
+        }
+        else
+        {
+          plan = new ExpandIntoPlan<TId>(
+            plan,
+            previousChainNode.NodePattern.Variable,
+            chainNode.RelationshipPattern!,
+            chainNode.NodePattern.Variable,
+            chainNode.NodePattern.Label,
+            chainNode.NodePattern.PropertyMap);
+        }
         previousChainNode = chainNode;
       }
 
