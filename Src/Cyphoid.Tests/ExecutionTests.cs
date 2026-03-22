@@ -131,6 +131,11 @@ namespace Cyphoid.Tests
 
     
     [TestCase("MATCH (n) MATCH (o) RETURN n", 144)]
+    [TestCase("MATCH (n) MATCH (n) RETURN n", 12)]
+    [TestCase("MATCH (n) MATCH (n:country) RETURN n", 5)]
+    [TestCase("MATCH (n) MATCH (n {name: 'Oslo'}) RETURN n", 1)]
+    [TestCase("MATCH (n {name: 'Oslo'}) MATCH (n {name: 'Oslo'}) RETURN n", 1)]
+    [TestCase("MATCH (n {name: 'København'}) MATCH (n {name: 'Oslo'}) RETURN n", 0)]
     [TestCase("MATCH (n) MATCH (o)-[]->(n) RETURN n", 2)]
     [TestCase("MATCH (n) MATCH (o)-[]->(o) RETURN n", 0)]
     public async Task ItCanHandleMultipleMatches(string input, int rowCount)

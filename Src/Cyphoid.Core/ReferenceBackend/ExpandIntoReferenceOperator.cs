@@ -18,26 +18,41 @@ namespace Cyphoid.Core.ReferenceBackend
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
-        var sourceNode = row.Nodes[SourceVariable!.SlotIndex];
-        if (sourceNode != null)
+        var destinationNode = row.Nodes[DestinationVariable.SlotIndex];
+        if (destinationNode != null)
         {
-          var matchingEdges = sourceNode.Edges
-            .Where(e => RelationLabel == null || e.Key == RelationLabel);
+          bool isMatch = false;
 
-          // FIXME: Direction!!!
-
-          var destinationNode = row.Nodes[DestinationVariable!.SlotIndex];
-          if (destinationNode != null)
+          if (SourceVariable != null)
           {
-            // FIXME: Edge destination must be TId (not string)
-            var isMatch = matchingEdges
-              .Any(e => e.Value == destinationNode.Id.ToString());
+            var sourceNode = row.Nodes[SourceVariable.SlotIndex];
+            if (sourceNode != null)
+            {
+              var matchingEdges = sourceNode.Edges
+                .Where(e => RelationLabel == null || e.Key == RelationLabel);
 
-            if (isMatch)
-              yield return row;
+              // FIXME: Direction!!!
+
+              // FIXME: Edge destination must be TId (not string)
+              if (matchingEdges.Any(e => e.Value == destinationNode.Id.ToString()))
+                isMatch = true;
+            }
+          }
+          else
+          {
+            isMatch = true;
+          }
+
+          if (isMatch
+            && (DestinationLabel == null || destinationNode.Type == DestinationLabel)
+            && (DestinationPropertyFilter == null || DestinationPropertyFilter.IsMatch(destinationNode)))
+          {
+            yield return row;
           }
         }
       }
     }
+    
+    
   }
 }

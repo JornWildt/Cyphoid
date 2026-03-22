@@ -1,8 +1,25 @@
-﻿using Cyphoid.Core.Expressions;
+﻿using System.Security.Cryptography;
+using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.Execution
 {
-  public record PropertyFilter(IReadOnlyList<PropertyFilterCondition> Conditions);
+  public record PropertyFilter(IReadOnlyList<PropertyFilterCondition> Conditions)
+  {
+    public bool IsMatch<TId>(IGraphNode<TId> node) where TId : IEquatable<TId>
+    {
+      foreach (var p in Conditions)
+      {
+        if (!node.Attributes.TryGetValue(p.PropertyName, out var propertyValue))
+          return false;
+
+        if (!p.Value.Equals(propertyValue))
+          return false;
+      }
+
+      return true;
+    }
+
+  }
 
   public record PropertyFilterCondition(string PropertyName, MixedValue Value);
 
