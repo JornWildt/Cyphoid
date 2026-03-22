@@ -34,7 +34,7 @@ namespace Cyphoid.Core.ReferenceBackend
                   .Where(e => RelationLabel == null || e.Key == RelationLabel);
 
                 // FIXME: Edge destination must be TId (not string)
-                if (matchingEdges.Any(e => e.Value == destinationNode.Id.ToString()))
+                if (matchingEdges.Any(e => EqualityComparer<TId>.Default.Equals(e.Value, destinationNode.Id)))
                   isMatch = true;
               }
               else
@@ -43,7 +43,7 @@ namespace Cyphoid.Core.ReferenceBackend
                   .Where(e => RelationLabel == null || e.Key == RelationLabel);
 
                 // FIXME: Edge destination must be TId (not string)
-                if (matchingEdges.Any(e => e.Value == sourceNode.Id.ToString()))
+                if (matchingEdges.Any(e => EqualityComparer<TId>.Default.Equals(e.Value, sourceNode.Id)))
                   isMatch = true;
               }
             }
