@@ -38,7 +38,7 @@ namespace Cyphoid.Core.Planning
 
     public override void PrettyPrint(StringBuilder sb)
     {
-      sb.AppendLine("Expand");
+      sb.AppendLine("Expand(into)");
       Input.PrettyPrint(sb);
     }
   }

@@ -8,6 +8,8 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n) RETURN n", "Project: n\r\nNodescan (n)")]
     [TestCase("MATCH (n) WHERE n AND NOT n RETURN n", "Project: n\r\nFilter: n AND NOT n\r\nNodescan (n)")]
     [TestCase("MATCH (n {Category: \"Solar\"}) RETURN n", "Project: n\r\nNodescan (n {Category: \"Solar\"})")]
+    [TestCase("MATCH (n) MATCH (o) RETURN n", "Project: n\r\nCartesian product\r\nNodescan (n)\r\nNodescan (o)")]
+    [TestCase("MATCH (n) MATCH (n:country) RETURN n", "Project: n\r\nExpand(into)\r\nNodescan (n)")]
     public void ItCanParseAndGeneratePlan(string input, string expectedOutput)
     {
       // Arrange
