@@ -1,5 +1,6 @@
 ﻿using Cyphoid.Core;
 using Cyphoid.Core.Execution;
+using Cyphoid.Core.Expressions;
 using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Tests.TestBackend.Operators
@@ -51,9 +52,10 @@ namespace Cyphoid.Tests.TestBackend.Operators
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
-        var sourceNode = row.Nodes[SourceVariable.SlotIndex];
-        if (sourceNode != null)
+        var sourceVariable = row.Variables[SourceVariable.SlotIndex];
+        if (sourceVariable != null)
         {
+          var sourceNode = sourceVariable.Value.AsGraphNode<string>();
           var matchingEdges = sourceNode.Edges
             .Where(e => RelationLabel == null || e.Key == RelationLabel);
 
@@ -70,11 +72,12 @@ namespace Cyphoid.Tests.TestBackend.Operators
                 (DestinationPropertyFilter == null || PropertyMatch(DestinationPropertyFilter, targetNode)))
               {
                 var newRow = row.Clone();
-                newRow.Nodes[DestinationVariable.SlotIndex] = new GraphNode<string>(
+                var newNode = new GraphNode<string>(
                   targetId,
                   targetNode.Labels.First(),
                   targetNode.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
                   targetNode.Properties);
+                newRow.Variables[DestinationVariable.SlotIndex] = MixedValue.GraphNode(newNode);
                 yield return newRow;
               }
             }
@@ -91,10 +94,11 @@ namespace Cyphoid.Tests.TestBackend.Operators
         // Note that "incoming" goes to the source in the relationship
         // FIXME: maybe call them left/right instead?
 
-        var sourceNode = row.Nodes[SourceVariable.SlotIndex];
+        var sourceVariable = row.Variables[SourceVariable.SlotIndex];
 
-        if (sourceNode != null)
+        if (sourceVariable != null)
         {
+          var sourceNode = sourceVariable.Value.AsGraphNode<string>();
           var sourceId = sourceNode.Id;
 
           var matchingEdges = Graph.Incoming(sourceId)
@@ -114,11 +118,12 @@ namespace Cyphoid.Tests.TestBackend.Operators
                 (DestinationPropertyFilter == null || PropertyMatch(DestinationPropertyFilter, targetNode)))
               {
                 var newRow = row.Clone();
-                newRow.Nodes[DestinationVariable.SlotIndex] = new GraphNode<string>(
+                var newNode = new GraphNode<string>(
                   targetId,
                   targetNode.Labels.First(),
                   targetNode.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
                   targetNode.Properties);
+                newRow.Variables[DestinationVariable.SlotIndex] = MixedValue.GraphNode(newNode);
                 yield return newRow;
               }
             }

@@ -6,12 +6,14 @@ namespace Cyphoid.Core.Planning
 {
   public record ProjectionPlan<TId>(
     PipelinePlan<TId> Input,
-    IReadOnlyList<ReturnItemNode> Projections) : LogicalPlan<TId> where TId : IEquatable<TId>
+    IReadOnlyList<ReturnProjectionNode> Projections) : LogicalPlan<TId> where TId : IEquatable<TId>
   {
     public IProjectionOperator BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
       int num = 1;
       var projections = new List<ProjectionEvaluator<TId>>();
+
+      // FIXME: Moved to visitor code???
       foreach (var p in Projections)
       {
         var name = p.Identifier?.Name ??

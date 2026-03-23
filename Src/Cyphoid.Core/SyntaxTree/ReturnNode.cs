@@ -3,7 +3,7 @@ using Cyphoid.Core.Planning;
 
 namespace Cyphoid.Core.SyntaxTree
 {
-  public record ReturnNode(IReadOnlyList<ReturnItemNode> Items) : AstNode
+  public record ReturnNode(IReadOnlyList<ReturnProjectionNode> Projections) : AstNode
   {
     //public ProjectionPlan<TId> BuildQueryPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
     //{
@@ -26,7 +26,7 @@ namespace Cyphoid.Core.SyntaxTree
   }
 
 
-  public record ReturnItemNode(ExprNode Expr, IdentifierNode? Identifier) : AstNode
+  public record ReturnProjectionNode(ExprNode Expr, IdentifierNode? Identifier) : AstNode
   {
     public override void PrettyPrint(StringBuilder sb)
     {

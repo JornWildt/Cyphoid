@@ -1,24 +1,26 @@
 ﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+using Cyphoid.Core.Expressions;
 using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core
 {
-  public enum VariableKindType { Node, Edge }
-
-  public record VariableDefinition(bool IsAnonymous, string Name, VariableKindType Kind, int SlotIndex);
+  public record VariableDefinition(bool IsAnonymous, string Name, MixedValue.ValueType Type, int SlotIndex);
 
   public enum VariableReferenceBindingType { Unbound, Bound }
+
   public record VariableReference(VariableReferenceBindingType Binding, VariableDefinition Definition);
 
 
   internal class Cypher2AstNodeVisitor : CypherBaseVisitor<AstNode>
   {
     int AnonymousVariableCounter = 1;
-    int NodeVariableSlotIndex = 0;
-    int EdgeVariableSlotIndex = 0;
 
     Dictionary<string, VariableDefinition> VariableDefinitions = new Dictionary<string, VariableDefinition>();
+    
+    // Use this to keep track of the widest row in the whole query.
+    // This will be used to size the row width.
+    int MaxVariableDefinitionCount = 0;
 
 
     #region Visitors
@@ -35,7 +37,7 @@ namespace Cyphoid.Core
 
       var returnLimit = Visit<ReturnLimitNode>(context.returnLimitClause());
 
-      return new QueryNode(matchWhere, returnLimit, VariableDefinitions);
+      return new QueryNode(matchWhere, returnLimit, VariableDefinitions, MaxVariableDefinitionCount);
     }
 
 
@@ -63,19 +65,38 @@ namespace Cyphoid.Core
     public override AstNode VisitReturnLimitClause([NotNull] CypherParser.ReturnLimitClauseContext context)
     {
       var @return = Visit<ReturnNode>(context.returnClause());
+
+      // At this point the variables declared before "return" is forgotten and a new set is
+      // declared by the return statement.
+
+      VariableDefinitions.Clear();
+      AnonymousVariableCounter = 1;
+
+      int num = 1;
+      foreach (var p in @return.Projections)
+      {
+        var variableName = p.Identifier?.Name ??
+          ((p.Expr is VariableExprNode v) ? v.Variable.Name
+          : (p.Expr is PropertyAccessNode pa) ? pa.Properties[pa.Properties.Count - 1]
+          : $"p{num++}");
+
+        // FIXME: Add type information for the new variables
+        RegisterVariable(p.Identifier == null, variableName, MixedValue.ValueType.String);
+      }
+
       var ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
       var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
-      return new ReturnLimitNode(@return.Items, ordering, limit?.Limit);
+      return new ReturnLimitNode(@return.Projections, ordering, limit?.Limit);
     }
 
 
     public override AstNode VisitReturnClause([NotNull] CypherParser.ReturnClauseContext context)
     {
-      var items = new List<ReturnItemNode>();
+      var items = new List<ReturnProjectionNode>();
       
       foreach (var itemCtx in context.returnItem())
       {
-        items.Add(Visit<ReturnItemNode>(itemCtx));
+        items.Add(Visit<ReturnProjectionNode>(itemCtx));
       }
       
       return new ReturnNode(items);
@@ -117,7 +138,7 @@ namespace Cyphoid.Core
     {
       var expr = Visit<ExprNode>(context.expression());
       var id = context.identifier() != null ? Visit<IdentifierNode>(context.identifier()) : null;
-      return new ReturnItemNode(expr, id);
+      return new ReturnProjectionNode(expr, id);
     }
 
 
@@ -162,7 +183,7 @@ namespace Cyphoid.Core
       var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
       var label = context.nodeLabel() != null ? Visit<LabelNode>(context.nodeLabel()) : null;
       var propertyMap = context.propertyMap() != null ? Visit<PropertyMapNode>(context.propertyMap()) : null;
-      var nodeVariableRef = RegisterVariable(variable, VariableKindType.Node);
+      var nodeVariableRef = RegisterVariable(variable, MixedValue.ValueType.Node);
       return new NodePatternNode(nodeVariableRef, label?.Label, propertyMap);
     }
 
@@ -184,7 +205,7 @@ namespace Cyphoid.Core
       var variable = context.variable() != null ? Visit<VariableNode>(context.variable()) : null;
       var relationshipType = context.relationshipTypes() != null ? Visit<IdentifierNode>(context.relationshipTypes()) : null;
       var propertyMap = context.propertyMap() != null ? Visit<PropertyMapNode>(context.propertyMap()) : null;
-      var edgeVariableRef = RegisterVariable(variable, VariableKindType.Edge);
+      var edgeVariableRef = RegisterVariable(variable, MixedValue.ValueType.Edge);
       return new RelationshipDetailNode(edgeVariableRef, relationshipType?.Name, propertyMap);
     }
 
@@ -435,30 +456,37 @@ namespace Cyphoid.Core
       return (T)result;
     }
 
-    
-    private VariableReference RegisterVariable(VariableNode? variableNode, VariableKindType variableKind)
+
+    private VariableReference RegisterVariable(VariableNode? variableNode, MixedValue.ValueType type)
     {
       string variableName = variableNode?.Name ?? NewAnonymousVariableName();
 
+      return RegisterVariable(variableNode == null, variableName, type);
+    }
+    
+    
+    private VariableReference RegisterVariable(bool isAnonymous, string variableName, MixedValue.ValueType type)
+    {
       if (VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
       {
         return new VariableReference(VariableReferenceBindingType.Bound, variableDefinition);
       }
       else
       {
-        int slotIndex = variableKind == VariableKindType.Node ? NodeVariableSlotIndex++ : EdgeVariableSlotIndex++;
-        variableDefinition = new VariableDefinition(variableNode == null, variableName, variableKind, slotIndex);
+        int slotIndex = VariableDefinitions.Count;
+        variableDefinition = new VariableDefinition(isAnonymous, variableName, type, slotIndex);
         VariableDefinitions.Add(variableName, variableDefinition);
-        
+        if (VariableDefinitions.Count > MaxVariableDefinitionCount)
+          MaxVariableDefinitionCount = VariableDefinitions.Count;
+
         return new VariableReference(VariableReferenceBindingType.Unbound, variableDefinition);
       }
     }
 
 
-
-    private VariableDefinition FindVariable(VariableNode? variableNode)
+    private VariableDefinition FindVariable(VariableNode variableNode)
     {
-      string variableName = variableNode?.Name ?? NewAnonymousVariableName();
+      string variableName = variableNode.Name;
 
       if (!VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
       {

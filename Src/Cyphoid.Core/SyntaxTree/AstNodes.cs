@@ -35,16 +35,8 @@ namespace Cyphoid.Core.SyntaxTree
     {
       return (IRow<TId> r) =>
       {
-        if (Variable.Kind == VariableKindType.Node)
-        {
-          var node = r.Nodes[Variable.SlotIndex];
-          return MixedValue.GraphNode(node);
-        }
-        else
-        {
-          // TODO: Support edges
-          return MixedValue.Null();
-        }
+        var v = r.Variables[Variable.SlotIndex];
+        return v != null ? v.Value : MixedValue.Null();
       };
     }
 
@@ -62,10 +54,11 @@ namespace Cyphoid.Core.SyntaxTree
     {
       return (IRow<TId> r) =>
       {
-        var node = r.Nodes[Variable.SlotIndex];
-        if (node == null)
+        var v = r.Variables[Variable.SlotIndex];
+        if (v == null)
           return MixedValue.Null();
         var propertyName = Properties[0];
+        var node = v.Value.AsGraphNode<TId>();
         if (node.Attributes.TryGetValue(propertyName, out var attributeValue))
           return MixedValue.FromObject(attributeValue);
         else

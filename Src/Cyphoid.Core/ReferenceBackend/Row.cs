@@ -1,4 +1,5 @@
 ﻿using Cyphoid.Core.Execution;
+using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
@@ -6,7 +7,7 @@ namespace Cyphoid.Core.ReferenceBackend
   {
     #region IRow
 
-    IGraphNode<TId>[] IRow<TId>.Nodes => Nodes;
+    MixedValue?[] IRow<TId>.Variables => Variables;
 
     IRow<TId> IRow<TId>.Clone()
     {
@@ -16,19 +17,19 @@ namespace Cyphoid.Core.ReferenceBackend
     #endregion
 
 
-    protected IGraphNode<TId>[] Nodes { get; private init; }
+    protected MixedValue?[] Variables { get; private init; }
 
     public Row(int capacity)
     {
-      Nodes = new IGraphNode<TId>[capacity];
+      Variables = new MixedValue?[capacity];
     }
 
 
     protected Row<TId> Clone()
     {
-      var clone = new Row<TId>(Nodes.Length);
-      for (int i=0; i<Nodes.Length; i++)
-        clone.Nodes[i] = Nodes[i];
+      var clone = new Row<TId>(Variables.Length);
+      for (int i=0; i< Variables.Length; i++)
+        clone.Variables[i] = Variables[i];
       return clone;
     }
   }

@@ -4,7 +4,7 @@ using Cyphoid.Core.Planning;
 namespace Cyphoid.Core.SyntaxTree
 {
   public record ReturnLimitNode(
-    IReadOnlyList<ReturnItemNode> ReturnItems, 
+    IReadOnlyList<ReturnProjectionNode> ReturnItems, 
     OrderByNode? OrderBy,
     int? Limit) : AstNode
   {

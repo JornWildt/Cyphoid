@@ -18,16 +18,19 @@ namespace Cyphoid.Core.ReferenceBackend
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
-        var destinationNode = row.Nodes[DestinationVariable.SlotIndex];
-        if (destinationNode != null)
+        var destinationVariable = row.Variables[DestinationVariable.SlotIndex];
+        if (destinationVariable != null)
         {
+          var destinationNode = destinationVariable.Value.AsGraphNode<TId>();
+
           bool isMatch = false;
 
           if (SourceVariable != null)
           {
-            var sourceNode = row.Nodes[SourceVariable.SlotIndex];
-            if (sourceNode != null)
+            var sourceVariable = row.Variables[SourceVariable.SlotIndex];
+            if (sourceVariable != null)
             {
+              var sourceNode = sourceVariable.Value.AsGraphNode<TId>();
               if (Direction == ExpandDirectionType.Outgoing)
               {
                 var matchingEdges = sourceNode.Edges

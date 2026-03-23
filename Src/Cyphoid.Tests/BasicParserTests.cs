@@ -34,10 +34,10 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (s) RETURN s ORDER BY s.x")]
     [TestCase("MATCH (s) RETURN s ORDER BY s ASC")]
     [TestCase("MATCH (s) RETURN s ORDER BY s DESC")]
-    [TestCase("MATCH (s)-[]->(o) RETURN s ORDER BY s, o")]
-    [TestCase("MATCH (s)-[]->(o) RETURN s ORDER BY s ASC, o")]
-    [TestCase("MATCH (s)-[]->(o) RETURN s ORDER BY s, o DESC")]
-    [TestCase("MATCH (s)-[]->(o) RETURN s ORDER BY s DESC, o ASC")]
+    [TestCase("MATCH (s)-[]->(o) RETURN s, o ORDER BY s, o")]
+    [TestCase("MATCH (s)-[]->(o) RETURN s, o ORDER BY s ASC, o")]
+    [TestCase("MATCH (s)-[]->(o) RETURN s, o ORDER BY s, o DESC")]
+    [TestCase("MATCH (s)-[]->(o) RETURN s, o ORDER BY s DESC, o ASC")]
     public void ItCanParseAndPrettyPrint(string input)
     {
       // Arrange

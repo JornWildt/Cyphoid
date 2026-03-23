@@ -1,5 +1,6 @@
 ﻿using Cyphoid.Core;
 using Cyphoid.Core.Execution;
+using Cyphoid.Core.Expressions;
 using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Tests.TestBackend.Operators
@@ -34,11 +35,12 @@ namespace Cyphoid.Tests.TestBackend.Operators
           (PropertyFilter == null || PropertyMatch(PropertyFilter, node.Value)))
         {
           IRow<string> row = new Row<string>(context.RowSize);
-          row.Nodes[Variable.SlotIndex] = new GraphNode<string>(
+          var newNode = new GraphNode<string>(
             node.Value.Id,
             node.Value.Labels.First(),
             node.Value.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
             node.Value.Properties.ToDictionary(a => a.Key, a => a.Value));
+          row.Variables[Variable.SlotIndex] = MixedValue.GraphNode(newNode);
 
           yield return row;
         }

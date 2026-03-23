@@ -6,11 +6,9 @@ namespace Cyphoid.Core.SyntaxTree
   public record QueryNode(
     IReadOnlyList<MatchWhereNode> MatchWhere,
     ReturnLimitNode ReturnLimit,
-    Dictionary<string, VariableDefinition> VariableDefinitions) : AstNode
+    Dictionary<string, VariableDefinition> VariableDefinitions,
+    int RowSize) : AstNode
   {
-    public int RowSize => VariableDefinitions.Count;
-
-
     public ProjectionPlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
     {
       PipelinePlan<TId>? plan = null;
