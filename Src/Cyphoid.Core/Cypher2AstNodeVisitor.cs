@@ -72,16 +72,10 @@ namespace Cyphoid.Core
       VariableDefinitions.Clear();
       AnonymousVariableCounter = 1;
 
-      int num = 1;
       foreach (var p in @return.Projections)
       {
-        var variableName = p.Identifier?.Name ??
-          ((p.Expr is VariableExprNode v) ? v.Variable.Name
-          : (p.Expr is PropertyAccessNode pa) ? pa.Properties[pa.Properties.Count - 1]
-          : $"p{num++}");
-
         // FIXME: Add type information for the new variables
-        RegisterVariable(p.Identifier == null, variableName, MixedValue.ValueType.String);
+        RegisterVariable(false, p.Identifier, MixedValue.ValueType.String);
       }
 
       var ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
@@ -93,7 +87,8 @@ namespace Cyphoid.Core
     public override AstNode VisitReturnClause([NotNull] CypherParser.ReturnClauseContext context)
     {
       var items = new List<ReturnProjectionNode>();
-      
+
+      AnonymousProjectionCounter = 1;
       foreach (var itemCtx in context.returnItem())
       {
         items.Add(Visit<ReturnProjectionNode>(itemCtx));
@@ -134,11 +129,19 @@ namespace Cyphoid.Core
     }
 
 
+    int AnonymousProjectionCounter = 1;
+
     public override AstNode VisitReturnItem([NotNull] CypherParser.ReturnItemContext context)
     {
       var expr = Visit<ExprNode>(context.expression());
       var id = context.identifier() != null ? Visit<IdentifierNode>(context.identifier()) : null;
-      return new ReturnProjectionNode(expr, id);
+
+      var variableName = id?.Name ??
+        ((expr is VariableExprNode v) ? v.Variable.Name
+        : (expr is PropertyAccessNode pa) ? pa.Properties[pa.Properties.Count - 1]
+        : $"p{AnonymousProjectionCounter++}");
+
+      return new ReturnProjectionNode(expr, id == null, variableName);
     }
 
 

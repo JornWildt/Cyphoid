@@ -10,18 +10,13 @@ namespace Cyphoid.Core.Planning
   {
     public IProjectionOperator BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
-      int num = 1;
       var projections = new List<ProjectionEvaluator<TId>>();
 
       // FIXME: Moved to visitor code???
       foreach (var p in Projections)
       {
-        var name = p.Identifier?.Name ??
-          ((p.Expr is VariableExprNode v) ? v.Variable.Name 
-          : (p.Expr is PropertyAccessNode pa) ? pa.Properties[pa.Properties.Count-1]
-          : $"p{num++}");
         var evaluator = p.Expr.BuildEvaluator<TId>();
-        projections.Add(new ProjectionEvaluator<TId>(evaluator, name));
+        projections.Add(new ProjectionEvaluator<TId>(evaluator, p.Identifier));
       }
       
       return factory.BuildProjection(
@@ -39,7 +34,7 @@ namespace Cyphoid.Core.Planning
         if (!first)
           sb.Append(", ");
         i.Expr.PrettyPrint(sb);
-        if (i.Identifier != null)
+        if (i.Identifier != null && !i.IsAnonymous)
           sb.Append(" AS " + i.Identifier);
       }
       sb.AppendLine();

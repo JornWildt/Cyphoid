@@ -26,15 +26,15 @@ namespace Cyphoid.Core.SyntaxTree
   }
 
 
-  public record ReturnProjectionNode(ExprNode Expr, IdentifierNode? Identifier) : AstNode
+  public record ReturnProjectionNode(ExprNode Expr, bool IsAnonymous, string Identifier) : AstNode
   {
     public override void PrettyPrint(StringBuilder sb)
     {
       Expr.PrettyPrint(sb);
-      if (Identifier != null)
+      if (Identifier != null && !IsAnonymous)
       {
         sb.Append(" AS ");
-        Identifier.PrettyPrint(sb);
+        sb.Append(Identifier);
       }
     }
   }
