@@ -108,6 +108,30 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitReturnClause([NotNull] CypherParser.ReturnClauseContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.orderingClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterOrderingClause([NotNull] CypherParser.OrderingClauseContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.orderingClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitOrderingClause([NotNull] CypherParser.OrderingClauseContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.orderByItem"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterOrderByItem([NotNull] CypherParser.OrderByItemContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.orderByItem"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitOrderByItem([NotNull] CypherParser.OrderByItemContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.limitClause"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

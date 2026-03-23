@@ -63,8 +63,9 @@ namespace Cyphoid.Core
     public override AstNode VisitReturnLimitClause([NotNull] CypherParser.ReturnLimitClauseContext context)
     {
       var @return = Visit<ReturnNode>(context.returnClause());
+      var ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
       var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
-      return new ReturnLimitNode(@return.Items, limit?.Limit);
+      return new ReturnLimitNode(@return.Items, ordering, limit?.Limit);
     }
 
 
@@ -78,6 +79,30 @@ namespace Cyphoid.Core
       }
       
       return new ReturnNode(items);
+    }
+
+
+    public override AstNode VisitOrderingClause([NotNull] CypherParser.OrderingClauseContext context)
+    {
+      var item = Visit<OrderByItemNode>(context.orderByItem(0));
+      var items = new List<OrderByItemNode>() { item };
+      foreach (var itemCtx in context.orderByItem().Skip(1))
+      {
+        item = Visit<OrderByItemNode>(itemCtx);
+        items.Add(item);
+      }
+      return new OrderByNode(items);
+    }
+
+
+    public override AstNode VisitOrderByItem([NotNull] CypherParser.OrderByItemContext context)
+    {
+      var expression = Visit<ExprNode>(context.expression());
+      var dir = 
+        context.ASC() != null ? OrderByDirectionType.Ascending
+        : context.DESC() != null? OrderByDirectionType.Descending
+        : OrderByDirectionType.DefaultAscending;
+      return new OrderByItemNode(expression, dir);
     }
 
 

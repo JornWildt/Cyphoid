@@ -91,6 +91,26 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitReturnClause([NotNull] CypherParser.ReturnClauseContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.orderingClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterOrderingClause([NotNull] CypherParser.OrderingClauseContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.orderingClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitOrderingClause([NotNull] CypherParser.OrderingClauseContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.orderByItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterOrderByItem([NotNull] CypherParser.OrderByItemContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.orderByItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitOrderByItem([NotNull] CypherParser.OrderByItemContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.limitClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

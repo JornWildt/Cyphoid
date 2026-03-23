@@ -3,7 +3,10 @@ using Cyphoid.Core.Planning;
 
 namespace Cyphoid.Core.SyntaxTree
 {
-  public record ReturnLimitNode(IReadOnlyList<ReturnItemNode> ReturnItems, int? Limit) : AstNode
+  public record ReturnLimitNode(
+    IReadOnlyList<ReturnItemNode> ReturnItems, 
+    OrderByNode? OrderBy,
+    int? Limit) : AstNode
   {
     public ProjectionPlan<TId> BuildQueryPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
     {
@@ -24,6 +27,12 @@ namespace Cyphoid.Core.SyntaxTree
           sb.Append(", ");
         i.PrettyPrint(sb);
         first = false;
+      }
+
+      if (OrderBy != null)
+      {
+        sb.Append(" ");
+        OrderBy.PrettyPrint(sb);
       }
 
       if (Limit != null)

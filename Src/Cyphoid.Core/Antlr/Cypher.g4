@@ -17,11 +17,21 @@ whereClause
   ;
 
 returnLimitClause
-  : returnClause limitClause?
+  : returnClause orderingClause? limitClause?
   ;
 
 returnClause
   : RETURN returnItem (COMMA returnItem)*
+  ;
+
+orderingClause
+  : ORDER BY orderByItem (COMMA orderByItem)*
+  ;
+
+orderByItem
+  : expression
+  | expression DESC
+  | expression ASC
   ;
 
 limitClause
@@ -195,6 +205,10 @@ WITH       : [Ww][Ii][Tt][Hh];
 TRUE       : [Tt][Rr][Uu][Ee];
 FALSE      : [Ff][Aa][Ll][Ss][Ee];
 NULL       : [Nn][Uu][Ll][Ll];
+ORDER      : [Oo][Rr][Dd][Ee][Rr];
+BY         : [Bb][Yy];
+ASC        : [Aa][Ss][Cc];
+DESC       : [Dd][Ee][Ss][Cc];
 
 ARROW_RIGHT: '->';
 ARROW_LEFT : '<-';

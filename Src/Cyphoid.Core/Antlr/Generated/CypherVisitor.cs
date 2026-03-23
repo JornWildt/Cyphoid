@@ -68,6 +68,18 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitReturnClause([NotNull] CypherParser.ReturnClauseContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.orderingClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitOrderingClause([NotNull] CypherParser.OrderingClauseContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.orderByItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitOrderByItem([NotNull] CypherParser.OrderByItemContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.limitClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
