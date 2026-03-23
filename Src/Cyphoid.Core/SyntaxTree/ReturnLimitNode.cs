@@ -8,7 +8,7 @@ namespace Cyphoid.Core.SyntaxTree
     OrderByNode? OrderBy,
     int? Limit) : AstNode
   {
-    public ProjectionPlan<TId> BuildQueryPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
+    public ProjectionPlan<TId> BuildProjectionPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
     {
       if (Limit != null)
         input = new LimitPlan<TId>(input, Limit.Value);

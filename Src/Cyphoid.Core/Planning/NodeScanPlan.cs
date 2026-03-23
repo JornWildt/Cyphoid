@@ -7,13 +7,14 @@ namespace Cyphoid.Core.Planning
   public record NodeScanPlan<TId>(
     VariableReference Variable,
     string? Label,
-    PropertyMapNode? PropertyMap) : PipelinePlan<TId> where TId : IEquatable<TId>
+    PropertyMapNode? PropertyMap,
+    IRowColumn[] MatchColumns) : PipelinePlan<TId> where TId : IEquatable<TId>
   {
     public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
       // FIXME: No need to calculate this all the time
       var filter = BuildPropertyFilter(PropertyMap);
-      return factory.BuildNodeScan(Variable.Definition, Label, filter);
+      return factory.BuildNodeScan(Variable.Definition, Label, filter, MatchColumns);
     }
     
     

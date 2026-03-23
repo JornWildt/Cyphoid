@@ -11,7 +11,7 @@ namespace Cyphoid.Core.ReferenceBackend
     
     protected virtual async IAsyncEnumerable<IRow<TId>> ExecuteAsync(IQueryContext context)
     {
-      yield return new Row<TId>(0);
+      yield return new Row<TId>([]);
     }
 
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

@@ -2,6 +2,5 @@
 {
   public interface IQueryContext
   {
-    int RowSize { get; }
   }
 }

@@ -13,10 +13,10 @@ namespace Cyphoid.Core.ReferenceBackend
         await foreach (var row2 in Right.ExecuteAsync(context))
         {
           var output = row1.Clone();
-          for (int i=0; i<row2.Variables.Length; ++i)
+          for (int i=0; i<row2.Values.Length; ++i)
           {
-            if (row2.Variables[i] != null)
-              output.Variables[i] = row2.Variables[i];
+            if (row2.Values[i] != null)
+              output.Values[i] = row2.Values[i];
           }
           yield return output;
         }

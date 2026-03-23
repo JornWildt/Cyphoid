@@ -10,7 +10,7 @@ namespace Cyphoid.Tests
     protected InMemoryGraph Graph = new InMemoryGraph();
 
 
-    protected async Task<(string Print, List<IDictionary<string, object?>> Rows)> ExecuteQuery(string input)
+    protected async Task<(string Print, IReadOnlyList<IDictionary<string, object?>> Rows)> ExecuteQuery(string input)
     {
       ICypherParser parser = new CypherAstParser();
       IOperatorFactory<string> factory = new TestOperatorFactory(Graph);
@@ -20,11 +20,15 @@ namespace Cyphoid.Tests
 
       var plan = queryNode.BuildQueryPlan<string>();
       var execution = plan.BuildExecutionPlan(factory);
-      var context = new QueryContext(queryNode.RowSize);
+      var context = new QueryContext();
 
       var result = await execution.ExecuteAsync(context).ToListAsync();
 
-      return (prettyPrint, result);
+      var output = result
+        .Select(r => r.Values.Select((v,i) => (v,i)).ToDictionary(v => r.Columns[v.i].Name, v => v.v?.AsObject()))
+        .ToArray();
+
+      return (prettyPrint, output);
     }
   }
 }

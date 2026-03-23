@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Cyphoid.Core.Execution;
 using Cyphoid.Core.Planning;
 
 namespace Cyphoid.Core.SyntaxTree
@@ -6,7 +7,8 @@ namespace Cyphoid.Core.SyntaxTree
   public record PatternNode(IReadOnlyList<PatternPartNode> Parts) : AstNode
   {
     public PipelinePlan<TId> BuildPlan<TId>(
-      PipelinePlan<TId>? input) where TId : IEquatable<TId>
+      PipelinePlan<TId>? input,
+      IRowColumn[] matchColumns) where TId : IEquatable<TId>
     {
       // FIXME: Only using first part so far
       var part = Parts[0];
@@ -20,7 +22,8 @@ namespace Cyphoid.Core.SyntaxTree
         plan = new NodeScanPlan<TId>(
           initialNodePattern.Variable,
           initialNodePattern.Label,
-          initialNodePattern.PropertyMap);
+          initialNodePattern.PropertyMap,
+          matchColumns);
 
         if (input != null)
         {

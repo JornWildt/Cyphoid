@@ -16,9 +16,13 @@ namespace Cyphoid.Tests.TestBackend
     }
 
 
-    protected override IOperator<string> BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter)
+    protected override IOperator<string> BuildNodeScan(
+      VariableDefinition variable, 
+      string? label, 
+      PropertyFilter? propertyFilter,
+      IRowColumn[] matchColumns)
     {
-      return new NodeScanTestOperator<string>(Graph, variable, label, propertyFilter);
+      return new NodeScanTestOperator<string>(Graph, variable, label, propertyFilter, matchColumns);
     }
 
 

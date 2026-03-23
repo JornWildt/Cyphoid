@@ -8,15 +8,14 @@ namespace Cyphoid.Core.Planning
     PipelinePlan<TId> Input,
     IReadOnlyList<ReturnProjectionNode> Projections) : LogicalPlan<TId> where TId : IEquatable<TId>
   {
-    public IProjectionOperator BuildExecutionPlan(IOperatorFactory<TId> factory)
+    public IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
       var projections = new List<ProjectionEvaluator<TId>>();
 
-      // FIXME: Moved to visitor code???
       foreach (var p in Projections)
       {
         var evaluator = p.Expr.BuildEvaluator<TId>();
-        projections.Add(new ProjectionEvaluator<TId>(evaluator, p.Identifier));
+        projections.Add(new ProjectionEvaluator<TId>(evaluator, p.Variable));
       }
       
       return factory.BuildProjection(
@@ -34,8 +33,8 @@ namespace Cyphoid.Core.Planning
         if (!first)
           sb.Append(", ");
         i.Expr.PrettyPrint(sb);
-        if (i.Identifier != null && !i.IsAnonymous)
-          sb.Append(" AS " + i.Identifier);
+        if (!i.Variable.IsAnonymous)
+          sb.Append(" AS " + i.Variable.Name);
       }
       sb.AppendLine();
       Input.PrettyPrint(sb);

@@ -34,7 +34,8 @@ namespace Cyphoid.Core.Execution
     IOperator<TId> BuildNodeScan(
       VariableDefinition variable,
       string? label,
-      PropertyFilter? propertyFilter);
+      PropertyFilter? propertyFilter,
+      IRowColumn[] matchColumns);
 
     IOperator<TId> BuildExpandAll(
       IOperator<TId> input,
@@ -66,7 +67,7 @@ namespace Cyphoid.Core.Execution
       IOperator<TId> input,
       int limit);
 
-    IProjectionOperator BuildProjection(
+    IOperator<TId> BuildProjection(
       IOperator<TId> input,
       IReadOnlyList<ProjectionEvaluator<TId>> projections);
   }

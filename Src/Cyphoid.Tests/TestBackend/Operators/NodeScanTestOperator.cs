@@ -10,17 +10,20 @@ namespace Cyphoid.Tests.TestBackend.Operators
     VariableDefinition Variable;
     string? Label;
     PropertyFilter? PropertyFilter;
+    IRowColumn[] MatchColumns;
 
     public NodeScanTestOperator(
       InMemoryGraph graph,
       VariableDefinition variable,
       string? label,
-      PropertyFilter? propertyFilter)
+      PropertyFilter? propertyFilter,
+      IRowColumn[] matchColumns)
       : base(graph)
     {
       Variable = variable;
       Label = label;
       PropertyFilter = propertyFilter;
+      MatchColumns = matchColumns;
     }
 
 
@@ -34,13 +37,13 @@ namespace Cyphoid.Tests.TestBackend.Operators
         if ((Label == null || node.Value.Labels.Contains(Label)) &&
           (PropertyFilter == null || PropertyMatch(PropertyFilter, node.Value)))
         {
-          IRow<string> row = new Row<string>(context.RowSize);
+          IRow<string> row = new Row<string>(MatchColumns);
           var newNode = new GraphNode<string>(
             node.Value.Id,
             node.Value.Labels.First(),
             node.Value.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
             node.Value.Properties.ToDictionary(a => a.Key, a => a.Value));
-          row.Variables[Variable.SlotIndex] = MixedValue.GraphNode(newNode);
+          row.Values[Variable.SlotIndex] = MixedValue.GraphNode(newNode);
 
           yield return row;
         }

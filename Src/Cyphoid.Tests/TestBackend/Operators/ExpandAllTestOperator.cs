@@ -52,7 +52,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
-        var sourceVariable = row.Variables[SourceVariable.SlotIndex];
+        var sourceVariable = row.Values[SourceVariable.SlotIndex];
         if (sourceVariable != null)
         {
           var sourceNode = sourceVariable.Value.AsGraphNode<string>();
@@ -77,7 +77,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
                   targetNode.Labels.First(),
                   targetNode.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
                   targetNode.Properties);
-                newRow.Variables[DestinationVariable.SlotIndex] = MixedValue.GraphNode(newNode);
+                newRow.Values[DestinationVariable.SlotIndex] = MixedValue.GraphNode(newNode);
                 yield return newRow;
               }
             }
@@ -94,7 +94,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
         // Note that "incoming" goes to the source in the relationship
         // FIXME: maybe call them left/right instead?
 
-        var sourceVariable = row.Variables[SourceVariable.SlotIndex];
+        var sourceVariable = row.Values[SourceVariable.SlotIndex];
 
         if (sourceVariable != null)
         {
@@ -123,7 +123,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
                   targetNode.Labels.First(),
                   targetNode.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
                   targetNode.Properties);
-                newRow.Variables[DestinationVariable.SlotIndex] = MixedValue.GraphNode(newNode);
+                newRow.Values[DestinationVariable.SlotIndex] = MixedValue.GraphNode(newNode);
                 yield return newRow;
               }
             }

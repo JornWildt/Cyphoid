@@ -18,7 +18,7 @@ namespace Cyphoid.Core.ReferenceBackend
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
-        var destinationVariable = row.Variables[DestinationVariable.SlotIndex];
+        var destinationVariable = row.Values[DestinationVariable.SlotIndex];
         if (destinationVariable != null)
         {
           var destinationNode = destinationVariable.Value.AsGraphNode<TId>();
@@ -27,7 +27,7 @@ namespace Cyphoid.Core.ReferenceBackend
 
           if (SourceVariable != null)
           {
-            var sourceVariable = row.Variables[SourceVariable.SlotIndex];
+            var sourceVariable = row.Values[SourceVariable.SlotIndex];
             if (sourceVariable != null)
             {
               var sourceNode = sourceVariable.Value.AsGraphNode<TId>();

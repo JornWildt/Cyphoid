@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.ReferenceBackend;
 using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core
@@ -17,10 +18,7 @@ namespace Cyphoid.Core
     int AnonymousVariableCounter = 1;
 
     Dictionary<string, VariableDefinition> VariableDefinitions = new Dictionary<string, VariableDefinition>();
-    
-    // Use this to keep track of the widest row in the whole query.
-    // This will be used to size the row width.
-    int MaxVariableDefinitionCount = 0;
+    Dictionary<string, VariableDefinition> OutputVariableDefinitions = new Dictionary<string, VariableDefinition>();
 
 
     #region Visitors
@@ -35,9 +33,13 @@ namespace Cyphoid.Core
         matchWhere.Add(mw);
       }
 
+      var matchColumns = VariableDefinitions
+        .Select((v, i) => new RowColumn(i, v.Key, v.Value.Type))
+        .ToArray();
+
       var returnLimit = Visit<ReturnLimitNode>(context.returnLimitClause());
 
-      return new QueryNode(matchWhere, returnLimit, VariableDefinitions, MaxVariableDefinitionCount);
+      return new QueryNode(matchWhere, matchColumns, returnLimit);
     }
 
 
@@ -69,14 +71,9 @@ namespace Cyphoid.Core
       // At this point the variables declared before "return" is forgotten and a new set is
       // declared by the return statement.
 
-      VariableDefinitions.Clear();
+      VariableDefinitions = new Dictionary<string, VariableDefinition>(OutputVariableDefinitions);
+      OutputVariableDefinitions.Clear();
       AnonymousVariableCounter = 1;
-
-      foreach (var p in @return.Projections)
-      {
-        // FIXME: Add type information for the new variables
-        RegisterVariable(false, p.Identifier, MixedValue.ValueType.String);
-      }
 
       var ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
       var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
@@ -141,7 +138,9 @@ namespace Cyphoid.Core
         : (expr is PropertyAccessNode pa) ? pa.Properties[pa.Properties.Count - 1]
         : $"p{AnonymousProjectionCounter++}");
 
-      return new ReturnProjectionNode(expr, id == null, variableName);
+      var variable = RegisterOutputVariable(id == null, variableName, MixedValue.ValueType.String);
+
+      return new ReturnProjectionNode(expr, variable);
     }
 
 
@@ -479,10 +478,25 @@ namespace Cyphoid.Core
         int slotIndex = VariableDefinitions.Count;
         variableDefinition = new VariableDefinition(isAnonymous, variableName, type, slotIndex);
         VariableDefinitions.Add(variableName, variableDefinition);
-        if (VariableDefinitions.Count > MaxVariableDefinitionCount)
-          MaxVariableDefinitionCount = VariableDefinitions.Count;
 
         return new VariableReference(VariableReferenceBindingType.Unbound, variableDefinition);
+      }
+    }
+
+
+    private VariableDefinition RegisterOutputVariable(bool isAnonymous, string variableName, MixedValue.ValueType type)
+    {
+      if (OutputVariableDefinitions.TryGetValue(variableName, out var variableDefinition))
+      {
+        throw new ($"Reuse of '{variableName}' in output list.");
+      }
+      else
+      {
+        int slotIndex = OutputVariableDefinitions.Count;
+        variableDefinition = new VariableDefinition(isAnonymous, variableName, type, slotIndex);
+        OutputVariableDefinitions.Add(variableName, variableDefinition);
+
+        return variableDefinition;
       }
     }
 

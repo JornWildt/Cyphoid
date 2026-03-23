@@ -35,7 +35,7 @@ namespace Cyphoid.Core.SyntaxTree
     {
       return (IRow<TId> r) =>
       {
-        var v = r.Variables[Variable.SlotIndex];
+        var v = r.Values[Variable.SlotIndex];
         return v != null ? v.Value : MixedValue.Null();
       };
     }
@@ -54,7 +54,7 @@ namespace Cyphoid.Core.SyntaxTree
     {
       return (IRow<TId> r) =>
       {
-        var v = r.Variables[Variable.SlotIndex];
+        var v = r.Values[Variable.SlotIndex];
         if (v == null)
           return MixedValue.Null();
         var propertyName = Properties[0];

@@ -9,8 +9,8 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator<TId> IOperatorFactory<TId>.BuildEmptyResult()
       => BuildEmptyResult();
 
-    IOperator<TId> IOperatorFactory<TId>.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter)
-      => BuildNodeScan(variable, label, propertyFilter);
+    IOperator<TId> IOperatorFactory<TId>.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, IRowColumn[] matchColumns)
+      => BuildNodeScan(variable, label, propertyFilter, matchColumns);
 
     IOperator<TId> IOperatorFactory<TId>.BuildExpandAll(IOperator<TId> input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
       => BuildExpandAll(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
@@ -27,7 +27,7 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator<TId> IOperatorFactory<TId>.BuildLimit(IOperator<TId> input, int limit)
       => BuildLimit(input, limit);
 
-    IProjectionOperator IOperatorFactory<TId>.BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
+    IOperator<TId> IOperatorFactory<TId>.BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
       => BuildProjection(input, projections);
 
     #endregion
@@ -53,7 +53,7 @@ namespace Cyphoid.Core.ReferenceBackend
       => new LimitReferenceOperator<TId>(input, limit);
 
 
-    protected virtual IProjectionOperator BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
+    protected virtual IOperator<TId> BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
       => new ProjectionReferenceOperator<TId>(input, projections);
 
     #endregion
@@ -61,7 +61,7 @@ namespace Cyphoid.Core.ReferenceBackend
 
     #region Backend implementation specific
 
-    protected abstract IOperator<TId> BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter);
+    protected abstract IOperator<TId> BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, IRowColumn[] matchColumns);
 
     protected abstract IOperator<TId> BuildExpandAll(IOperator<TId> input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter);
 

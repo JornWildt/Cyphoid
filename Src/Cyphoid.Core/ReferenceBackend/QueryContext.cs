@@ -2,5 +2,5 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public record QueryContext(int RowSize) : IQueryContext;
+  public record QueryContext() : IQueryContext;
 }

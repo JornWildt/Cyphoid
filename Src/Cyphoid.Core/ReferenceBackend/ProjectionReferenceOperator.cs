@@ -2,11 +2,11 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class ProjectionReferenceOperator<TId> : IProjectionOperator where TId : IEquatable<TId>
+  public class ProjectionReferenceOperator<TId> : IOperator<TId> where TId : IEquatable<TId>
   {
     IOperator<TId> Input;
     IReadOnlyList<ProjectionEvaluator<TId>> Projections;
-
+    IRowColumn[] Columns;
 
     public ProjectionReferenceOperator(
       IOperator<TId> input,
@@ -14,21 +14,26 @@ namespace Cyphoid.Core.ReferenceBackend
     {
       Input = input;
       Projections = projections;
+
+      Columns = projections
+        .Select((p, i) => new RowColumn(i, p.OutputVariable.Name, p.OutputVariable.Type))
+        .ToArray();
     }
 
 
-    async IAsyncEnumerable<IDictionary<string, object?>> IProjectionOperator.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
-        var output = new Dictionary<string, object?>();
+        IRow<TId> newRow = new Row<TId>(Columns);
+
         foreach (var p in Projections)
         {
           var value = p.ExpressionEvaluator(row);
-          var name = p.OutputName;
-          output[name] = value.AsObject();
+          newRow.Values[p.OutputVariable.SlotIndex] = value;
         }
-        yield return output;
+
+        yield return newRow;
       }
     }
   }

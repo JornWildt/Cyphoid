@@ -1,25 +1,25 @@
 ﻿using System.Text;
+using Cyphoid.Core.Execution;
 using Cyphoid.Core.Planning;
 
 namespace Cyphoid.Core.SyntaxTree
 {
   public record QueryNode(
     IReadOnlyList<MatchWhereNode> MatchWhere,
-    ReturnLimitNode ReturnLimit,
-    Dictionary<string, VariableDefinition> VariableDefinitions,
-    int RowSize) : AstNode
+    IRowColumn[] MatchColumns,
+    ReturnLimitNode ReturnLimit) : AstNode
   {
     public ProjectionPlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
     {
       PipelinePlan<TId>? plan = null;
       foreach (var mw in MatchWhere)
       {
-        plan = mw.BuildQueryPlan<TId>(plan);
+        plan = mw.BuildQueryPlan(plan, MatchColumns);
       }
       
       plan = plan ?? new EmptyPlan<TId>();
 
-      var projectionPlan = ReturnLimit.BuildQueryPlan(plan);
+      var projectionPlan = ReturnLimit.BuildProjectionPlan(plan);
       return projectionPlan;
     }
 
