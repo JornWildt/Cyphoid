@@ -9,7 +9,7 @@ namespace Cyphoid.Core.SyntaxTree
     IRowColumn[] MatchColumns,
     ReturnLimitNode ReturnLimit) : AstNode
   {
-    public ProjectionPlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
+    public PipelinePlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
     {
       PipelinePlan<TId>? plan = null;
       foreach (var mw in MatchWhere)

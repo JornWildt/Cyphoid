@@ -1,4 +1,5 @@
 ﻿using Cyphoid.Core.Execution;
+using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
@@ -30,6 +31,9 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator<TId> IOperatorFactory<TId>.BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
       => BuildProjection(input, projections);
 
+    IOperator<TId> IOperatorFactory<TId>.BuildOrderBy(IOperator<TId> input, IReadOnlyList<OrderByEvaluator<TId>> ordering)
+      => BuildOrderBy(input, ordering);
+
     #endregion
 
 
@@ -55,6 +59,10 @@ namespace Cyphoid.Core.ReferenceBackend
 
     protected virtual IOperator<TId> BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
       => new ProjectionReferenceOperator<TId>(input, projections);
+
+
+    protected virtual IOperator<TId> BuildOrderBy(IOperator<TId> input, IReadOnlyList<OrderByEvaluator<TId>> ordering)
+      => new OrderByReferenceOperator<TId>(input, ordering);
 
     #endregion
 

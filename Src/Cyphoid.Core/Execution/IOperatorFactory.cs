@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Execution
 {
@@ -70,5 +71,9 @@ namespace Cyphoid.Core.Execution
     IOperator<TId> BuildProjection(
       IOperator<TId> input,
       IReadOnlyList<ProjectionEvaluator<TId>> projections);
+    
+    IOperator<TId> BuildOrderBy(
+      IOperator<TId> input, 
+      IReadOnlyList<OrderByEvaluator<TId>> ordering);
   }
 }

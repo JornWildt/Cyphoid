@@ -6,13 +6,13 @@ namespace Cyphoid.Core.SyntaxTree
 
 
   public record OrderByNode(
-    IReadOnlyList<OrderByItemNode> Items) : AstNode
+    IReadOnlyList<OrderByItemNode> Ordering) : AstNode
   {
     public override void PrettyPrint(StringBuilder sb)
     {
       sb.Append("ORDER BY ");
       bool first = true;
-      foreach (var item in Items)
+      foreach (var item in Ordering)
       {
         if (!first)
           sb.Append(", ");

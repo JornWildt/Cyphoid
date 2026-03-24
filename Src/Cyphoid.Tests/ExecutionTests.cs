@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using NUnit.Framework.Constraints;
 
 namespace Cyphoid.Tests
 {
@@ -13,8 +14,11 @@ namespace Cyphoid.Tests
       Graph.AddNode("Martin", "person");
 
       Graph.SetNodeProperty("Lisa", "Name", "Lisa Nilson");
+      Graph.SetNodeProperty("Lisa", "PreferedColor", "Red");
       Graph.SetNodeProperty("Mona", "Name", "Mona Marius");
+      Graph.SetNodeProperty("Lisa", "PreferedColor", "Green");
       Graph.SetNodeProperty("Martin", "Name", "Martin Mollerup");
+      Graph.SetNodeProperty("Lisa", "PreferedColor", "Yellow");
 
       Graph.AddNode("Copenhagen", "city");
       Graph.AddNode("Oslo", "city");

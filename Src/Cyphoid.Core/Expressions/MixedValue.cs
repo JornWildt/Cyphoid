@@ -2,7 +2,7 @@
 
 namespace Cyphoid.Core.Expressions
 {
-  public readonly struct MixedValue : IEquatable<MixedValue>
+  public readonly struct MixedValue : IEquatable<MixedValue>, IComparable<MixedValue>
   {
     public enum ValueType : byte
     {
@@ -194,9 +194,39 @@ namespace Cyphoid.Core.Expressions
         ValueType.Null => "null",
         ValueType.Bool => _bool.ToString(),
         ValueType.Int => _int.ToString(),
-        ValueType.String => _ref?.ToString() ?? "",
+        ValueType.String => _ref!.ToString() ?? "",
         ValueType.Node => "-node-",
         _ => "<undefined>"
       };
+
+
+    int IComparable<MixedValue>.CompareTo(MixedValue other)
+    {
+      if (this._kind == ValueType.Null && other._kind == ValueType.Null)
+      {
+        return 0;
+      }
+      else if (this._kind == ValueType.Null && other._kind != ValueType.Null)
+      {
+        return -1;
+      }
+      else if (this._kind != ValueType.Null && other._kind == ValueType.Null)
+      {
+        return 1;
+      }
+      else if (this._kind == other._kind)
+      {
+        return _kind switch
+        {
+          ValueType.Bool => throw new InvalidOperationException($"Cannot compare booleans '{this}' and '{other}'."),
+          ValueType.Int => _int.CompareTo(other._int),
+          ValueType.String => (_ref!.ToString() ?? "").CompareTo(other._ref!.ToString() ?? ""),
+          ValueType.Node => throw new InvalidOperationException($"Cannot compare nodes '{this}' and '{other}'."),
+          _ => throw new InvalidOperationException($"Cannot compare values '{this}' and '{other}'."),
+        };
+      }
+      else
+        throw new InvalidOperationException($"Cannot compare '{this}' and '{other}'.");
+    }
   }
 }

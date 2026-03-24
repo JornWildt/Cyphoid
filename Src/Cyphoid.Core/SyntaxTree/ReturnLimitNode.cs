@@ -8,12 +8,17 @@ namespace Cyphoid.Core.SyntaxTree
     OrderByNode? OrderBy,
     int? Limit) : AstNode
   {
-    public ProjectionPlan<TId> BuildProjectionPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
+    public PipelinePlan<TId> BuildProjectionPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
     {
+      input = new ProjectionPlan<TId>(input, ReturnItems);
+
+      if (OrderBy != null)
+        input = new OrderByPlan<TId>(input, OrderBy.Ordering);
+
       if (Limit != null)
         input = new LimitPlan<TId>(input, Limit.Value);
 
-      return new ProjectionPlan<TId>(input, ReturnItems);
+      return input;
     }
 
 

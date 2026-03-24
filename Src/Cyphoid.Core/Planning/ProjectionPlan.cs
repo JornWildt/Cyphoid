@@ -6,9 +6,9 @@ namespace Cyphoid.Core.Planning
 {
   public record ProjectionPlan<TId>(
     PipelinePlan<TId> Input,
-    IReadOnlyList<ReturnProjectionNode> Projections) : LogicalPlan<TId> where TId : IEquatable<TId>
+    IReadOnlyList<ReturnProjectionNode> Projections) : PipelinePlan<TId> where TId : IEquatable<TId>
   {
-    public IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
+    public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
       var projections = new List<ProjectionEvaluator<TId>>();
 
