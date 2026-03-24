@@ -38,6 +38,10 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (s)-[]->(o) RETURN s, o ORDER BY s ASC, o")]
     [TestCase("MATCH (s)-[]->(o) RETURN s, o ORDER BY s, o DESC")]
     [TestCase("MATCH (s)-[]->(o) RETURN s, o ORDER BY s DESC, o ASC")]
+    [TestCase("MATCH (s) RETURN s.name AS name, fn() AS c")]
+    [TestCase("MATCH (s) RETURN s.name AS name, fn(s) AS c")]
+    [TestCase("MATCH (s) RETURN s.name AS name, fn(s, s) AS c")]
+    [TestCase("MATCH (s) RETURN s.name AS name, COUNT(*) AS c")]
     public void ItCanParseAndPrettyPrint(string input)
     {
       // Arrange

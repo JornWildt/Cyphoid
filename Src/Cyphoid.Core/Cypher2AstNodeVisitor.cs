@@ -363,6 +363,10 @@ namespace Cyphoid.Core
       {
         return Visit<PropertyAccessNode>(context.propertyAccess());
       }
+      else if (context.functionCall() != null)
+      {
+        return Visit<FunctionCallNode>(context.functionCall());
+      }
       else
         throw new NotImplementedException();
     }
@@ -378,6 +382,20 @@ namespace Cyphoid.Core
         properties.Add(property.Name);
       }
       return new PropertyAccessNode(FindVariable(variable), properties);
+    }
+
+
+    public override AstNode VisitFunctionCall([NotNull] CypherParser.FunctionCallContext context)
+    {
+      if (context.COUNT() != null && context.ASTERIX() != null)
+        return new FunctionCallNode("CountAll", []);
+
+      var name = context.identifier().GetText();
+      var parameters = context.expression()
+        .Select(e => Visit<ExprNode>(e))
+        .ToArray();
+
+      return new FunctionCallNode(name, parameters);
     }
 
     

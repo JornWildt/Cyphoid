@@ -150,6 +150,7 @@ propertyAccess
 
 functionCall
   : identifier LPAREN (expression (COMMA expression)*)? RPAREN
+  | COUNT LPAREN ASTERIX RPAREN
   ;
 
 variable
@@ -209,6 +210,8 @@ ORDER      : [Oo][Rr][Dd][Ee][Rr];
 BY         : [Bb][Yy];
 ASC        : [Aa][Ss][Cc];
 DESC       : [Dd][Ee][Ss][Cc];
+COUNT      : [Cc][Oo][Uu][Nn][Tt];
+
 
 ARROW_RIGHT: '->';
 ARROW_LEFT : '<-';
@@ -223,6 +226,8 @@ RBRACE     : '}';
 COMMA      : ',';
 COLON      : ':';
 DOT        : '.';
+
+ASTERIX    : '*';
 
 EQ         : '=';
 NEQ        : '<>';
