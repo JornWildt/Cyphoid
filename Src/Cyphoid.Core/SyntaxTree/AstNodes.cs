@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Cyphoid.Core.Execution;
+using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.SyntaxTree
 {
@@ -21,7 +22,11 @@ namespace Cyphoid.Core.SyntaxTree
   public record LabelNode(string Label) : AstNode;
 
 
-  public abstract record ExprNode : AstNode
+  public enum ValueKindType { Const, Variable, Aggregate }
+
+  public abstract record ExprNode(
+    MixedValue.ValueType? Type,
+    ValueKindType ValueKind) : AstNode
   {
     public abstract RowEvaluator<TId> BuildEvaluator<TId>() where TId : IEquatable<TId>;
   }

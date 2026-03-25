@@ -28,8 +28,11 @@ namespace Cyphoid.Core.Execution
 
   public delegate MixedValue RowEvaluator<TId>(IRow<TId> row) where TId : IEquatable<TId>;
 
+
   public interface IOperatorFactory<TId> where TId : IEquatable<TId>
   {
+    IRow<TId> NewRow();
+
     IOperator<TId> BuildEmptyResult();
 
     IOperator<TId> BuildNodeScan(

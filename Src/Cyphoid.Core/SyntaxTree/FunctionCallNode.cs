@@ -4,10 +4,37 @@ using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.SyntaxTree
 {
+  public record FunctionDefinition(
+    string Name,
+    MixedValue.ValueType? Type,
+    ValueKindType ValueKind);
+
   public record FunctionCallNode(
     string FunctionName,
-    IReadOnlyList<ExprNode> Parameters) : ExprNode
+    IReadOnlyList<ExprNode> Parameters) : ExprNode(GetFunctionType(FunctionName), GetFunctionValueKind(FunctionName))
   {
+    static readonly Dictionary<string, FunctionDefinition> FunctionDefinitions = new()
+    {
+      ["CountAll"] = new FunctionDefinition("CountAll", MixedValue.ValueType.Int, ValueKindType.Aggregate)
+    };
+
+
+    protected static MixedValue.ValueType? GetFunctionType(string functionName)
+    {
+      if (FunctionDefinitions.TryGetValue(functionName, out FunctionDefinition? function))
+        return function.Type;
+      return null;
+    }
+
+
+    protected static ValueKindType GetFunctionValueKind(string functionName)
+    {
+      if (FunctionDefinitions.TryGetValue(functionName, out FunctionDefinition? function))
+        return function.ValueKind;
+      return ValueKindType.Variable;
+    }
+
+
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
       if (FunctionName == "CountAll")

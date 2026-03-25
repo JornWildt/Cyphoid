@@ -4,7 +4,8 @@ using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.SyntaxTree
 {
-  public record PropertyAccessNode(VariableDefinition Variable, IReadOnlyList<string> Properties) : ExprNode
+  public record PropertyAccessNode(VariableDefinition Variable, IReadOnlyList<string> Properties) 
+    : ExprNode(null, ValueKindType.Variable)
   {
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
@@ -43,7 +44,8 @@ namespace Cyphoid.Core.SyntaxTree
   }
 
 
-  public record VariableExprNode(VariableDefinition Variable) : ExprNode
+  public record VariableExprNode(VariableDefinition Variable) 
+    : ExprNode(Variable.Type, ValueKindType.Variable)
   {
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {

@@ -4,13 +4,16 @@ using System.Text;
 
 namespace Cyphoid.Core.SyntaxTree
 {
-  public abstract record LiteralValueNode : ExprNode
+  public abstract record LiteralValueNode(
+    MixedValue.ValueType? Type,
+    ValueKindType ValueKind) : ExprNode(Type, ValueKind)
   {
     public abstract MixedValue ToConstantValue();
   }
 
 
-  public record NullLiteralNode() : LiteralValueNode
+  public record NullLiteralNode() 
+    : LiteralValueNode(MixedValue.ValueType.Null, ValueKindType.Const)
   {
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
@@ -30,7 +33,8 @@ namespace Cyphoid.Core.SyntaxTree
   }
 
 
-  public record BoolLiteralNode(bool Value) : LiteralValueNode
+  public record BoolLiteralNode(bool Value)
+    : LiteralValueNode(MixedValue.ValueType.Bool, ValueKindType.Const)
   {
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
@@ -50,7 +54,8 @@ namespace Cyphoid.Core.SyntaxTree
   }
 
 
-  public record IntLiteralNode(long Value) : LiteralValueNode
+  public record IntLiteralNode(long Value)
+    : LiteralValueNode(MixedValue.ValueType.Int, ValueKindType.Const)
   {
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
@@ -70,7 +75,8 @@ namespace Cyphoid.Core.SyntaxTree
   }
 
 
-  public record StringLiteralNode(string Value) : LiteralValueNode
+  public record StringLiteralNode(string Value)
+    : LiteralValueNode(MixedValue.ValueType.String, ValueKindType.Const)
   {
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
