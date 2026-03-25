@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.ReferenceBackend.Aggregation;
 
 namespace Cyphoid.Core.SyntaxTree
 {
@@ -44,6 +45,21 @@ namespace Cyphoid.Core.SyntaxTree
 
       throw new NotImplementedException($"Unknown function '{FunctionName}'.");
     }
+
+
+    public override IAggregationEvaluator<TId> GetAggregationEvaluator<TId>(
+      RowEvaluator<TId> expression,
+      int outputSlotIndex)
+    {
+      if (FunctionName == "CountAll")
+      {
+        return new CountAllAggregator<TId>(outputSlotIndex);
+      }
+
+      throw new NotImplementedException($"Not an aggregate function '{FunctionName}'.");
+
+    }
+
 
     public override void PrettyPrint(StringBuilder sb)
     {

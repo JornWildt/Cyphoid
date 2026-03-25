@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using Cyphoid.Core.Execution;
+using Cyphoid.Core.ReferenceBackend;
+using Cyphoid.Core.ReferenceBackend.Aggregation;
 using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
@@ -12,15 +14,38 @@ namespace Cyphoid.Core.Planning
     {
       var projections = new List<ProjectionEvaluator<TId>>();
 
+      var groupings = new List<GroupingEvaluator<TId>>();
+      var aggregators = new List<IAggregationEvaluator<TId>>();
+
       foreach (var p in Projections)
       {
         var evaluator = p.Expr.BuildEvaluator<TId>();
         projections.Add(new ProjectionEvaluator<TId>(evaluator, p.Variable));
+
+        if (p.Expr.ValueKind == ValueKindType.Aggregate)
+          aggregators.Add(p.Expr.GetAggregationEvaluator(evaluator, p.Variable.SlotIndex));
+        else
+          groupings.Add(new GroupingEvaluator<TId>(evaluator, p.Variable.SlotIndex));
       }
-      
-      return factory.BuildProjection(
-        Input.BuildExecutionPlan(factory), 
-        projections);
+
+      if (aggregators.Count > 0)
+      {
+        var outputColumns = Projections
+          .Select((p, i) => new RowColumn(i, p.Variable.Name, p.Variable.Type))
+          .ToArray();
+
+        return factory.BuildAggregationProjection(
+          Input.BuildExecutionPlan(factory),
+          groupings,
+          aggregators,
+          outputColumns);
+      }
+      else
+      {
+        return factory.BuildProjection(
+          Input.BuildExecutionPlan(factory),
+          projections);
+      }
     }
 
     

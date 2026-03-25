@@ -1,4 +1,6 @@
-﻿using Cyphoid.Core.Execution;
+﻿using System.Data;
+using Cyphoid.Core.Execution;
+using Cyphoid.Core.ReferenceBackend.Aggregation;
 using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.ReferenceBackend
@@ -6,6 +8,9 @@ namespace Cyphoid.Core.ReferenceBackend
   public abstract class ReferenceOperatorFactory<TId> : IOperatorFactory<TId> where TId : IEquatable<TId>
   {
     #region IOperatorFactory
+
+    IRow<TId> IOperatorFactory<TId>.NewRow(IRowColumn[] matchColumns)
+      => NewRow(matchColumns);
 
     IOperator<TId> IOperatorFactory<TId>.BuildEmptyResult()
       => BuildEmptyResult();
@@ -30,6 +35,9 @@ namespace Cyphoid.Core.ReferenceBackend
 
     IOperator<TId> IOperatorFactory<TId>.BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
       => BuildProjection(input, projections);
+
+    IOperator<TId> IOperatorFactory<TId>.BuildAggregationProjection(IOperator<TId> input, List<GroupingEvaluator<TId>> groupings, List<IAggregationEvaluator<TId>> aggregators, IRowColumn[] matchColumns)
+      => BuildAggregateProjection(input, groupings, aggregators, matchColumns);
 
     IOperator<TId> IOperatorFactory<TId>.BuildOrderBy(IOperator<TId> input, IReadOnlyList<OrderByEvaluator<TId>> ordering)
       => BuildOrderBy(input, ordering);
@@ -61,6 +69,10 @@ namespace Cyphoid.Core.ReferenceBackend
       => new ProjectionReferenceOperator<TId>(input, projections);
 
 
+    protected virtual IOperator<TId> BuildAggregateProjection(IOperator<TId> input, List<GroupingEvaluator<TId>> groupings, List<IAggregationEvaluator<TId>> aggregators, IRowColumn[] outputColumns)
+      => new AggregateReferenceOperator<TId>(input, groupings, aggregators, NewRow, outputColumns);
+
+    
     protected virtual IOperator<TId> BuildOrderBy(IOperator<TId> input, IReadOnlyList<OrderByEvaluator<TId>> ordering)
       => new OrderByReferenceOperator<TId>(input, ordering);
 
@@ -69,9 +81,12 @@ namespace Cyphoid.Core.ReferenceBackend
 
     #region Backend implementation specific
 
+    protected abstract IRow<TId> NewRow(IRowColumn[] matchColumns);
+
     protected abstract IOperator<TId> BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, IRowColumn[] matchColumns);
 
     protected abstract IOperator<TId> BuildExpandAll(IOperator<TId> input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter);
+
 
     #endregion
   }

@@ -4,6 +4,7 @@
   {
     string Type { get; }
     Dictionary<string, object?> Attributes { get; }
+    bool HasSameIdAs(IGraphNode? other);
   }
 
 

@@ -7,12 +7,13 @@ namespace Cyphoid.Core.ReferenceBackend.Aggregation
   public sealed class GroupKey<TId> : IEquatable<GroupKey<TId>> where TId : IEquatable<TId>
   {
     public MixedValue?[] Values { get; }
-
+    IReadOnlyList<GroupingEvaluator<TId>> Groupings;
 
     public GroupKey(
       IRow<TId> row,
       IReadOnlyList<GroupingEvaluator<TId>> groupings)
     {
+      Groupings = groupings;
       Values = new MixedValue?[groupings.Count];
       for (int i = 0; i < groupings.Count; i++)
       {
@@ -35,6 +36,15 @@ namespace Cyphoid.Core.ReferenceBackend.Aggregation
       return true;
     }
 
+
+    public void WriteGroupData(IRow<TId> row)
+    {
+      for (int i = 0; i < Groupings.Count; i++)
+      {
+        var value = Values[i];
+        row.Values[Groupings[i].OutputSlotIndex] = value;
+      }
+    }
 
     public override bool Equals(object? obj) => obj is GroupKey<TId> other && Equals(other);
 

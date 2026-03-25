@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.ReferenceBackend.Aggregation;
 
 namespace Cyphoid.Core.SyntaxTree
 {
@@ -29,5 +30,10 @@ namespace Cyphoid.Core.SyntaxTree
     ValueKindType ValueKind) : AstNode
   {
     public abstract RowEvaluator<TId> BuildEvaluator<TId>() where TId : IEquatable<TId>;
+
+    public virtual IAggregationEvaluator<TId> GetAggregationEvaluator<TId>(RowEvaluator<TId> expression, int outputSlotIndex) where TId : IEquatable<TId>
+    {
+      throw new NotImplementedException();
+    }
   }
 }

@@ -3,7 +3,8 @@
 namespace Cyphoid.Core.ReferenceBackend.Aggregation
 {
   public record GroupingEvaluator<TId>(
-    RowEvaluator<TId> Expression) where TId : IEquatable<TId>
+    RowEvaluator<TId> Expression,
+    int OutputSlotIndex) where TId : IEquatable<TId>
   {
 
   }
@@ -11,6 +12,7 @@ namespace Cyphoid.Core.ReferenceBackend.Aggregation
 
   public interface IAggregationEvaluator<TId> where TId : IEquatable<TId>
   {
+    void Initialize();
     void Accumulate(IRow<TId> row);
     void WriteResult(IRow<TId> row);
   }
@@ -19,7 +21,8 @@ namespace Cyphoid.Core.ReferenceBackend.Aggregation
     IOperator<TId> Input,
     IReadOnlyList<GroupingEvaluator<TId>> Groupings,
     IReadOnlyList<IAggregationEvaluator<TId>> Aggregators,
-    Func<IRow<TId>> RowFactory) : IOperator<TId> where TId : IEquatable<TId>
+    Func<IRowColumn[], IRow<TId>> RowFactory,
+    IRowColumn[] OutputColumns) : IOperator<TId> where TId : IEquatable<TId>
   {
     async IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context)
     {
@@ -29,22 +32,26 @@ namespace Cyphoid.Core.ReferenceBackend.Aggregation
 
       await foreach (var group in groups)
       {
+        foreach (var a in Aggregators)
+        {
+          a.Initialize();
+        }
+
         foreach (var row in group)
         {
-          if (group != null)
+          foreach (var a in Aggregators)
           {
-            foreach (var a in Aggregators)
-            {
-              a.Accumulate(row);
-            }
+            a.Accumulate(row);
           }
         }
 
-        var groupRow = RowFactory();
+        var groupRow = RowFactory(OutputColumns);
         foreach (var a in Aggregators)
         {
           a.WriteResult(groupRow);
         }
+
+        group.Key.WriteGroupData(groupRow);
 
         yield return groupRow;
       }

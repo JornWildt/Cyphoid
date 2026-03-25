@@ -164,6 +164,7 @@ namespace Cyphoid.Core.Expressions
       {
         ValueType.String => (string?)_ref == (string?)other._ref,
         ValueType.Null => _ref == other._ref,
+        ValueType.Node => ((IGraphNode)_ref!).HasSameIdAs((IGraphNode?)other._ref),
         _ => true
       };
 

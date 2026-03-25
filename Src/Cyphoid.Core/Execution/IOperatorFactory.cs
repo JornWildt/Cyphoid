@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.ReferenceBackend.Aggregation;
 using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Execution
@@ -31,7 +32,7 @@ namespace Cyphoid.Core.Execution
 
   public interface IOperatorFactory<TId> where TId : IEquatable<TId>
   {
-    IRow<TId> NewRow();
+    IRow<TId> NewRow(IRowColumn[] matchColumns);
 
     IOperator<TId> BuildEmptyResult();
 
@@ -74,7 +75,13 @@ namespace Cyphoid.Core.Execution
     IOperator<TId> BuildProjection(
       IOperator<TId> input,
       IReadOnlyList<ProjectionEvaluator<TId>> projections);
-    
+
+    IOperator<TId> BuildAggregationProjection(
+      IOperator<TId> input, 
+      List<GroupingEvaluator<TId>> groupings, 
+      List<IAggregationEvaluator<TId>> aggregators,
+      IRowColumn[] outputColumns);
+
     IOperator<TId> BuildOrderBy(
       IOperator<TId> input, 
       IReadOnlyList<OrderByEvaluator<TId>> ordering);

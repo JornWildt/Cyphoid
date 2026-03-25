@@ -3,15 +3,22 @@ using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.ReferenceBackend.Aggregation
 {
-  internal class CountAllAggregator<TId> : IAggregationEvaluator<TId> where TId : IEquatable<TId>
+  public record CountAllAggregator<TId>(
+    int SlotIndex) : IAggregationEvaluator<TId> where TId : IEquatable<TId>
   {
     int Count = 0;
-    int SlotIndex;
+
+    void IAggregationEvaluator<TId>.Initialize()
+    {
+      Count = 0;
+    }
+
 
     void IAggregationEvaluator<TId>.Accumulate(IRow<TId> row)
     {
       Count++;
     }
+
 
     void IAggregationEvaluator<TId>.WriteResult(IRow<TId> row)
     {
