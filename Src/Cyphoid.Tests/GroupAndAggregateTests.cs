@@ -63,6 +63,12 @@ namespace Cyphoid.Tests
       @"[{""n"":5}]")]
     [TestCase("MATCH (c:country)<-[]-(x) RETURN c.name, COUNT(*) AS n",
       @"[{""name"":""Danmark"",""n"":4},{""name"":""Norge"",""n"":1},{""name"":""Sverige"",""n"":2}]")]
+    [TestCase("MATCH (c:country)<-[]-(x) RETURN c.name, COUNT(*) AS n ORDER BY n",
+      @"[{""name"":""Norge"",""n"":1},{""name"":""Sverige"",""n"":2},{""name"":""Danmark"",""n"":4}]")]
+    [TestCase("MATCH (c:country)<-[]-(x) RETURN c.name, COUNT(*) AS n ORDER BY n DESC",
+      @"[{""name"":""Danmark"",""n"":4},{""name"":""Sverige"",""n"":2},{""name"":""Norge"",""n"":1}]")]
+    [TestCase("MATCH (c:country)<-[]-(x) RETURN c.name, COUNT(*) AS n ORDER BY n DESC LIMIT 1",
+      @"[{""name"":""Danmark"",""n"":4}]")]
     [TestCase("MATCH (c:city)-[]->(x) RETURN c.name AS cname, COUNT(*) AS n",
       @"[{""cname"":""København"",""n"":1},{""cname"":""Oslo"",""n"":1},{""cname"":""Holte"",""n"":1},{""cname"":""Nærum"",""n"":1},{""cname"":""Allerød"",""n"":1},{""cname"":""Stockholm"",""n"":1},{""cname"":""Helsingborg"",""n"":1}]")]
     [TestCase("MATCH (c:city)-[]->(x) RETURN c.name AS cname, x.name AS xname, COUNT(*) AS n",
