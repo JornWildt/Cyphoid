@@ -60,6 +60,10 @@ Cypher executable query plan
 <Your implementation>
 ```
 
+## Backend implementation
+
+Guidance for third-party backends is in `BACKEND_GUIDE.md`.
+
 
 # Developer instructions
 

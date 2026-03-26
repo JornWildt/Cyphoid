@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Extra/">
+    <File Path="BACKEND_GUIDE.md" />
     <File Path="README.md" />
   </Folder>
   <Project Path="Src/Cyphoid.Core/Cyphoid.Core.csproj" />
