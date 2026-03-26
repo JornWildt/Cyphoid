@@ -1,7 +1,12 @@
 grammar Cypher;
 
 query
-  : matchWhereClause* returnLimitClause EOF
+  : repeatableClause* returnLimitClause EOF
+  ;
+
+repeatableClause
+  : matchWhereClause
+  | withClause
   ;
 
 matchWhereClause
@@ -16,12 +21,16 @@ whereClause
   : WHERE expression
   ;
 
+withClause
+  : WITH projectionList
+  ;
+
 returnLimitClause
   : returnClause orderingClause? limitClause?
   ;
 
 returnClause
-  : RETURN returnItem (COMMA returnItem)*
+  : RETURN projectionList
   ;
 
 orderingClause
@@ -38,7 +47,11 @@ limitClause
   : LIMIT integerLiteral
   ;
 
-returnItem
+projectionList
+  : projectionItem (COMMA projectionItem)*
+  ;
+
+projectionItem
   : expression (AS identifier)?
   ;
 

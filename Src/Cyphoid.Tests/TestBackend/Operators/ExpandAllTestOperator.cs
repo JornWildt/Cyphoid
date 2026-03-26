@@ -71,7 +71,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
               if ((DestinationLabel == null || targetNode.Labels.Contains(DestinationLabel)) &&
                 (DestinationPropertyFilter == null || PropertyMatch(DestinationPropertyFilter, targetNode)))
               {
-                var newRow = row.Clone();
+                var newRow = row.Clone(row.Columns);
                 var newNode = new GraphNode<string>(
                   targetId,
                   targetNode.Labels.First(),
@@ -117,7 +117,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
               if ((DestinationLabel == null || targetNode.Labels.Contains(DestinationLabel)) &&
                 (DestinationPropertyFilter == null || PropertyMatch(DestinationPropertyFilter, targetNode)))
               {
-                var newRow = row.Clone();
+                var newRow = row.Clone(row.Columns);
                 var newNode = new GraphNode<string>(
                   targetId,
                   targetNode.Labels.First(),

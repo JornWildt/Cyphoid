@@ -38,6 +38,12 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitQuery([NotNull] CypherParser.QueryContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.repeatableClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -55,6 +61,12 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitWhereClause([NotNull] CypherParser.WhereClauseContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.withClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitWithClause([NotNull] CypherParser.WithClauseContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.returnLimitClause"/>.
 	/// </summary>
@@ -86,11 +98,17 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitLimitClause([NotNull] CypherParser.LimitClauseContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CypherParser.returnItem"/>.
+	/// Visit a parse tree produced by <see cref="CypherParser.projectionList"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitReturnItem([NotNull] CypherParser.ReturnItemContext context);
+	Result VisitProjectionList([NotNull] CypherParser.ProjectionListContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.projectionItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitProjectionItem([NotNull] CypherParser.ProjectionItemContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.pattern"/>.
 	/// </summary>

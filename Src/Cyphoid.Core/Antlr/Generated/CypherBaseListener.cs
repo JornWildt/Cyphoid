@@ -48,6 +48,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitQuery([NotNull] CypherParser.QueryContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.repeatableClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.repeatableClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -83,6 +95,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitWhereClause([NotNull] CypherParser.WhereClauseContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.withClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterWithClause([NotNull] CypherParser.WithClauseContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.withClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitWithClause([NotNull] CypherParser.WithClauseContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.returnLimitClause"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -144,17 +168,29 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitLimitClause([NotNull] CypherParser.LimitClauseContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.returnItem"/>.
+	/// Enter a parse tree produced by <see cref="CypherParser.projectionList"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterReturnItem([NotNull] CypherParser.ReturnItemContext context) { }
+	public virtual void EnterProjectionList([NotNull] CypherParser.ProjectionListContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.returnItem"/>.
+	/// Exit a parse tree produced by <see cref="CypherParser.projectionList"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitReturnItem([NotNull] CypherParser.ReturnItemContext context) { }
+	public virtual void ExitProjectionList([NotNull] CypherParser.ProjectionListContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.projectionItem"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterProjectionItem([NotNull] CypherParser.ProjectionItemContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.projectionItem"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitProjectionItem([NotNull] CypherParser.ProjectionItemContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.pattern"/>.
 	/// <para>The default implementation does nothing.</para>

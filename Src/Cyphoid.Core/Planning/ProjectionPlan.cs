@@ -8,7 +8,7 @@ namespace Cyphoid.Core.Planning
 {
   public record ProjectionPlan<TId>(
     PipelinePlan<TId> Input,
-    IReadOnlyList<ReturnProjectionNode> Projections) : PipelinePlan<TId> where TId : IEquatable<TId>
+    IReadOnlyList<ProjectionNode> Projections) : PipelinePlan<TId> where TId : IEquatable<TId>
   {
     public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
     {

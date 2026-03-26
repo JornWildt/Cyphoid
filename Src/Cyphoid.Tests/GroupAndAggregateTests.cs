@@ -59,6 +59,8 @@ namespace Cyphoid.Tests
     }
 
 
+    [TestCase("MATCH (c:country) RETURN COUNT(*) AS n",
+      @"[{""n"":5}]")]
     [TestCase("MATCH (c:country)<-[]-(x) RETURN c.name, COUNT(*) AS n",
       @"[{""name"":""Danmark"",""n"":4},{""name"":""Norge"",""n"":1},{""name"":""Sverige"",""n"":2}]")]
     [TestCase("MATCH (c:city)-[]->(x) RETURN c.name AS cname, COUNT(*) AS n",
@@ -73,7 +75,6 @@ namespace Cyphoid.Tests
 
       // Assert
       Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
-
       Assert.That(resultJson, Is.EqualTo(expectedOutputJson));
     }
   }

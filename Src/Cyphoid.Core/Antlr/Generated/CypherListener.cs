@@ -41,6 +41,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitQuery([NotNull] CypherParser.QueryContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.repeatableClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.repeatableClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -70,6 +80,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitWhereClause([NotNull] CypherParser.WhereClauseContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.withClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterWithClause([NotNull] CypherParser.WithClauseContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.withClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitWithClause([NotNull] CypherParser.WithClauseContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.returnLimitClause"/>.
 	/// </summary>
@@ -121,15 +141,25 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitLimitClause([NotNull] CypherParser.LimitClauseContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CypherParser.returnItem"/>.
+	/// Enter a parse tree produced by <see cref="CypherParser.projectionList"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterReturnItem([NotNull] CypherParser.ReturnItemContext context);
+	void EnterProjectionList([NotNull] CypherParser.ProjectionListContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="CypherParser.returnItem"/>.
+	/// Exit a parse tree produced by <see cref="CypherParser.projectionList"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitReturnItem([NotNull] CypherParser.ReturnItemContext context);
+	void ExitProjectionList([NotNull] CypherParser.ProjectionListContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.projectionItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterProjectionItem([NotNull] CypherParser.ProjectionItemContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.projectionItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitProjectionItem([NotNull] CypherParser.ProjectionItemContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.pattern"/>.
 	/// </summary>

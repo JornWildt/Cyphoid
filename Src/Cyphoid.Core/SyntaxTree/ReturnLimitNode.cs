@@ -4,13 +4,13 @@ using Cyphoid.Core.Planning;
 namespace Cyphoid.Core.SyntaxTree
 {
   public record ReturnLimitNode(
-    IReadOnlyList<ReturnProjectionNode> ReturnItems, 
+    IReadOnlyList<ProjectionNode> Projections, 
     OrderByNode? OrderBy,
     int? Limit) : AstNode
   {
     public PipelinePlan<TId> BuildProjectionPlan<TId>(PipelinePlan<TId> input) where TId : IEquatable<TId>
     {
-      input = new ProjectionPlan<TId>(input, ReturnItems);
+      input = new ProjectionPlan<TId>(input, Projections);
 
       if (OrderBy != null)
         input = new OrderByPlan<TId>(input, OrderBy.Ordering);
@@ -26,7 +26,7 @@ namespace Cyphoid.Core.SyntaxTree
     {
       sb.Append("RETURN ");
       bool first = true;
-      foreach (var i in ReturnItems)
+      foreach (var i in Projections)
       {
         if (!first)
           sb.Append(", ");

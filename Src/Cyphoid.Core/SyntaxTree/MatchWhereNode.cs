@@ -4,13 +4,15 @@ using Cyphoid.Core.Planning;
 
 namespace Cyphoid.Core.SyntaxTree
 {
-  public record MatchWhereNode(PatternNode MatchPattern, ExprNode? WhereExpr) : AstNode
+  public record MatchWhereNode(
+    PatternNode MatchPattern, 
+    ExprNode? WhereExpr,
+    IRowColumn[] DeclaredColumns) : ClauseNode
   {
-    public PipelinePlan<TId> BuildQueryPlan<TId>(
-      PipelinePlan<TId>? input,
-      IRowColumn[] columns) where TId : IEquatable<TId>
+    public override PipelinePlan<TId> BuildQueryPlan<TId>(
+      PipelinePlan<TId>? input)
     {
-      var plan = MatchPattern.BuildPlan<TId>(input, columns);
+      var plan = MatchPattern.BuildPlan<TId>(input, DeclaredColumns);
       if (WhereExpr != null)
       {
         plan = new FilterPlan<TId>(plan, WhereExpr);

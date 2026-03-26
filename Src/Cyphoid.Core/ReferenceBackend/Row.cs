@@ -11,9 +11,9 @@ namespace Cyphoid.Core.ReferenceBackend
 
     MixedValue?[] IRow<TId>.Values => Values;
 
-    IRow<TId> IRow<TId>.Clone()
+    IRow<TId> IRow<TId>.Clone(IReadOnlyList<IRowColumn> outputColumns)
     {
-      return Clone();
+      return Clone(outputColumns);
     }
 
     #endregion
@@ -23,16 +23,16 @@ namespace Cyphoid.Core.ReferenceBackend
 
     protected MixedValue?[] Values { get; private init; }
 
-    public Row(IRowColumn[] columns)
+    public Row(IReadOnlyList<IRowColumn> columns)
     {
-      Columns = columns;
-      Values = new MixedValue?[columns.Length];
+      Columns = columns.ToArray();
+      Values = new MixedValue?[Columns.Length];
     }
 
 
-    protected Row<TId> Clone()
+    protected Row<TId> Clone(IReadOnlyList<IRowColumn> outputColumns)
     {
-      var clone = new Row<TId>(Columns);
+      var clone = new Row<TId>(outputColumns);
       for (int i=0; i< Values.Length; i++)
         clone.Values[i] = Values[i];
       return clone;

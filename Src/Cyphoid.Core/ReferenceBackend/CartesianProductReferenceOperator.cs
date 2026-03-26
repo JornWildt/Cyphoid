@@ -12,7 +12,7 @@ namespace Cyphoid.Core.ReferenceBackend
       {
         await foreach (var row2 in Right.ExecuteAsync(context))
         {
-          var output = row1.Clone();
+          var output = row1.Clone(row2.Columns);
           for (int i=0; i<row2.Values.Length; ++i)
           {
             if (row2.Values[i] != null)

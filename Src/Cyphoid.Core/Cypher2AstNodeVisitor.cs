@@ -25,29 +25,56 @@ namespace Cyphoid.Core
 
     public override AstNode VisitQuery([NotNull] global::CypherParser.QueryContext context)
     {
-      var matchWhere = new List<MatchWhereNode>();
-
-      foreach (var mwc in context.matchWhereClause())
+      var clauses = new List<ClauseNode>();
+      foreach (var clauseCtx in context.repeatableClause())
       {
-        var mw = Visit<MatchWhereNode>(mwc);
-        matchWhere.Add(mw);
+        var c = Visit<ClauseNode>(clauseCtx);
+        clauses.Add(c);
       }
-
-      var matchColumns = VariableDefinitions
-        .Select((v, i) => new RowColumn(i, v.Key, v.Value.Type))
-        .ToArray();
-
+      
       var returnLimit = Visit<ReturnLimitNode>(context.returnLimitClause());
 
-      return new QueryNode(matchWhere, matchColumns, returnLimit);
+      return new QueryNode(clauses, returnLimit);
     }
 
 
+    public override AstNode VisitRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context)
+    {
+      if (context.withClause() != null)
+      {
+        return Visit<WithNode>(context.withClause());
+      }
+      else if (context.matchWhereClause() != null)
+      {
+        return Visit<MatchWhereNode>(context.matchWhereClause());
+      }
+      else
+        throw new NotImplementedException();
+    }
+
+
+    public override AstNode VisitWithClause([NotNull] CypherParser.WithClauseContext context)
+    {
+      // Projections dependents on current variable declarations and generates a new set of output variables
+      var projections = Visit<ProjectionsNode>(context.projectionList());
+
+      // Once the projections have been setup, the output variables becomes the new current variables.
+      TransferOutputVariablesToCurrentVariables();
+
+      return new WithNode(projections.Projections);
+    }
+
+    
     public override AstNode VisitMatchWhereClause([NotNull] CypherParser.MatchWhereClauseContext context)
     {
       var match = Visit<MatchNode>(context.matchClause());
       var where = context.whereClause() != null ? Visit<WhereNode>(context.whereClause()) : null;
-      return new MatchWhereNode(match.Pattern, where?.Expr);
+
+      var declaredColumns = VariableDefinitions
+        .Select((v, i) => new RowColumn(i, v.Key, v.Value.Type))
+        .ToArray();
+
+      return new MatchWhereNode(match.Pattern, where?.Expr, declaredColumns);
     }
 
 
@@ -68,30 +95,19 @@ namespace Cyphoid.Core
     {
       var @return = Visit<ReturnNode>(context.returnClause());
 
-      // At this point the variables declared before "return" is forgotten and a new set is
-      // declared by the return statement.
-
-      VariableDefinitions = new Dictionary<string, VariableDefinition>(OutputVariableDefinitions);
-      OutputVariableDefinitions.Clear();
-      AnonymousVariableCounter = 1;
+      TransferOutputVariablesToCurrentVariables();
 
       var ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
       var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
-      return new ReturnLimitNode(@return.Projections, ordering, limit?.Limit);
+      return new ReturnLimitNode(@return.Projections.Projections, ordering, limit?.Limit);
     }
 
 
     public override AstNode VisitReturnClause([NotNull] CypherParser.ReturnClauseContext context)
     {
-      var items = new List<ReturnProjectionNode>();
+      var projections = Visit<ProjectionsNode>(context.projectionList());
 
-      AnonymousProjectionCounter = 1;
-      foreach (var itemCtx in context.returnItem())
-      {
-        items.Add(Visit<ReturnProjectionNode>(itemCtx));
-      }
-      
-      return new ReturnNode(items);
+      return new ReturnNode(projections);
     }
 
 
@@ -128,7 +144,21 @@ namespace Cyphoid.Core
 
     int AnonymousProjectionCounter = 1;
 
-    public override AstNode VisitReturnItem([NotNull] CypherParser.ReturnItemContext context)
+    public override AstNode VisitProjectionList([NotNull] CypherParser.ProjectionListContext context)
+    {
+      AnonymousProjectionCounter = 1;
+
+      var projections = new List<ProjectionNode>();
+      foreach (var projectionCtx in context.projectionItem())
+      {
+        var p = Visit<ProjectionNode>(projectionCtx);
+        projections.Add(p);
+      }
+      return new ProjectionsNode(projections);
+    }
+
+
+    public override AstNode VisitProjectionItem([NotNull] CypherParser.ProjectionItemContext context)
     {
       var expr = Visit<ExprNode>(context.expression());
       var id = context.identifier() != null ? Visit<IdentifierNode>(context.identifier()) : null;
@@ -140,7 +170,7 @@ namespace Cyphoid.Core
 
       var variable = RegisterOutputVariable(id == null, variableName, MixedValue.ValueType.String);
 
-      return new ReturnProjectionNode(expr, variable);
+      return new ProjectionNode(expr, variable);
     }
 
 
@@ -535,6 +565,14 @@ namespace Cyphoid.Core
     {
       string name = "anon_" + AnonymousVariableCounter++;
       return name;
+    }
+
+
+    private void TransferOutputVariablesToCurrentVariables()
+    {
+      VariableDefinitions = new Dictionary<string, VariableDefinition>(OutputVariableDefinitions);
+      OutputVariableDefinitions.Clear();
+      AnonymousVariableCounter = 1;
     }
 
     #endregion
