@@ -331,6 +331,36 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.additiveExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterAdditiveExpression([NotNull] CypherParser.AdditiveExpressionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.additiveExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitAdditiveExpression([NotNull] CypherParser.AdditiveExpressionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.multiplicativeExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterMultiplicativeExpression([NotNull] CypherParser.MultiplicativeExpressionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.multiplicativeExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitMultiplicativeExpression([NotNull] CypherParser.MultiplicativeExpressionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.unaryExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterUnaryExpression([NotNull] CypherParser.UnaryExpressionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.unaryExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitUnaryExpression([NotNull] CypherParser.UnaryExpressionContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.inExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -420,6 +450,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.decimalLiteral"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDecimalLiteral([NotNull] CypherParser.DecimalLiteralContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.decimalLiteral"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDecimalLiteral([NotNull] CypherParser.DecimalLiteralContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
 	/// </summary>

@@ -5,7 +5,7 @@ namespace Cyphoid.Core.ReferenceBackend
   public record GraphNode<TId>(
     TId Id,
     string Type,
-    Dictionary<string, TId> Edges,
+    IReadOnlyList<IGraphEdge<TId>> Edges,
     Dictionary<string, object?> Attributes) : IGraphNode<TId> where TId : IEquatable<TId>
   {
     bool IGraphNode.HasSameIdAs(IGraphNode? other)
@@ -13,4 +13,9 @@ namespace Cyphoid.Core.ReferenceBackend
       return (other is IGraphNode<TId> otherNode && Id.Equals(otherNode.Id));
     }
   }
+
+
+  public record GraphEdge<TId>(
+    string Type,
+    TId Target) : IGraphEdge<TId> where TId : IEquatable<TId>;
 }

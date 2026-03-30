@@ -126,8 +126,8 @@ notExpression
   ;
 
 comparisonExpression
-  : inExpression comparisonOperator inExpression
-  | inExpression
+  : additiveExpression comparisonOperator additiveExpression 
+  | additiveExpression 
   ;
 
 comparisonOperator
@@ -141,6 +141,20 @@ comparisonOperator
   | STARTS WITH
   | ENDS WITH
   ;
+
+additiveExpression
+    : multiplicativeExpression ((PLUS | DASH) multiplicativeExpression)*
+    ;
+
+multiplicativeExpression
+    : unaryExpression ((ASTERIX | SLASH | PERCENT) unaryExpression)*
+    ;
+
+unaryExpression
+    : PLUS unaryExpression
+    | DASH unaryExpression
+    | inExpression
+    ;
 
 inExpression
   : primaryExpression IN LBRACK expressionList RBRACK
@@ -182,6 +196,7 @@ identifier
 literal
   : boolLiteral
   | integerLiteral
+  | decimalLiteral
   | stringLiteral
   | NULL
   ;
@@ -193,6 +208,10 @@ boolLiteral
 
 integerLiteral
   : INTEGER
+  ;
+
+decimalLiteral
+  : DECIMAL
   ;
 
 stringLiteral
@@ -240,7 +259,10 @@ COMMA      : ',';
 COLON      : ':';
 DOT        : '.';
 
+PLUS       : '+';
 ASTERIX    : '*';
+SLASH      : '/';
+PERCENT    : '%';
 
 EQ         : '=';
 NEQ        : '<>';
@@ -249,6 +271,7 @@ GTE        : '>=';
 LT         : '<';
 GT         : '>';
 
+DECIMAL    : DIGIT+ '.' DIGIT+;
 INTEGER    : DIGIT+;
 
 STRING

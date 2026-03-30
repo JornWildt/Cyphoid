@@ -332,8 +332,8 @@ namespace Cyphoid.Core
 
     public override AstNode VisitComparisonExpression([NotNull] CypherParser.ComparisonExpressionContext context)
     {
-      var left = Visit<ExprNode>(context.inExpression(0));
-      if (context.inExpression(1) == null)
+      var left = Visit<ExprNode>(context.additiveExpression(0));
+      if (context.additiveExpression(1) == null)
         return left;
 
       var operatorText = context.comparisonOperator().GetText().ToUpper();
@@ -351,7 +351,7 @@ namespace Cyphoid.Core
         _ => throw new NotImplementedException()
       };
 
-      var right = Visit<ExprNode>(context.inExpression(1));
+      var right = Visit<ExprNode>(context.additiveExpression(1));
 
       return new BinaryOperatorNode(left, right, op);
     }

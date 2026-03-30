@@ -11,6 +11,12 @@
   public interface IGraphNode<TId> : IGraphNode where TId : IEquatable<TId>
   {
     TId Id { get; }
-    Dictionary<string, TId> Edges { get; }
+    IReadOnlyList<IGraphEdge<TId>> Edges { get; }
+  }
+
+  public interface IGraphEdge<TId> where TId : IEquatable<TId>
+  {
+    string Type { get; }
+    TId Target { get; }
   }
 }

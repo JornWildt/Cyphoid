@@ -57,10 +57,10 @@ namespace Cyphoid.Tests.TestBackend.Operators
         {
           var sourceNode = sourceVariable.Value.AsGraphNode<string>();
           var matchingEdges = sourceNode.Edges
-            .Where(e => RelationLabel == null || e.Key == RelationLabel);
+            .Where(e => RelationLabel == null || e.Type == RelationLabel);
 
           var targetIds = matchingEdges
-            .Select(e => e.Value)
+            .Select(e => e.Target)
             .Distinct()
             .ToList();
 
@@ -75,7 +75,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
                 var newNode = new GraphNode<string>(
                   targetId,
                   targetNode.Labels.First(),
-                  targetNode.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
+                  targetNode.Outgoing.Select(o => new GraphEdge<string>(o.Type, o.To.Id)).ToArray(),
                   targetNode.Properties);
                 newRow.Values[DestinationVariable.SlotIndex] = MixedValue.GraphNode(newNode);
                 yield return newRow;
@@ -121,7 +121,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
                 var newNode = new GraphNode<string>(
                   targetId,
                   targetNode.Labels.First(),
-                  targetNode.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
+                  targetNode.Outgoing.Select(o => new GraphEdge<string>(o.Type, o.To.Id)).ToArray(),
                   targetNode.Properties);
                 newRow.Values[DestinationVariable.SlotIndex] = MixedValue.GraphNode(newNode);
                 yield return newRow;

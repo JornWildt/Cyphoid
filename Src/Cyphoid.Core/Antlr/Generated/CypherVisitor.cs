@@ -212,6 +212,24 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.additiveExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAdditiveExpression([NotNull] CypherParser.AdditiveExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.multiplicativeExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMultiplicativeExpression([NotNull] CypherParser.MultiplicativeExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.unaryExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitUnaryExpression([NotNull] CypherParser.UnaryExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.inExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -265,6 +283,12 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.decimalLiteral"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDecimalLiteral([NotNull] CypherParser.DecimalLiteralContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
 	/// </summary>

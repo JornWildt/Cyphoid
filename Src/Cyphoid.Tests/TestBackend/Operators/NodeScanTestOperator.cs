@@ -41,7 +41,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
           var newNode = new GraphNode<string>(
             node.Value.Id,
             node.Value.Labels.First(),
-            node.Value.Outgoing.ToDictionary(e => e.Type, e => e.To.Id),
+            node.Value.Outgoing.Select(o => new GraphEdge<string>(o.Type, o.To.Id)).ToArray(),
             node.Value.Properties.ToDictionary(a => a.Key, a => a.Value));
           row.Values[Variable.SlotIndex] = MixedValue.GraphNode(newNode);
 

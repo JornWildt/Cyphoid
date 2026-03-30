@@ -34,19 +34,19 @@ namespace Cyphoid.Core.ReferenceBackend
               if (Direction == ExpandDirectionType.Outgoing)
               {
                 var matchingEdges = sourceNode.Edges
-                  .Where(e => RelationLabel == null || e.Key == RelationLabel);
+                  .Where(e => RelationLabel == null || e.Type == RelationLabel);
 
                 // FIXME: Edge destination must be TId (not string)
-                if (matchingEdges.Any(e => EqualityComparer<TId>.Default.Equals(e.Value, destinationNode.Id)))
+                if (matchingEdges.Any(e => EqualityComparer<TId>.Default.Equals(e.Target, destinationNode.Id)))
                   isMatch = true;
               }
               else
               {
                 var matchingEdges = destinationNode.Edges
-                  .Where(e => RelationLabel == null || e.Key == RelationLabel);
+                  .Where(e => RelationLabel == null || e.Type == RelationLabel);
 
                 // FIXME: Edge destination must be TId (not string)
-                if (matchingEdges.Any(e => EqualityComparer<TId>.Default.Equals(e.Value, sourceNode.Id)))
+                if (matchingEdges.Any(e => EqualityComparer<TId>.Default.Equals(e.Target, sourceNode.Id)))
                   isMatch = true;
               }
             }

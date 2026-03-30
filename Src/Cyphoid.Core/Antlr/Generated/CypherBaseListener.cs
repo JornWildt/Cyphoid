@@ -396,6 +396,42 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitComparisonOperator([NotNull] CypherParser.ComparisonOperatorContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.additiveExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAdditiveExpression([NotNull] CypherParser.AdditiveExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.additiveExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAdditiveExpression([NotNull] CypherParser.AdditiveExpressionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.multiplicativeExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterMultiplicativeExpression([NotNull] CypherParser.MultiplicativeExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.multiplicativeExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitMultiplicativeExpression([NotNull] CypherParser.MultiplicativeExpressionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.unaryExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterUnaryExpression([NotNull] CypherParser.UnaryExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.unaryExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitUnaryExpression([NotNull] CypherParser.UnaryExpressionContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.inExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -503,6 +539,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.decimalLiteral"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDecimalLiteral([NotNull] CypherParser.DecimalLiteralContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.decimalLiteral"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDecimalLiteral([NotNull] CypherParser.DecimalLiteralContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.stringLiteral"/>.
 	/// <para>The default implementation does nothing.</para>
