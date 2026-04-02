@@ -5,7 +5,7 @@ using Cyphoid.Core.Expressions;
 namespace Cyphoid.Core.SyntaxTree
 {
   public record PropertyAccessNode(VariableDefinition Variable, IReadOnlyList<string> Properties) 
-    : ExprNode(null, ValueKindType.Variable)
+    : ExprNode(ValueKindType.Variable)
   {
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
@@ -45,7 +45,7 @@ namespace Cyphoid.Core.SyntaxTree
 
 
   public record VariableExprNode(VariableDefinition Variable) 
-    : ExprNode(Variable.Type, ValueKindType.Variable)
+    : ExprNode(ValueKindType.Variable)
   {
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {

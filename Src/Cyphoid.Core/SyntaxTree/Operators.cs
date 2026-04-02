@@ -1,30 +1,22 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
-using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.SyntaxTree
 {
-  public enum BinaryOperatorType { And, Or, EQ, NEQ, LTE, GTE, LT, GT, CONTAINS, STARTS_WITH, ENDS_WITH }
+  public enum BinaryOperatorType { 
+    And, Or, EQ, NEQ, LTE, GTE, LT, GT, CONTAINS, STARTS_WITH, ENDS_WITH, 
+    Add, Sub, Mult, Div, Mod }
 
   public record BinaryOperatorNode(
-    ExprNode Left, 
-    ExprNode Right, 
-    BinaryOperatorType Operator) 
-    : ExprNode(EvaluateType(Left, Right, Operator), EvaluateKind(Left, Right, Operator))
+    ExprNode Left,
+    ExprNode Right,
+    BinaryOperatorType Operator)
+    : ExprNode(EvaluateKind(Left, Right, Operator))
   {
-    private static readonly string[] OperatorSymbols = ["AND", "OR", "=", "<>", "<=", ">=", "<", ">", "CONTAINS", "STARTS WITH", "ENDS WITH"];
-
-    
-    private static MixedValue.ValueType EvaluateType(
-      ExprNode left, 
-      ExprNode right, 
-      BinaryOperatorType op)
-    {
-      // So for we only have bool operators
-      return MixedValue.ValueType.Bool;
-    }
+    private static readonly string[] OperatorSymbols = [
+      "AND", "OR", "=", "<>", "<=", ">=", "<", ">", "CONTAINS", "STARTS WITH", "ENDS WITH",
+      "+", "-", "*", "/", "%"];
 
 
     private static ValueKindType EvaluateKind(
@@ -67,6 +59,7 @@ namespace Cyphoid.Core.SyntaxTree
     {
       var leftEvaluator = Left.BuildEvaluator<TId>();
       var rightEvaluator = Right.BuildEvaluator<TId>();
+
       return Operator switch
       {
         BinaryOperatorType.And => (IRow<TId> r) => MixedValue.Bool(leftEvaluator(r).AsBool() && rightEvaluator(r).AsBool()),
@@ -77,8 +70,13 @@ namespace Cyphoid.Core.SyntaxTree
         //BinaryOperatorType.GTE => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
         //BinaryOperatorType.LT => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
         //BinaryOperatorType.GT => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
+        BinaryOperatorType.Add => (IRow<TId> r) => leftEvaluator(r) + rightEvaluator(r),
+        BinaryOperatorType.Sub => (IRow<TId> r) => leftEvaluator(r) - rightEvaluator(r),
+        BinaryOperatorType.Mult => (IRow<TId> r) => leftEvaluator(r) * rightEvaluator(r),
+        BinaryOperatorType.Div => (IRow<TId> r) => leftEvaluator(r) / rightEvaluator(r),
+        BinaryOperatorType.Mod => (IRow<TId> r) => leftEvaluator(r) % rightEvaluator(r),
         _ => throw new NotImplementedException()
-      };        
+      };
     }
 
 
@@ -91,10 +89,10 @@ namespace Cyphoid.Core.SyntaxTree
   }
 
 
-  public enum UnaryOperatorType { Not }
+  public enum UnaryOperatorType { Not, Plus, Minus }
 
-  public record UnaryOperatorNode(UnaryOperatorType Operator, ExprNode Expr) 
-    : ExprNode(MixedValue.ValueType.Bool, Expr.ValueKind)
+  public record UnaryOperatorNode(UnaryOperatorType Operator, ExprNode Expr)
+    : ExprNode(Expr.ValueKind)
   {
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
@@ -112,7 +110,7 @@ namespace Cyphoid.Core.SyntaxTree
 
 
   public record InOperatorNode(ExprNode Expr, IReadOnlyList<ExprNode> Items)
-    : ExprNode(MixedValue.ValueType.Bool, ValueKindType.Variable)
+    : ExprNode(ValueKindType.Variable)
   {
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {

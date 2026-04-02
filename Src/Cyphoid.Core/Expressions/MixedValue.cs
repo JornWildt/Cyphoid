@@ -9,14 +9,16 @@ namespace Cyphoid.Core.Expressions
       Null = 0,
       Bool = 1,
       Int = 2,
-      String = 3,
-      Node = 4,
-      Edge = 5
+      Double = 3,
+      String = 4,
+      Node = 5,
+      Edge = 6
     }
 
     private readonly ValueType _kind;
     private readonly bool _bool;
     private readonly long _int;
+    private readonly double _double;
     private readonly object? _ref;
 
 
@@ -25,6 +27,7 @@ namespace Cyphoid.Core.Expressions
       _kind = ValueType.Null;
       _bool = default;
       _int = default;
+      _double = default;
       _ref = default;
     }
 
@@ -33,6 +36,7 @@ namespace Cyphoid.Core.Expressions
       _kind = ValueType.Bool;
       _bool = value;
       _int = default;
+      _double= default;
       _ref = default;
     }
 
@@ -41,6 +45,16 @@ namespace Cyphoid.Core.Expressions
       _kind = ValueType.Int;
       _bool = default;
       _int = value;
+      _double = default;
+      _ref = default;
+    }
+
+    private MixedValue(double value)
+    {
+      _kind = ValueType.Double;
+      _bool = default;
+      _int = default;
+      _double = value;
       _ref = default;
     }
 
@@ -50,6 +64,7 @@ namespace Cyphoid.Core.Expressions
       _kind = ValueType.String;
       _bool = default;
       _int = default;
+      _double = default;
       _ref = value;
     }
 
@@ -59,6 +74,7 @@ namespace Cyphoid.Core.Expressions
       _kind = ValueType.Node;
       _bool = default;
       _int = default;
+      _double = default;
       _ref = value;
     }
 
@@ -68,6 +84,8 @@ namespace Cyphoid.Core.Expressions
 
     public static MixedValue Int(long value) => new(value);
 
+    public static MixedValue Double(double value) => new(value);
+
     public static MixedValue String(string? value) => value == null ? Null() : new(value);
 
     public static MixedValue GraphNode(IGraphNode? value) => value == null ? Null() : new(value);
@@ -75,11 +93,14 @@ namespace Cyphoid.Core.Expressions
     public static MixedValue FromObject(object? value) =>
       value is bool b ? Bool(b)
       : value is int i ? Int(i)
+      : value is double d ? Double(d)
       : value is long l ? Int(l)
       : value is string s ? String(s)
       : value is IGraphNode g ? GraphNode(g)
       : value == null ? new()
       : throw new NotImplementedException();
+
+    public ValueType Type => _kind;
 
     public bool IsNull() =>
       _kind == ValueType.Null;
@@ -93,6 +114,9 @@ namespace Cyphoid.Core.Expressions
     public long AsInt() =>
         _kind == ValueType.Int ? _int : throw new InvalidOperationException($"Value is not an int Got {_kind} {ToString()}.");
 
+    public double AsDouble() =>
+        _kind == ValueType.Double ? _double : throw new InvalidOperationException($"Value is not a double Got {_kind} {ToString()}.");
+
     public string AsString() =>
         _kind == ValueType.String ? (string)_ref! : throw new InvalidOperationException($"Value is not a string. Got {_kind} {ToString()}.");
 
@@ -103,6 +127,7 @@ namespace Cyphoid.Core.Expressions
       () => null,
       b => b,
       i => i,
+      d => d,
       s => s,
       g => g);
 
@@ -116,6 +141,12 @@ namespace Cyphoid.Core.Expressions
     {
       value = _int;
       return _kind == ValueType.Int;
+    }
+
+    public bool TryGetDouble(out double value)
+    {
+      value = _double;
+      return _kind == ValueType.Double;
     }
 
     public bool TryGetString(out string? value)
@@ -134,6 +165,7 @@ namespace Cyphoid.Core.Expressions
       Func<T> onNull,
       Func<bool, T> onBool,
       Func<long, T> onInt,
+      Func<double, T> onDouble,
       Func<string, T> onString,
       Func<IGraphNode, T> onGraphNode)
     {
@@ -142,24 +174,19 @@ namespace Cyphoid.Core.Expressions
         ValueType.Null => onNull(),
         ValueType.Bool => onBool(_bool),
         ValueType.Int => onInt(_int),
+        ValueType.Double => onDouble(_double),
         ValueType.String => onString((string)_ref!),
         ValueType.Node => onGraphNode((IGraphNode)_ref!),
         _ => throw new NotImplementedException()
       };
     }
 
-    //public static implicit operator MixedValue(bool value) => new(value);
-    //public static implicit operator MixedValue(long value) => new(value);
-    //public static implicit operator MixedValue(string value) => new(value);
-
-    //public static explicit operator bool(MixedValue value) => value.AsBool;
-    //public static explicit operator long(MixedValue value) => value.AsInt;
-    //public static explicit operator string(MixedValue value) => value.AsString;
 
     public bool Equals(MixedValue other) =>
       _kind == other._kind &&
       _bool == other._bool &&
       _int == other._int &&
+      _double == other._double &&
       _kind switch
       {
         ValueType.String => (string?)_ref == (string?)other._ref,
@@ -174,6 +201,7 @@ namespace Cyphoid.Core.Expressions
       || obj is bool b && _kind == ValueType.Bool && _bool == b
       || obj is int i && _kind == ValueType.Int && _int == i
       || obj is long l && _kind == ValueType.Int && _int == l
+      || obj is double d && _kind == ValueType.Double && _double == d
       || obj is string s && _kind == ValueType.String && (string?)_ref == s
       || obj is IGraphNode g && _kind == ValueType.Node && (IGraphNode?)_ref == g;
 
@@ -183,6 +211,7 @@ namespace Cyphoid.Core.Expressions
       {
         ValueType.Bool => HashCode.Combine(_kind, _bool),
         ValueType.Int => HashCode.Combine(_kind, _int),
+        ValueType.Double => HashCode.Combine(_kind, _double),
         ValueType.String => HashCode.Combine(_kind, _ref),
         ValueType.Node => HashCode.Combine(_kind, _ref),
         _ => (int)_kind
@@ -195,6 +224,7 @@ namespace Cyphoid.Core.Expressions
         ValueType.Null => "null",
         ValueType.Bool => _bool.ToString(),
         ValueType.Int => _int.ToString(),
+        ValueType.Double => _double.ToString(),
         ValueType.String => _ref!.ToString() ?? "",
         ValueType.Node => "-node-",
         _ => "<undefined>"
@@ -221,6 +251,7 @@ namespace Cyphoid.Core.Expressions
         {
           ValueType.Bool => throw new InvalidOperationException($"Cannot compare booleans '{this}' and '{other}'."),
           ValueType.Int => _int.CompareTo(other._int),
+          ValueType.Double => _double.CompareTo(other._double),
           ValueType.String => (_ref!.ToString() ?? "").CompareTo(other._ref!.ToString() ?? ""),
           ValueType.Node => throw new InvalidOperationException($"Cannot compare nodes '{this}' and '{other}'."),
           _ => throw new InvalidOperationException($"Cannot compare values '{this}' and '{other}'."),
@@ -228,6 +259,166 @@ namespace Cyphoid.Core.Expressions
       }
       else
         throw new InvalidOperationException($"Cannot compare '{this}' and '{other}'.");
+    }
+
+
+    public static MixedValue operator +(MixedValue left, MixedValue right)
+    {
+      if (left.IsNull() || right.IsNull())
+        return MixedValue.Null();
+
+      if (left.TryGetInt(out var li))
+      {
+        if (right.TryGetInt(out var ri))
+        {
+          return MixedValue.Int(li + ri);
+        }
+        else if (right.TryGetDouble(out var rd))
+        {
+          return MixedValue.Double(li + rd);
+        }
+      }
+      else if (left.TryGetDouble(out var ld))
+      {
+        if (right.TryGetInt(out var ri))
+        {
+          return MixedValue.Double(ld + ri);
+        }
+        else if (right.TryGetDouble(out var rd))
+        {
+          return MixedValue.Double(ld + rd);
+        }
+      }
+
+      throw new InvalidOperationException($"Cannot add two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
+    }
+
+
+    public static MixedValue operator -(MixedValue left, MixedValue right)
+    {
+      if (left.IsNull() || right.IsNull())
+        return MixedValue.Null();
+
+      if (left.TryGetInt(out var li))
+      {
+        if (right.TryGetInt(out var ri))
+        {
+          return MixedValue.Int(li - ri);
+        }
+        else if (right.TryGetDouble(out var rd))
+        {
+          return MixedValue.Double(li - rd);
+        }
+      }
+      else if (left.TryGetDouble(out var ld))
+      {
+        if (right.TryGetInt(out var ri))
+        {
+          return MixedValue.Double(ld - ri);
+        }
+        else if (right.TryGetDouble(out var rd))
+        {
+          return MixedValue.Double(ld - rd);
+        }
+      }
+
+      throw new InvalidOperationException($"Cannot substract two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
+    }
+
+
+    public static MixedValue operator *(MixedValue left, MixedValue right)
+    {
+      if (left.IsNull() || right.IsNull())
+        return MixedValue.Null();
+
+      if (left.TryGetInt(out var li))
+      {
+        if (right.TryGetInt(out var ri))
+        {
+          return MixedValue.Int(li * ri);
+        }
+        else if (right.TryGetDouble(out var rd))
+        {
+          return MixedValue.Double(li * rd);
+        }
+      }
+      else if (left.TryGetDouble(out var ld))
+      {
+        if (right.TryGetInt(out var ri))
+        {
+          return MixedValue.Double(ld * ri);
+        }
+        else if (right.TryGetDouble(out var rd))
+        {
+          return MixedValue.Double(ld * rd);
+        }
+      }
+
+      throw new InvalidOperationException($"Cannot multiply two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
+    }
+
+
+    public static MixedValue operator /(MixedValue left, MixedValue right)
+    {
+      if (left.IsNull() || right.IsNull())
+        return MixedValue.Null();
+
+      if (left.TryGetInt(out var li))
+      {
+        if (right.TryGetInt(out var ri))
+        {
+          return MixedValue.Int(li / ri);
+        }
+        else if (right.TryGetDouble(out var rd))
+        {
+          return MixedValue.Double(li / rd);
+        }
+      }
+      else if (left.TryGetDouble(out var ld))
+      {
+        if (right.TryGetInt(out var ri))
+        {
+          return MixedValue.Double(ld / ri);
+        }
+        else if (right.TryGetDouble(out var rd))
+        {
+          return MixedValue.Double(ld / rd);
+        }
+      }
+
+      throw new InvalidOperationException($"Cannot divide two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
+    }
+
+
+    public static MixedValue operator %(MixedValue left, MixedValue right)
+    {
+      if (left.IsNull() || right.IsNull())
+        return MixedValue.Null();
+
+      if (left.TryGetInt(out var li))
+      {
+        if (right.TryGetInt(out var ri))
+        {
+          return MixedValue.Int(li % ri);
+        }
+        else if (right.TryGetDouble(out var rd))
+        {
+          return MixedValue.Double(li % rd);
+        }
+      }
+      else if (left.TryGetDouble(out var ld))
+      {
+        if (right.TryGetInt(out var ri))
+        {
+          return MixedValue.Double(ld % ri);
+        }
+        else if (right.TryGetDouble(out var rd))
+        {
+          return MixedValue.Double(ld % rd);
+        }
+      }
+
+      throw new InvalidOperationException($"Cannot calculate modula of two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
     }
   }
 }

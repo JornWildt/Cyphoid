@@ -26,7 +26,6 @@ namespace Cyphoid.Core.SyntaxTree
   public enum ValueKindType { Const, Variable, Aggregate }
 
   public abstract record ExprNode(
-    MixedValue.ValueType? Type,
     ValueKindType ValueKind) : AstNode
   {
     public abstract RowEvaluator<TId> BuildEvaluator<TId>() where TId : IEquatable<TId>;

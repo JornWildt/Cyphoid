@@ -1,7 +1,7 @@
 ﻿using Cyphoid.Core.Execution;
-using Cyphoid.Core.Expressions;
+using Cyphoid.Core.ReferenceBackend.Aggregation;
 
-namespace Cyphoid.Core.ReferenceBackend.Aggregation
+namespace Cyphoid.Core.Expressions.Functions
 {
   public record CountAllAggregator<TId>(
     int SlotIndex) : IAggregationEvaluator<TId> where TId : IEquatable<TId>

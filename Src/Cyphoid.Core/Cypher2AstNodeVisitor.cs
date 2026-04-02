@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.Expressions.Functions;
 using Cyphoid.Core.ReferenceBackend;
 using Cyphoid.Core.SyntaxTree;
 
@@ -357,6 +358,51 @@ namespace Cyphoid.Core
     }
 
 
+    public override AstNode VisitAdditiveExpression([NotNull] CypherParser.AdditiveExpressionContext context)
+    {
+      var left = context.additiveExpression() != null ? Visit<ExprNode>(context.additiveExpression()) : null;
+      var right = Visit<ExprNode>(context.multiplicativeExpression());
+
+      if (left != null && context.PLUS() != null)
+        return new BinaryOperatorNode(left, right, BinaryOperatorType.Add);
+      else if (left != null && context.DASH() != null)
+        return new BinaryOperatorNode(left, right, BinaryOperatorType.Sub);
+      else
+        return right;
+    }
+
+
+    public override AstNode VisitMultiplicativeExpression([NotNull] CypherParser.MultiplicativeExpressionContext context)
+    {
+      var left = context.multiplicativeExpression() != null ? Visit<ExprNode>(context.multiplicativeExpression()) : null;
+      var right = Visit<ExprNode>(context.unaryExpression());
+
+      if (left != null && context.ASTERIX() != null)
+        return new BinaryOperatorNode(left, right, BinaryOperatorType.Mult);
+      else if (left != null && context.SLASH() != null)
+        return new BinaryOperatorNode(left, right, BinaryOperatorType.Div);
+      else if (left != null && context.PERCENT() != null)
+        return new BinaryOperatorNode(left, right, BinaryOperatorType.Mod);
+      else
+        return right;
+    }
+
+
+    public override AstNode VisitUnaryExpression([NotNull] CypherParser.UnaryExpressionContext context)
+    {
+      if (context.inExpression() != null)
+        return Visit<ExprNode>(context.inExpression());
+
+      var sub = Visit<ExprNode>(context.unaryExpression());
+      if (context.PLUS() != null)
+        return new UnaryOperatorNode(UnaryOperatorType.Plus, sub);
+      else if (context.DASH() != null)
+        return new UnaryOperatorNode(UnaryOperatorType.Minus, sub);
+      else
+        throw new NotImplementedException();
+    }
+
+
     public override AstNode VisitInExpression([NotNull] CypherParser.InExpressionContext context)
     {
       var expr = Visit<ExprNode>(context.primaryExpression());
@@ -385,9 +431,10 @@ namespace Cyphoid.Core
         var vd = FindVariable(v);
         return new VariableExprNode(vd);
       }
-      else if (context.expression() != null)
+      else if (context.LPAREN() != null && context.expression() != null && context.RPAREN() != null)
       {
-        return Visit<ExprNode>(context.expression());
+        var sub = Visit<ExprNode>(context.expression());
+        return new SubExpression(sub);
       }
       else if (context.propertyAccess() != null)
       {
@@ -418,14 +465,15 @@ namespace Cyphoid.Core
     public override AstNode VisitFunctionCall([NotNull] CypherParser.FunctionCallContext context)
     {
       if (context.COUNT() != null && context.ASTERIX() != null)
-        return new FunctionCallNode("CountAll", []);
+        return new FunctionCallNode(context.COUNT().GetText(), FunctionRegistry.GetFunctionDefinition("CountAll"), []);
 
       var name = context.identifier().GetText();
+
       var parameters = context.expression()
         .Select(e => Visit<ExprNode>(e))
         .ToArray();
 
-      return new FunctionCallNode(name, parameters);
+      return new FunctionCallNode(name, FunctionRegistry.GetFunctionDefinition(name), parameters);
     }
 
     

@@ -1,49 +1,19 @@
 ﻿using System.Text;
 using Cyphoid.Core.Execution;
-using Cyphoid.Core.Expressions;
+using Cyphoid.Core.Expressions.Functions;
 using Cyphoid.Core.ReferenceBackend.Aggregation;
 
 namespace Cyphoid.Core.SyntaxTree
 {
-  public record FunctionDefinition(
-    string Name,
-    MixedValue.ValueType? Type,
-    ValueKindType ValueKind);
-
   public record FunctionCallNode(
     string FunctionName,
-    IReadOnlyList<ExprNode> Parameters) : ExprNode(GetFunctionType(FunctionName), GetFunctionValueKind(FunctionName))
+    IFunctionDefinition Definition,
+    IReadOnlyList<ExprNode> Parameters) : ExprNode(Definition.ValueKind)
   {
-    static readonly Dictionary<string, FunctionDefinition> FunctionDefinitions = new()
-    {
-      ["CountAll"] = new FunctionDefinition("CountAll", MixedValue.ValueType.Int, ValueKindType.Aggregate)
-    };
-
-
-    protected static MixedValue.ValueType? GetFunctionType(string functionName)
-    {
-      if (FunctionDefinitions.TryGetValue(functionName, out FunctionDefinition? function))
-        return function.Type;
-      return null;
-    }
-
-
-    protected static ValueKindType GetFunctionValueKind(string functionName)
-    {
-      if (FunctionDefinitions.TryGetValue(functionName, out FunctionDefinition? function))
-        return function.ValueKind;
-      return ValueKindType.Variable;
-    }
-
-
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
-      if (FunctionName == "CountAll")
-      {
-        return (IRow<TId> row) => MixedValue.Int(-1);
-      }
-
-      throw new NotImplementedException($"Unknown function '{FunctionName}'.");
+      var parameters = Parameters.Select(p => p.BuildEvaluator<TId>()).ToArray();
+      return Definition.GetRowEvaluator<TId>(parameters);
     }
 
 
@@ -51,19 +21,14 @@ namespace Cyphoid.Core.SyntaxTree
       RowEvaluator<TId> expression,
       int outputSlotIndex)
     {
-      if (FunctionName == "CountAll")
-      {
-        return new CountAllAggregator<TId>(outputSlotIndex);
-      }
-
-      throw new NotImplementedException($"Not an aggregate function '{FunctionName}'.");
-
+      var parameters = Parameters.Select(p => p.BuildEvaluator<TId>()).ToArray();
+      return Definition.GetAggregator(parameters, outputSlotIndex);
     }
 
 
     public override void PrettyPrint(StringBuilder sb)
     {
-      if (FunctionName == "CountAll")
+      if (Definition is CountAllFunction)
       {
         sb.Append("COUNT(*)");
       }

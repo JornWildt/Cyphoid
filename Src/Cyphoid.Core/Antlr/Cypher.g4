@@ -34,7 +34,7 @@ returnClause
   ;
 
 orderingClause
-  : ORDER BY orderByItem (COMMA orderByItem)*
+  : ORDER_BY orderByItem (COMMA orderByItem)*
   ;
 
 orderByItem
@@ -143,11 +143,16 @@ comparisonOperator
   ;
 
 additiveExpression
-    : multiplicativeExpression ((PLUS | DASH) multiplicativeExpression)*
+    : multiplicativeExpression
+    | additiveExpression PLUS multiplicativeExpression
+    | additiveExpression DASH multiplicativeExpression
     ;
 
 multiplicativeExpression
-    : unaryExpression ((ASTERIX | SLASH | PERCENT) unaryExpression)*
+    : unaryExpression 
+    | multiplicativeExpression ASTERIX unaryExpression 
+    | multiplicativeExpression SLASH unaryExpression 
+    | multiplicativeExpression PERCENT unaryExpression 
     ;
 
 unaryExpression
@@ -238,8 +243,7 @@ WITH       : [Ww][Ii][Tt][Hh];
 TRUE       : [Tt][Rr][Uu][Ee];
 FALSE      : [Ff][Aa][Ll][Ss][Ee];
 NULL       : [Nn][Uu][Ll][Ll];
-ORDER      : [Oo][Rr][Dd][Ee][Rr];
-BY         : [Bb][Yy];
+ORDER_BY   : [Oo][Rr][Dd][Ee][Rr][ \t\r\n]+[Bb][Yy];
 ASC        : [Aa][Ss][Cc];
 DESC       : [Dd][Ee][Ss][Cc];
 COUNT      : [Cc][Oo][Uu][Nn][Tt];
