@@ -36,7 +36,7 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n {value: 12}) RETURN n.value % 5 * 2 AS value", 4)]
     [TestCase("MATCH (n {value: 12}) RETURN (n.value + 2) * 2 AS value", 28)]
     [TestCase("MATCH (n {value: 12}) RETURN (n.value - 2) * 2 AS value", 20)]
-    public async Task ItCanExecuteBasicQuery(string input, object expectedValue)
+    public async Task ItCanCalculateBasicMath(string input, object expectedValue)
     {
       // Act
       var result = await ExecuteQuery(input);

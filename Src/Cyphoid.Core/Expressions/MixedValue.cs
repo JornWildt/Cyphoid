@@ -1,4 +1,5 @@
-﻿using Cyphoid.Core.Execution;
+﻿using Cyphoid.Core.Exceptions;
+using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.Expressions
 {
@@ -98,7 +99,7 @@ namespace Cyphoid.Core.Expressions
       : value is string s ? String(s)
       : value is IGraphNode g ? GraphNode(g)
       : value == null ? new()
-      : throw new NotImplementedException();
+      : throw new RuntimeException($"Unhandled value '{value}' of type '{value.GetType()}'.");
 
     public ValueType Type => _kind;
 
@@ -106,22 +107,22 @@ namespace Cyphoid.Core.Expressions
       _kind == ValueType.Null;
 
     public bool AsBool() =>
-        _kind == ValueType.Bool ? _bool : throw new InvalidOperationException($"Value is not a bool. Got {_kind} {ToString()}.");
+        _kind == ValueType.Bool ? _bool : throw new RuntimeException($"Value is not a bool. Got {_kind} {ToString()}.");
 
     public bool IsAnythingButTrue() =>
         _kind == ValueType.Bool ? !_bool : true;
 
     public long AsInt() =>
-        _kind == ValueType.Int ? _int : throw new InvalidOperationException($"Value is not an int Got {_kind} {ToString()}.");
+        _kind == ValueType.Int ? _int : throw new RuntimeException($"Value is not an int Got {_kind} {ToString()}.");
 
     public double AsDouble() =>
-        _kind == ValueType.Double ? _double : throw new InvalidOperationException($"Value is not a double Got {_kind} {ToString()}.");
+        _kind == ValueType.Double ? _double : throw new RuntimeException($"Value is not a double Got {_kind} {ToString()}.");
 
     public string AsString() =>
-        _kind == ValueType.String ? (string)_ref! : throw new InvalidOperationException($"Value is not a string. Got {_kind} {ToString()}.");
+        _kind == ValueType.String ? (string)_ref! : throw new RuntimeException($"Value is not a string. Got {_kind} {ToString()}.");
 
     public IGraphNode<TId> AsGraphNode<TId>() where TId : IEquatable<TId> =>
-        _kind == ValueType.Node ? (IGraphNode<TId>)_ref! : throw new InvalidOperationException($"Value is not a node. Got {_kind} {ToString()}.");
+        _kind == ValueType.Node ? (IGraphNode<TId>)_ref! : throw new RuntimeException($"Value is not a node. Got {_kind} {ToString()}.");
 
     public object? AsObject() => Match<object?>(
       () => null,
@@ -177,7 +178,7 @@ namespace Cyphoid.Core.Expressions
         ValueType.Double => onDouble(_double),
         ValueType.String => onString((string)_ref!),
         ValueType.Node => onGraphNode((IGraphNode)_ref!),
-        _ => throw new NotImplementedException()
+        _ => throw new RuntimeException($"Unhandled value type '{_kind}'.")
       };
     }
 
@@ -249,16 +250,40 @@ namespace Cyphoid.Core.Expressions
       {
         return _kind switch
         {
-          ValueType.Bool => throw new InvalidOperationException($"Cannot compare booleans '{this}' and '{other}'."),
+          ValueType.Bool => throw new RuntimeException($"Cannot compare booleans '{this}' and '{other}'."),
           ValueType.Int => _int.CompareTo(other._int),
           ValueType.Double => _double.CompareTo(other._double),
           ValueType.String => (_ref!.ToString() ?? "").CompareTo(other._ref!.ToString() ?? ""),
-          ValueType.Node => throw new InvalidOperationException($"Cannot compare nodes '{this}' and '{other}'."),
-          _ => throw new InvalidOperationException($"Cannot compare values '{this}' and '{other}'."),
+          ValueType.Node => throw new RuntimeException($"Cannot compare nodes '{this}' and '{other}'."),
+          _ => throw new RuntimeException($"Cannot compare values '{this}' and '{other}'."),
         };
       }
       else
-        throw new InvalidOperationException($"Cannot compare '{this}' and '{other}'.");
+        throw new RuntimeException($"Cannot compare '{this}' and '{other}'.");
+    }
+
+    
+    public static MixedValue operator <=(MixedValue left, MixedValue right)
+    {
+      return MixedValue.Bool(((IComparable<MixedValue>)left).CompareTo(right) <= 0);
+    }
+
+
+    public static MixedValue operator <(MixedValue left, MixedValue right)
+    {
+      return MixedValue.Bool(((IComparable<MixedValue>)left).CompareTo(right) < 0);
+    }
+
+
+    public static MixedValue operator >=(MixedValue left, MixedValue right)
+    {
+      return MixedValue.Bool(((IComparable<MixedValue>)left).CompareTo(right) >= 0);
+    }
+
+
+    public static MixedValue operator >(MixedValue left, MixedValue right)
+    {
+      return MixedValue.Bool(((IComparable<MixedValue>)left).CompareTo(right) > 0);
     }
 
 
@@ -290,7 +315,7 @@ namespace Cyphoid.Core.Expressions
         }
       }
 
-      throw new InvalidOperationException($"Cannot add two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
+      throw new RuntimeException($"Cannot add two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
     }
 
 
@@ -322,7 +347,7 @@ namespace Cyphoid.Core.Expressions
         }
       }
 
-      throw new InvalidOperationException($"Cannot substract two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
+      throw new RuntimeException($"Cannot substract two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
     }
 
 
@@ -354,7 +379,7 @@ namespace Cyphoid.Core.Expressions
         }
       }
 
-      throw new InvalidOperationException($"Cannot multiply two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
+      throw new RuntimeException($"Cannot multiply two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
     }
 
 
@@ -386,7 +411,7 @@ namespace Cyphoid.Core.Expressions
         }
       }
 
-      throw new InvalidOperationException($"Cannot divide two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
+      throw new RuntimeException($"Cannot divide two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
     }
 
 
@@ -418,7 +443,7 @@ namespace Cyphoid.Core.Expressions
         }
       }
 
-      throw new InvalidOperationException($"Cannot calculate modula of two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
+      throw new RuntimeException($"Cannot calculate modula of two values of type '{left.Type}' ({left}) and '{right.Type}' ({right}).");
     }
   }
 }

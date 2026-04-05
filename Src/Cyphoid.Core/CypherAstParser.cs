@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Antlr4.Runtime;
+using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core
@@ -31,7 +32,7 @@ namespace Cyphoid.Core
       if (lexerErrors.Errors.Count > 0 || parserErrors.Errors.Count > 0)
       {
         var allErrors = lexerErrors.Errors.Concat(parserErrors.Errors);
-        throw new Exception(string.Join(Environment.NewLine, allErrors));
+        throw new ParseException(string.Join(Environment.NewLine, allErrors));
       }
 
       var visitor = new Cypher2AstNodeVisitor();

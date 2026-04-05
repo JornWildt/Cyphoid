@@ -178,6 +178,8 @@ namespace Cyphoid.Tests
 
     [TestCase("MATCH (o:order) RETURN COUNT(*) AS value", 6)]
     [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN sum(l.lineAmount) AS value", 7810.0)]
+    [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN min(l.lineAmount) AS value", 150.0)]
+    [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN max(l.lineAmount) AS value", 2200.0)]
     public async Task ItCanExecuteBasicQuery(string input, object expectedValue)
     {
       // Act

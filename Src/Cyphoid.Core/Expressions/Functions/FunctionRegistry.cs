@@ -1,4 +1,6 @@
-﻿namespace Cyphoid.Core.Expressions.Functions
+﻿using Cyphoid.Core.Exceptions;
+
+namespace Cyphoid.Core.Expressions.Functions
 {
   internal static class FunctionRegistry
   {
@@ -16,7 +18,7 @@
         return definition;
       }
 
-      throw new ArgumentOutOfRangeException("name", $"Unknown function '{name}'.");
+      throw new ParseException($"Unknown function '{name}'.");
     }
   }
 }

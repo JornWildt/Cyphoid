@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
 
@@ -35,7 +36,7 @@ namespace Cyphoid.Core.SyntaxTree
         {
           ValueKindType.Const => ValueKindType.Const,
           ValueKindType.Variable => ValueKindType.Variable,
-          ValueKindType.Aggregate => throw new NotImplementedException()
+          ValueKindType.Aggregate => throw new RuntimeException("Cannot use aggregate functions in expressions.")
         };
       }
       else if (left.ValueKind == ValueKindType.Variable)
@@ -44,12 +45,12 @@ namespace Cyphoid.Core.SyntaxTree
         {
           ValueKindType.Const => ValueKindType.Variable,
           ValueKindType.Variable => ValueKindType.Variable,
-          ValueKindType.Aggregate => throw new NotImplementedException()
+          ValueKindType.Aggregate => throw new RuntimeException("Cannot use aggregate functions in expressions.")
         };
       }
       else
       {
-        throw new NotImplementedException();
+        throw new RuntimeException("Cannot use aggregate functions in expressions.");
       }
 #pragma warning restore CS8524
     }
@@ -60,23 +61,27 @@ namespace Cyphoid.Core.SyntaxTree
       var leftEvaluator = Left.BuildEvaluator<TId>();
       var rightEvaluator = Right.BuildEvaluator<TId>();
 
+#pragma warning disable CS8524 // unnamed enum values
       return Operator switch
       {
         BinaryOperatorType.And => (IRow<TId> r) => MixedValue.Bool(leftEvaluator(r).AsBool() && rightEvaluator(r).AsBool()),
         BinaryOperatorType.Or => (IRow<TId> r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
         BinaryOperatorType.EQ => (IRow<TId> r) => MixedValue.Bool(leftEvaluator(r).Equals(rightEvaluator(r))),
         BinaryOperatorType.NEQ => (IRow<TId> r) => MixedValue.Bool(!leftEvaluator(r).Equals(rightEvaluator(r))),
-        //BinaryOperatorType.LTE => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
-        //BinaryOperatorType.GTE => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
-        //BinaryOperatorType.LT => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
-        //BinaryOperatorType.GT => (Row r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
+        BinaryOperatorType.LTE => (IRow<TId> r) => leftEvaluator(r) <= rightEvaluator(r),
+        BinaryOperatorType.LT => (IRow<TId> r) => leftEvaluator(r) < rightEvaluator(r),
+        BinaryOperatorType.GTE => (IRow<TId> r) => leftEvaluator(r) >= rightEvaluator(r),
+        BinaryOperatorType.GT => (IRow<TId> r) => leftEvaluator(r) > rightEvaluator(r),
         BinaryOperatorType.Add => (IRow<TId> r) => leftEvaluator(r) + rightEvaluator(r),
         BinaryOperatorType.Sub => (IRow<TId> r) => leftEvaluator(r) - rightEvaluator(r),
         BinaryOperatorType.Mult => (IRow<TId> r) => leftEvaluator(r) * rightEvaluator(r),
         BinaryOperatorType.Div => (IRow<TId> r) => leftEvaluator(r) / rightEvaluator(r),
         BinaryOperatorType.Mod => (IRow<TId> r) => leftEvaluator(r) % rightEvaluator(r),
-        _ => throw new NotImplementedException()
+        BinaryOperatorType.CONTAINS => throw new RuntimeException("Unsupported operator CONTAINS."),
+        BinaryOperatorType.STARTS_WITH => throw new RuntimeException("Unsupported operator STARTS WITH."),
+        BinaryOperatorType.ENDS_WITH => throw new RuntimeException("Unsupported operator ENDS WITH.")
       };
+#pragma warning restore CS8524
     }
 
 

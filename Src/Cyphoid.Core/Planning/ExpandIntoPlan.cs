@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
 
@@ -17,14 +18,15 @@ namespace Cyphoid.Core.Planning
       // FIXME: No need to calculate this all the time
       var destinationFilter = BuildPropertyFilter(DestinationPropertyMap);
 
+#pragma warning disable CS8524 // unnamed enum values
       ExpandDirectionType? direction = Relationship?.RelationshipDirection switch
       {
         RelationshipDirectionType.Right => ExpandDirectionType.Outgoing,
         RelationshipDirectionType.Left => ExpandDirectionType.Incoming,
-        RelationshipDirectionType.Both => throw new NotImplementedException("Both directions not supported."),
+        RelationshipDirectionType.Both => throw new RuntimeException("Both directions not supported."),
         null => (ExpandDirectionType?)null,
-        _ => throw new NotImplementedException()
       };
+#pragma warning restore CS8524
 
       return factory.BuildExpandInto(
         Input.BuildExecutionPlan(factory),

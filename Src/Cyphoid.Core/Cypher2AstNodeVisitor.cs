@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.Expressions;
 using Cyphoid.Core.Expressions.Functions;
 using Cyphoid.Core.ReferenceBackend;
@@ -50,7 +51,7 @@ namespace Cyphoid.Core
         return Visit<MatchWhereNode>(context.matchWhereClause());
       }
       else
-        throw new NotImplementedException();
+        throw new ParseException("Unhandled repeatable clause state.");
     }
 
 
@@ -349,7 +350,7 @@ namespace Cyphoid.Core
         "CONTAINS" => BinaryOperatorType.CONTAINS,
         "STARTS WITH" => BinaryOperatorType.STARTS_WITH,
         "ENDS WITH" => BinaryOperatorType.ENDS_WITH,
-        _ => throw new NotImplementedException()
+        _ => throw new ParseException($"Unhandled operator '{operatorText}'.")
       };
 
       var right = Visit<ExprNode>(context.additiveExpression(1));
@@ -399,7 +400,7 @@ namespace Cyphoid.Core
       else if (context.DASH() != null)
         return new UnaryOperatorNode(UnaryOperatorType.Minus, sub);
       else
-        throw new NotImplementedException();
+        throw new ParseException($"Unhandled unary expression state.");
     }
 
 
@@ -445,7 +446,7 @@ namespace Cyphoid.Core
         return Visit<FunctionCallNode>(context.functionCall());
       }
       else
-        throw new NotImplementedException();
+        throw new ParseException($"Unhandled primary expression state.");
     }
 
 
@@ -512,7 +513,7 @@ namespace Cyphoid.Core
         return new NullLiteralNode();
       }
       else
-        throw new NotImplementedException();
+        throw new ParseException($"Unhandled literal state.");
     }
 
 
@@ -525,7 +526,7 @@ namespace Cyphoid.Core
     {
       var text = context.INTEGER().GetText();
       if (!long.TryParse(text, out var value))
-        throw new ArgumentException($"Not an integer: '{text}'.");
+        throw new ParseException($"Not an integer: '{text}'.");
       return new IntLiteralNode(value);
     }
 
@@ -550,7 +551,7 @@ namespace Cyphoid.Core
     {
       var result = base.Visit(tree);
       if (result is not T)
-        throw new InvalidOperationException($"Unexpected type '{result?.GetType()}' - expected '{typeof(T)}'.");
+        throw new ParseException($"Unexpected parse tree type '{result?.GetType()}' - expected '{typeof(T)}'.");
       return (T)result;
     }
 
@@ -584,7 +585,7 @@ namespace Cyphoid.Core
     {
       if (OutputVariableDefinitions.TryGetValue(variableName, out var variableDefinition))
       {
-        throw new ($"Reuse of '{variableName}' in output list.");
+        throw new ParseException($"Reuse of '{variableName}' in output list.");
       }
       else
       {
@@ -603,7 +604,7 @@ namespace Cyphoid.Core
 
       if (!VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
       {
-        throw new InvalidOperationException($"Undefined variable '{variableName}'.");
+        throw new ParseException($"Undefined variable '{variableName}'.");
       }
 
       return variableDefinition;

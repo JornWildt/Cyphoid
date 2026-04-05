@@ -30,14 +30,16 @@ namespace Cyphoid.Core.SyntaxTree
     public override void PrettyPrint(StringBuilder sb)
     {
       Expression.PrettyPrint(sb);
+
+#pragma warning disable CS8524 // unnamed enum values
       var dir = Direction switch
       {
         OrderByDirectionType.DefaultAscending => "",
         OrderByDirectionType.Ascending => " ASC",
         OrderByDirectionType.Descending => " DESC",
-        _ => throw new NotImplementedException()
       };
       sb.Append(dir);
+#pragma warning restore CS8524
     }
   }
 }
