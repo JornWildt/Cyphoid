@@ -7,7 +7,11 @@ namespace Cyphoid.Core.Expressions.Functions
     static readonly Dictionary<string, IFunctionDefinition> FunctionDefinitions = new(StringComparer.OrdinalIgnoreCase)
     {
       ["CountAll"] = new CountAllFunction(),
-      ["Sum"] = new SumFunction()
+      ["Count"] = new CountFunction(),
+      ["Sum"] = new SumFunction(),
+      ["Min"] = new MinFunction(),
+      ["Max"] = new MaxFunction(),
+      ["Avg"] = new AvgFunction(),
     };
 
 

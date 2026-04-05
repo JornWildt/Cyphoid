@@ -47,5 +47,52 @@ namespace Cyphoid.Tests
       Assert.That(result.Rows.Count, Is.EqualTo(1));
       Assert.That(result.Rows[0]["value"], Is.EqualTo(MixedValue.FromObject(expectedValue)));
     }
+    
+    
+    [TestCase("RETURN 10 < 20 AS value", true)]
+    [TestCase("RETURN 10 <= 20 AS value", true)]
+    [TestCase("RETURN 10 > 20 AS value", false)]
+    [TestCase("RETURN 10 >= 20 AS value", false)]
+    [TestCase("RETURN 10 = 20 AS value", false)]
+    [TestCase("RETURN 10 <> 20 AS value", true)]
+    [TestCase("RETURN 10 < 10 AS value", false)]
+    [TestCase("RETURN 10 <= 10 AS value", true)]
+    [TestCase("RETURN 10 > 10 AS value", false)]
+    [TestCase("RETURN 10 = 10 AS value", true)]
+    [TestCase("RETURN 10 <> 10 AS value", false)]
+    [TestCase("RETURN 10 >= 10 AS value", true)]
+    [TestCase("RETURN 10.1 < 20.2 AS value", true)]
+    [TestCase("RETURN 10.1 <= 20.2 AS value", true)]
+    [TestCase("RETURN 10.1 > 20.2 AS value", false)]
+    [TestCase("RETURN 10.1 >= 20.2 AS value", false)]
+    [TestCase("RETURN 10.1 < 10.1 AS value", false)]
+    [TestCase("RETURN 10.1 <= 10.1 AS value", true)]
+    [TestCase("RETURN 10.1 > 10.1 AS value", false)]
+    [TestCase("RETURN 10.1 >= 10.1 AS value", true)]
+    [TestCase("RETURN 10.1 = 20.1 AS value", false)]
+    [TestCase("RETURN 10.1 <> 20.1 AS value", true)]
+    [TestCase("RETURN 'a' < 'b' AS value", true)]
+    [TestCase("RETURN 'a' <= 'b' AS value", true)]
+    [TestCase("RETURN 'a' > 'b' AS value", false)]
+    [TestCase("RETURN 'a' >= 'b' AS value", false)]
+    [TestCase("RETURN 'a' < 'a' AS value", false)]
+    [TestCase("RETURN 'a' <= 'a' AS value", true)]
+    [TestCase("RETURN 'a' > 'a' AS value", false)]
+    [TestCase("RETURN 'a' >= 'a' AS value", true)]
+    [TestCase("RETURN 'a' = 'b' AS value", false)]
+    [TestCase("RETURN 'a' <> 'b' AS value", true)]
+    [TestCase("RETURN 'a' = 'a' AS value", true)]
+    [TestCase("RETURN 'a' <> 'a' AS value", false)]
+    public async Task ItCanCompareValues(string input, bool expectedValue)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+
+      Assert.That(result.Rows.Count, Is.EqualTo(1));
+      Assert.That(result.Rows[0]["value"], Is.EqualTo(MixedValue.Bool(expectedValue)));
+    }
   }
 }

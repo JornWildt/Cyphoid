@@ -1,6 +1,7 @@
-﻿using Cyphoid.Core.Execution;
-using Cyphoid.Core.Expressions;
+﻿using System.Globalization;
 using System.Text;
+using Cyphoid.Core.Execution;
+using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.SyntaxTree
 {
@@ -69,7 +70,28 @@ namespace Cyphoid.Core.SyntaxTree
 
     public override void PrettyPrint(StringBuilder sb)
     {
-      sb.Append(Value);
+      sb.Append(Value.ToString(CultureInfo.InvariantCulture));
+    }
+  }
+
+
+  public record DecimalLiteralNode(double Value)
+    : LiteralValueNode(ValueKindType.Const)
+  {
+    public override RowEvaluator<TId> BuildEvaluator<TId>()
+    {
+      return (IRow<TId> r) => ToConstantValue();
+    }
+
+
+    public override MixedValue ToConstantValue()
+    {
+      return MixedValue.Double(Value);
+    }
+
+    public override void PrettyPrint(StringBuilder sb)
+    {
+      sb.Append(Value.ToString(CultureInfo.InvariantCulture));
     }
   }
 

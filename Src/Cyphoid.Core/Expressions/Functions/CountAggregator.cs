@@ -3,15 +3,15 @@ using Cyphoid.Core.ReferenceBackend.Aggregation;
 
 namespace Cyphoid.Core.Expressions.Functions
 {
-  public record SumAggregator<TId>(
+  public record CountAggregator<TId>(
     IReadOnlyList<RowEvaluator<TId>> Parameters,
     int SlotIndex) : IAggregationEvaluator<TId> where TId : IEquatable<TId>
   {
-    MixedValue? Sum = null;
+    int? Count = null;
 
     void IAggregationEvaluator<TId>.Initialize()
     {
-      Sum = null;
+      Count = null;
     }
 
 
@@ -20,17 +20,14 @@ namespace Cyphoid.Core.Expressions.Functions
       var rowValue = Parameters[0](row);
       if (!rowValue.IsNull())
       {
-        if (Sum == null)
-          Sum = rowValue;
-        else
-          Sum = Sum + rowValue;
+        Count = Count == null ? 1 : Count + 1;
       }
     }
 
 
     void IAggregationEvaluator<TId>.WriteResult(IRow<TId> row)
     {
-      row.Values[SlotIndex] = Sum != null ? Sum : MixedValue.Null();
+      row.Values[SlotIndex] = Count != null ? MixedValue.Int(Count.Value) : MixedValue.Null();
     }
   }
 }

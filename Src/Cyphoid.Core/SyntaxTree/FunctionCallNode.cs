@@ -30,7 +30,8 @@ namespace Cyphoid.Core.SyntaxTree
     {
       if (Definition is CountAllFunction)
       {
-        sb.Append("COUNT(*)");
+        sb.Append(FunctionName);
+        sb.Append("(*)");
       }
       else
       {

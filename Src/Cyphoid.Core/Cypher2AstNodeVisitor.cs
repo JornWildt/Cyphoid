@@ -1,4 +1,5 @@
-﻿using Antlr4.Runtime.Misc;
+﻿using System.Globalization;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.Expressions;
@@ -465,8 +466,8 @@ namespace Cyphoid.Core
 
     public override AstNode VisitFunctionCall([NotNull] CypherParser.FunctionCallContext context)
     {
-      if (context.COUNT() != null && context.ASTERIX() != null)
-        return new FunctionCallNode(context.COUNT().GetText(), FunctionRegistry.GetFunctionDefinition("CountAll"), []);
+      if (context.identifier() != null && context.ASTERIX() != null)
+        return new FunctionCallNode(context.identifier().GetText(), FunctionRegistry.GetFunctionDefinition("CountAll"), []);
 
       var name = context.identifier().GetText();
 
@@ -504,6 +505,10 @@ namespace Cyphoid.Core
       {
         return Visit<LiteralValueNode>(context.integerLiteral());
       }
+      else if (context.decimalLiteral() != null)
+      {
+        return Visit<LiteralValueNode>(context.decimalLiteral());
+      }
       else if (context.stringLiteral() != null)
       {
         return Visit<LiteralValueNode>(context.stringLiteral());
@@ -522,14 +527,23 @@ namespace Cyphoid.Core
       return new BoolLiteralNode(context.TRUE() != null);
     }
 
+    
     public override AstNode VisitIntegerLiteral([NotNull] CypherParser.IntegerLiteralContext context)
     {
       var text = context.INTEGER().GetText();
       if (!long.TryParse(text, out var value))
-        throw new ParseException($"Not an integer: '{text}'.");
+        throw new ParseException($"Not an integer number: '{text}'.");
       return new IntLiteralNode(value);
     }
 
+
+    public override AstNode VisitDecimalLiteral([NotNull] CypherParser.DecimalLiteralContext context)
+    {
+      var text = context.DECIMAL().GetText();
+      if (!double.TryParse(text, CultureInfo.InvariantCulture, out var value))
+        throw new ParseException($"Not a decimal number: '{text}'.");
+      return new DecimalLiteralNode(value);
+    }
 
     public override AstNode VisitStringLiteral([NotNull] CypherParser.StringLiteralContext context)
     {

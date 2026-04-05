@@ -14,8 +14,11 @@ namespace Cyphoid.Tests
       Graph.AddNode("Clara", "salesperson");
 
       Graph.SetNodeProperty("Alice", "name", "Alice Andersen");
+      Graph.SetNodeProperty("Alice", "age", 24.0);
       Graph.SetNodeProperty("Bob", "name", "Bob Berg");
+      Graph.SetNodeProperty("Bob", "age", 30.0);
       Graph.SetNodeProperty("Clara", "name", "Clara Christiansen");
+      Graph.SetNodeProperty("Clara", "age", null);
 
       // Customers
       Graph.AddNode("Acme", "customer");
@@ -157,7 +160,7 @@ namespace Cyphoid.Tests
       // Order 5
       Graph.SetNodeProperty("Line8", "quantity", 6);
       Graph.SetNodeProperty("Line8", "unitPrice", 70.0);
-      Graph.SetNodeProperty("Line8", "lineAmount", 420.0);
+      Graph.SetNodeProperty("Line8", "lineAmount", 410.0);
       Graph.AddEdge("Order5", "Line8", "has_line");
       Graph.AddEdge("Line8", "Keyboard", "for_product");
 
@@ -177,10 +180,18 @@ namespace Cyphoid.Tests
 
 
     [TestCase("MATCH (o:order) RETURN COUNT(*) AS value", 6)]
-    [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN sum(l.lineAmount) AS value", 7810.0)]
-    [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN min(l.lineAmount) AS value", 150.0)]
+    [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN COUNT(*) AS value", 10)]
+    [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN sum(l.lineAmount) AS value", 7800.0)]
+    [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN avg(l.lineAmount) AS value", 780.0)]
+    [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN min(l.lineAmount) AS value", 100.0)]
     [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN max(l.lineAmount) AS value", 2200.0)]
-    public async Task ItCanExecuteBasicQuery(string input, object expectedValue)
+    [TestCase("MATCH (s:salesperson) RETURN count(*) AS value", 3)]
+    [TestCase("MATCH (s:salesperson) RETURN count(s.age) AS value", 2)]
+    [TestCase("MATCH (s:salesperson) RETURN sum(s.age) AS value", 54.0)]
+    [TestCase("MATCH (s:salesperson) RETURN min(s.age) AS value", 24.0)]
+    [TestCase("MATCH (s:salesperson) RETURN max(s.age) AS value", 30.0)]
+    [TestCase("MATCH (s:salesperson) RETURN avg(s.age) AS value", 27.0)]
+    public async Task ItCanCalculateAggregateValues(string input, object expectedValue)
     {
       // Act
       var result = await ExecuteQuery(input);
@@ -190,6 +201,44 @@ namespace Cyphoid.Tests
 
       Assert.That(result.Rows.Count, Is.EqualTo(1));
       Assert.That(result.Rows[0]["value"], Is.EqualTo(MixedValue.FromObject(expectedValue)));
+    }
+
+
+    [TestCase("MATCH (s:salesperson)-[:sold]->(o:order)-[:has_line]->(l:order_line) RETURN s.name, sum(l.lineAmount) AS sales ORDER BY name DESC")]
+    public async Task ItCanCalculateComplexAggregateValue(string input)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+
+      Assert.That(result.Rows.Count, Is.EqualTo(3));
+
+      Assert.That(result.Rows[0]["name"], Is.EqualTo(MixedValue.String("Clara Christiansen")));
+      Assert.That(result.Rows[0]["sales"], Is.EqualTo(MixedValue.Double(1910)));
+
+      Assert.That(result.Rows[1]["name"], Is.EqualTo(MixedValue.FromObject("Bob Berg")));
+      Assert.That(result.Rows[1]["sales"], Is.EqualTo(MixedValue.Double(2690)));
+
+      Assert.That(result.Rows[2]["name"], Is.EqualTo(MixedValue.FromObject("Alice Andersen")));
+      Assert.That(result.Rows[2]["sales"], Is.EqualTo(MixedValue.Double(3200)));
+    }
+
+
+    [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN sum(l.lineAmount) AS sumv, min(l.lineAmount) AS minv, max(l.lineAmount) AS maxv")]
+    public async Task ItCanCalculateMultipleAggregateValuesPerRow(string input)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+
+      Assert.That(result.Rows.Count, Is.EqualTo(1));
+      Assert.That(result.Rows[0]["sumv"], Is.EqualTo(MixedValue.Double(7800)));
+      Assert.That(result.Rows[0]["minv"], Is.EqualTo(MixedValue.Double(100)));
+      Assert.That(result.Rows[0]["maxv"], Is.EqualTo(MixedValue.Double(2200)));
     }
   }
 }

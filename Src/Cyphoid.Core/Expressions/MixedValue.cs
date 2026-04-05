@@ -1,4 +1,5 @@
-﻿using Cyphoid.Core.Exceptions;
+﻿using System.Globalization;
+using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.Expressions
@@ -224,8 +225,8 @@ namespace Cyphoid.Core.Expressions
       {
         ValueType.Null => "null",
         ValueType.Bool => _bool.ToString(),
-        ValueType.Int => _int.ToString(),
-        ValueType.Double => _double.ToString(),
+        ValueType.Int => _int.ToString(CultureInfo.InvariantCulture),
+        ValueType.Double => _double.ToString(CultureInfo.InvariantCulture),
         ValueType.String => _ref!.ToString() ?? "",
         ValueType.Node => "-node-",
         _ => "<undefined>"
