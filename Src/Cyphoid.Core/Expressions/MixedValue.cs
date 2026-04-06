@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.Execution;
 
@@ -151,16 +152,16 @@ namespace Cyphoid.Core.Expressions
       return _kind == ValueType.Double;
     }
 
-    public bool TryGetString(out string? value)
+    public bool TryGetString([NotNullWhen(true)] out string? value)
     {
       value = _ref as string;
       return _kind == ValueType.String;
     }
 
-    public bool TryGetGraphNode(out IGraphNode? value)
+    public bool TryGetGraphNode([NotNullWhen(true)] out IGraphNode? value)
     {
       value = _ref as IGraphNode;
-      return _kind == ValueType.String;
+      return _kind == ValueType.Node;
     }
 
     public T Match<T>(

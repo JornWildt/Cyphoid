@@ -12,6 +12,7 @@ namespace Cyphoid.Core.Expressions.Functions
       ["Min"] = new MinFunction(),
       ["Max"] = new MaxFunction(),
       ["Avg"] = new AvgFunction(),
+      ["Type"] = new TypeFunction(),
     };
 
 
