@@ -1,20 +1,11 @@
 ﻿using Cyphoid.Core.Execution;
-using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class OrderByReferenceOperator<TId> : IOperator<TId> where TId : IEquatable<TId>
+  public record OrderByReferenceOperator<TId>(
+    IOperator<TId> Input,
+    IReadOnlyList<OrderByEvaluator<TId>> Ordering) : IOperator<TId> where TId : IEquatable<TId>
   {
-    IOperator<TId> Input;
-    IReadOnlyList<OrderByEvaluator<TId>> Ordering;
-
-
-    public OrderByReferenceOperator(IOperator<TId> input, IReadOnlyList<OrderByEvaluator<TId>> ordering)
-    {
-      Input = input;
-      Ordering = ordering;
-    }
-
     async IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context)
     {
       var result = Input.ExecuteAsync(context);

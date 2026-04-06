@@ -1,21 +1,24 @@
-﻿using Cyphoid.Core.Execution;
+﻿using System.Security.Cryptography;
+using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class ProjectionReferenceOperator<TId> : IOperator<TId> where TId : IEquatable<TId>
+  public class ProjectionReferenceOperator<TId>(
+    IOperator<TId> Input,
+    IReadOnlyList<ProjectionEvaluator<TId>> Projections,
+    IRowColumn[] Columns) : IOperator<TId> where TId : IEquatable<TId>
   {
-    IOperator<TId> Input;
-    IReadOnlyList<ProjectionEvaluator<TId>> Projections;
-    IRowColumn[] Columns;
-
     public ProjectionReferenceOperator(
       IOperator<TId> input,
       IReadOnlyList<ProjectionEvaluator<TId>> projections)
+      : this(input, projections, MakeColumns(projections))
     {
-      Input = input;
-      Projections = projections;
+    }
 
-      Columns = projections
+
+    private static IRowColumn[] MakeColumns(IReadOnlyList<ProjectionEvaluator<TId>> projections)
+    {
+      return projections
         .Select((p, i) => new RowColumn(i, p.OutputVariable.Name, p.OutputVariable.Type))
         .ToArray();
     }

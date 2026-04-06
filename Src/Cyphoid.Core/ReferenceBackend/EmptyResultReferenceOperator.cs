@@ -2,7 +2,7 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class EmptyResultReferenceOperator<TId> : IOperator<TId> where TId : IEquatable<TId>
+  public record EmptyResultReferenceOperator<TId>() : IOperator<TId> where TId : IEquatable<TId>
   {
     IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context) => ExecuteAsync(context);
 
