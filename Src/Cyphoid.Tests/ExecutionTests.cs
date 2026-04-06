@@ -104,12 +104,14 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n) WHERE n.isDanish = null RETURN n", 11)]
     [TestCase("MATCH (n) WHERE n.isDanish = true RETURN n", 1)]
     [TestCase("MATCH (n) WHERE n.isDanish = false RETURN n", 0)]
+    [TestCase("MATCH (n) WHERE n.isDanish RETURN n", 1)]
+    [TestCase("MATCH (n) WHERE n.isDanish RETURN n", 1)]
     [TestCase("MATCH (n) WHERE NOT n.isDanish RETURN n", 11)]
     [TestCase("MATCH (n) WHERE n.name = 'Oslo' RETURN n", 1)]
     [TestCase("MATCH (n) WHERE n.name <> 'Oslo' RETURN n", 11)]
     [TestCase("MATCH (n) WHERE n.name = 'Oslo' OR n.name = 'København' RETURN n", 2)]
     [TestCase("MATCH (n) WHERE n.name = 'Oslo' AND n.name = 'København' RETURN n", 0)]
-    public async Task ItCanApplyWhere(string input, int rowCount)
+    public async Task ItCanHandleBooleanOperators(string input, int rowCount)
     {
       // Act
       var result = await ExecuteQuery(input);

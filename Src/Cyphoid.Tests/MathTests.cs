@@ -94,5 +94,34 @@ namespace Cyphoid.Tests
       Assert.That(result.Rows.Count, Is.EqualTo(1));
       Assert.That(result.Rows[0]["value"], Is.EqualTo(MixedValue.Bool(expectedValue)));
     }
+
+
+    [TestCase("RETURN -1 AS value", -1)]
+    [TestCase("RETURN --1 AS value", 1)]
+    [TestCase("RETURN ---1 AS value", -1)]
+    [TestCase("RETURN +1 AS value", 1)]
+    [TestCase("RETURN ++1 AS value", 1)]
+    [TestCase("RETURN +++1 AS value", 1)]
+    [TestCase("RETURN -+1 AS value", -1)]
+    [TestCase("RETURN +-1 AS value", -1)]
+    [TestCase("RETURN -2.2 AS value", -2.2)]
+    [TestCase("RETURN --2.2 AS value", 2.2)]
+    [TestCase("RETURN ---2.2 AS value", -2.2)]
+    [TestCase("RETURN +2.2 AS value", 2.2)]
+    [TestCase("RETURN ++2.2 AS value", 2.2)]
+    [TestCase("RETURN +++2.2 AS value", 2.2)]
+    [TestCase("RETURN -+2.2 AS value", -2.2)]
+    [TestCase("RETURN +-2.2 AS value", -2.2)]
+    public async Task ItCanHandleUnaryOperators(string input, object expectedValue)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+
+      Assert.That(result.Rows.Count, Is.EqualTo(1));
+      Assert.That(result.Rows[0]["value"], Is.EqualTo(MixedValue.FromObject(expectedValue)));
+    }
   }
 }

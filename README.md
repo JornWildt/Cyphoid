@@ -73,6 +73,7 @@ For developing the Cyphoid library.
 
 1. Update version number and more in Cyphoid.Core.csproj.
 1. Build in release mode to generate NuGet package.
+1. Upload package Cyphoid.N.N.N.nupkg from Src\Cyphoid.Core\bin\Release\ folder.
 
 ## ANTLR
 The compiler is built using Antlr. See https://github.com/antlr/antlr4/blob/master/doc/getting-started.md

@@ -288,6 +288,38 @@ namespace Cyphoid.Core.Expressions
     }
 
 
+    public static MixedValue operator +(MixedValue right)
+    {
+      if (right.IsNull())
+        return MixedValue.Null();
+
+      if (right.TryGetInt(out var ri) || right.TryGetDouble(out var rd))
+      {
+        return right;
+      }
+
+      throw new RuntimeException($"Cannot apply unary plus to value of type '{right.Type}' ({right}).");
+    }
+
+
+    public static MixedValue operator -(MixedValue right)
+    {
+      if (right.IsNull())
+        return MixedValue.Null();
+
+      if (right.TryGetInt(out var ri))
+      {
+        return MixedValue.Int(-ri);
+      }
+      else if (right.TryGetDouble(out var rd))
+      {
+        return MixedValue.Double(-rd);
+      }
+
+      throw new RuntimeException($"Cannot apply unary minus to value of type '{right.Type}' ({right}).");
+    }
+
+
     public static MixedValue operator +(MixedValue left, MixedValue right)
     {
       if (left.IsNull() || right.IsNull())

@@ -99,16 +99,26 @@ namespace Cyphoid.Core.SyntaxTree
   public record UnaryOperatorNode(UnaryOperatorType Operator, ExprNode Expr)
     : ExprNode(Expr.ValueKind)
   {
+    private static readonly string[] OperatorSymbols = ["NOT ", "+", "-"];
+
     public override RowEvaluator<TId> BuildEvaluator<TId>()
     {
       var exprEvaluator = Expr.BuildEvaluator<TId>();
-      return (IRow<TId> r) => MixedValue.Bool(exprEvaluator(r).IsAnythingButTrue());
+
+#pragma warning disable CS8524 // unnamed enum values
+      return Operator switch
+      {
+        UnaryOperatorType.Not => (IRow<TId> r) => MixedValue.Bool(exprEvaluator(r).IsAnythingButTrue()),
+        UnaryOperatorType.Plus => (IRow<TId> r) => +exprEvaluator(r),
+        UnaryOperatorType.Minus => (IRow<TId> r) => -exprEvaluator(r)
+      };
     }
+#pragma warning restore CS8524
 
 
     public override void PrettyPrint(StringBuilder sb)
     {
-      sb.Append("NOT ");
+      sb.Append(OperatorSymbols[(int)Operator]);
       Expr.PrettyPrint(sb);
     }
   }
