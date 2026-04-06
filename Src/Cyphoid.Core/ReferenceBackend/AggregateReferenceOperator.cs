@@ -1,6 +1,6 @@
 ﻿using Cyphoid.Core.Execution;
 
-namespace Cyphoid.Core.ReferenceBackend.Aggregation
+namespace Cyphoid.Core.ReferenceBackend
 {
   public record GroupingEvaluator<TId>(
     RowEvaluator<TId> Expression,

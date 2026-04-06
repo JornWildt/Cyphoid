@@ -1,8 +1,7 @@
-﻿using System.Security.Cryptography;
-using Cyphoid.Core.Execution;
+﻿using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
 
-namespace Cyphoid.Core.ReferenceBackend.Aggregation
+namespace Cyphoid.Core.ReferenceBackend
 {
   public sealed class GroupKey<TId> : IEquatable<GroupKey<TId>> where TId : IEquatable<TId>
   {

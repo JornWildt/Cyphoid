@@ -102,15 +102,16 @@ namespace Cyphoid.Core
 
       var ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
       var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
-      return new ReturnLimitNode(@return.Projections.Projections, ordering, limit?.Limit);
+      return new ReturnLimitNode(@return.Distinct, @return.Projections.Projections, ordering, limit?.Limit);
     }
 
 
     public override AstNode VisitReturnClause([NotNull] CypherParser.ReturnClauseContext context)
     {
       var projections = Visit<ProjectionsNode>(context.projectionList());
+      var distinct = context.DISTINCT() != null;
 
-      return new ReturnNode(projections);
+      return new ReturnNode(distinct, projections);
     }
 
 

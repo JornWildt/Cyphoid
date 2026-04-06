@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.ReferenceBackend;
-using Cyphoid.Core.ReferenceBackend.Aggregation;
 using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning

@@ -30,7 +30,7 @@ returnLimitClause
   ;
 
 returnClause
-  : RETURN projectionList
+  : RETURN DISTINCT? projectionList
   ;
 
 orderingClause
@@ -246,6 +246,7 @@ NULL       : [Nn][Uu][Ll][Ll];
 ORDER_BY   : [Oo][Rr][Dd][Ee][Rr][ \t\r\n]+[Bb][Yy];
 ASC        : [Aa][Ss][Cc];
 DESC       : [Dd][Ee][Ss][Cc];
+DISTINCT   : [Dd][Ii][Ss][Tt][Ii][Nn][Cc][Tt];
 
 
 ARROW_RIGHT: '->';

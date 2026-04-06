@@ -1,7 +1,5 @@
-﻿using System.Security.Cryptography;
-using Cyphoid.Core.Expressions;
-using Cyphoid.Core.ReferenceBackend.Aggregation;
-using Cyphoid.Core.SyntaxTree;
+﻿using Cyphoid.Core.Expressions;
+using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.Execution
 {
@@ -61,7 +59,7 @@ namespace Cyphoid.Core.Execution
       PropertyFilter? destinationPropertyFilter);
 
     IOperator<TId> BuildCartesianProduct(
-      IOperator<TId> operator1, 
+      IOperator<TId> operator1,
       IOperator<TId> operator2);
 
     IOperator<TId> BuildFilter(
@@ -76,14 +74,18 @@ namespace Cyphoid.Core.Execution
       IOperator<TId> input,
       IReadOnlyList<ProjectionEvaluator<TId>> projections);
 
+    IOperator<TId> BuildDistinct(
+      IOperator<TId> input,
+      List<GroupingEvaluator<TId>> groupings);
+
     IOperator<TId> BuildAggregationProjection(
-      IOperator<TId> input, 
-      List<GroupingEvaluator<TId>> groupings, 
+      IOperator<TId> input,
+      List<GroupingEvaluator<TId>> groupings,
       List<IAggregationEvaluator<TId>> aggregators,
       IRowColumn[] outputColumns);
 
     IOperator<TId> BuildOrderBy(
-      IOperator<TId> input, 
+      IOperator<TId> input,
       IReadOnlyList<OrderByEvaluator<TId>> ordering);
   }
 }

@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Cyphoid.Core.SyntaxTree
+﻿namespace Cyphoid.Core.SyntaxTree
 {
-  public record ReturnNode(ProjectionsNode Projections) : AstNode;
+  public record ReturnNode(bool Distinct, ProjectionsNode Projections) : AstNode;
 }

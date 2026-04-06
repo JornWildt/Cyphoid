@@ -1,7 +1,4 @@
-﻿using System.Data;
-using Cyphoid.Core.Execution;
-using Cyphoid.Core.ReferenceBackend.Aggregation;
-using Cyphoid.Core.SyntaxTree;
+﻿using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
@@ -36,6 +33,9 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator<TId> IOperatorFactory<TId>.BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
       => BuildProjection(input, projections);
 
+    IOperator<TId> IOperatorFactory<TId>.BuildDistinct(IOperator<TId> input, List<GroupingEvaluator<TId>> groupings)
+      => BuildDistinct(input, groupings);
+
     IOperator<TId> IOperatorFactory<TId>.BuildAggregationProjection(IOperator<TId> input, List<GroupingEvaluator<TId>> groupings, List<IAggregationEvaluator<TId>> aggregators, IRowColumn[] matchColumns)
       => BuildAggregateProjection(input, groupings, aggregators, matchColumns);
 
@@ -69,10 +69,14 @@ namespace Cyphoid.Core.ReferenceBackend
       => new ProjectionReferenceOperator<TId>(input, projections);
 
 
+    protected virtual IOperator<TId> BuildDistinct(IOperator<TId> input, List<GroupingEvaluator<TId>> groupings)
+      => new DistinctReferenceOperator<TId>(input, groupings);
+
+
     protected virtual IOperator<TId> BuildAggregateProjection(IOperator<TId> input, List<GroupingEvaluator<TId>> groupings, List<IAggregationEvaluator<TId>> aggregators, IRowColumn[] outputColumns)
       => new AggregateReferenceOperator<TId>(input, groupings, aggregators, NewRow, outputColumns);
 
-    
+
     protected virtual IOperator<TId> BuildOrderBy(IOperator<TId> input, IReadOnlyList<OrderByEvaluator<TId>> ordering)
       => new OrderByReferenceOperator<TId>(input, ordering);
 

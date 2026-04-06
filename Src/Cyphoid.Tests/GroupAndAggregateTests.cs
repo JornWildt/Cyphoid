@@ -83,5 +83,27 @@ namespace Cyphoid.Tests
       Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
       Assert.That(resultJson, Is.EqualTo(expectedOutputJson));
     }
+
+    
+    [TestCase("MATCH (c:country) RETURN c.name AS n ORDER BY n",
+      @"[{""n"":""Danmark""},{""n"":""England""},{""n"":""Norge""},{""n"":""Sverige""},{""n"":""Tyskland""}]")]
+    [TestCase("MATCH (c:country)<-[:located_in]-(x) RETURN c.name AS n ORDER BY n",
+      @"[{""n"":""Danmark""},{""n"":""Danmark""},{""n"":""Danmark""},{""n"":""Danmark""},{""n"":""Norge""},{""n"":""Sverige""},{""n"":""Sverige""}]")]
+    [TestCase("MATCH (c:country)<-[:located_in]-(x) RETURN DISTINCT c.name AS n ORDER BY n",
+      @"[{""n"":""Danmark""},{""n"":""Norge""},{""n"":""Sverige""}]")]
+    [TestCase("MATCH (c:country)<-[:located_in]-(x) RETURN DISTINCT c.name AS n, count(*) AS c ORDER BY n",
+      @"[{""n"":""Danmark"",""c"":4},{""n"":""Norge"",""c"":1},{""n"":""Sverige"",""c"":2}]")]
+    [TestCase("MATCH (c:country)<-[:located_in]-(x) RETURN DISTINCT c.name AS n, count(*) AS c ORDER BY c",
+      @"[{""n"":""Norge"",""c"":1},{""n"":""Sverige"",""c"":2},{""n"":""Danmark"",""c"":4}]")]
+    public async Task ItCanReturnDistinct(string input, string expectedOutputJson)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+      var resultJson = JsonConvert.SerializeObject(result.Rows);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+      Assert.That(resultJson, Is.EqualTo(expectedOutputJson));
+    }
   }
 }
