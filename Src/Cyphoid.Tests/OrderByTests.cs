@@ -3,7 +3,7 @@
 namespace Cyphoid.Tests
 {
   [TestFixture]
-  internal class OrderBytest : TestHelper
+  internal class OrderByTests : TestHelper
   {
     [OneTimeSetUp]
     public void OneTimeSetUp()

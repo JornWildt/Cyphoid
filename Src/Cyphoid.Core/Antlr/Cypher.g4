@@ -126,8 +126,8 @@ notExpression
   ;
 
 comparisonExpression
-  : additiveExpression comparisonOperator additiveExpression 
-  | additiveExpression 
+  : additiveExpression 
+  | comparisonExpression comparisonOperator additiveExpression
   ;
 
 comparisonOperator

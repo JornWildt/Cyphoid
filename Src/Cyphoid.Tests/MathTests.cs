@@ -123,5 +123,22 @@ namespace Cyphoid.Tests
       Assert.That(result.Rows.Count, Is.EqualTo(1));
       Assert.That(result.Rows[0]["value"], Is.EqualTo(MixedValue.FromObject(expectedValue)));
     }
+
+
+    [TestCase("RETURN 10 + 10 + 10 AS value", 30)]
+    [TestCase("RETURN 10 - 10 - 10 AS value", -10)]
+    [TestCase("RETURN 10 * 10 * 10 AS value", 1000)]
+    [TestCase("RETURN 60 / 10 / 2 AS value", 3)]
+    public async Task ItCanHandleSequenceOfIdenticalOperators(string input, object expectedValue)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+
+      Assert.That(result.Rows.Count, Is.EqualTo(1));
+      Assert.That(result.Rows[0]["value"], Is.EqualTo(MixedValue.FromObject(expectedValue)));
+    }
   }
 }

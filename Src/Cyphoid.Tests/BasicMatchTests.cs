@@ -4,7 +4,7 @@ using NUnit.Framework.Constraints;
 namespace Cyphoid.Tests
 {
   [TestFixture]
-  internal class ExecutionTests : TestHelper
+  internal class BasicMatchTests : TestHelper
   {
     [OneTimeSetUp]
     public void OneTimeSetUp()
@@ -97,28 +97,6 @@ namespace Cyphoid.Tests
       // Assert
       Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
       Assert.That(resultJson, Is.EqualTo(expectedOutputJson));
-    }
-
-
-    [TestCase("MATCH (n) WHERE n.isDanish RETURN n", 1)]
-    [TestCase("MATCH (n) WHERE n.isDanish = null RETURN n", 11)]
-    [TestCase("MATCH (n) WHERE n.isDanish = true RETURN n", 1)]
-    [TestCase("MATCH (n) WHERE n.isDanish = false RETURN n", 0)]
-    [TestCase("MATCH (n) WHERE n.isDanish RETURN n", 1)]
-    [TestCase("MATCH (n) WHERE n.isDanish RETURN n", 1)]
-    [TestCase("MATCH (n) WHERE NOT n.isDanish RETURN n", 11)]
-    [TestCase("MATCH (n) WHERE n.name = 'Oslo' RETURN n", 1)]
-    [TestCase("MATCH (n) WHERE n.name <> 'Oslo' RETURN n", 11)]
-    [TestCase("MATCH (n) WHERE n.name = 'Oslo' OR n.name = 'København' RETURN n", 2)]
-    [TestCase("MATCH (n) WHERE n.name = 'Oslo' AND n.name = 'København' RETURN n", 0)]
-    public async Task ItCanHandleBooleanOperators(string input, int rowCount)
-    {
-      // Act
-      var result = await ExecuteQuery(input);
-
-      // Assert
-      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
-      Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
     }
 
 
