@@ -73,8 +73,11 @@ nodePattern
 
 relationshipPattern
   : DASH LBRACK relationshipDetail? RBRACK ARROW_RIGHT
+  | DASH ARROW_RIGHT
   | ARROW_LEFT LBRACK relationshipDetail? RBRACK DASH
+  | ARROW_LEFT DASH
   | DASH LBRACK relationshipDetail? RBRACK DASH
+  | DASH DASH
   ;
 
 relationshipDetail

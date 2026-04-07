@@ -23,8 +23,7 @@ namespace Cyphoid.Core.Planning
       {
         RelationshipDirectionType.Right => ExpandDirectionType.Outgoing,
         RelationshipDirectionType.Left => ExpandDirectionType.Incoming,
-        RelationshipDirectionType.Both => throw new RuntimeException("Both directions not supported."),
-        null => (ExpandDirectionType?)null,
+        RelationshipDirectionType.Unidirectional => ExpandDirectionType.Unidirectional
       };
 #pragma warning restore CS8524
 

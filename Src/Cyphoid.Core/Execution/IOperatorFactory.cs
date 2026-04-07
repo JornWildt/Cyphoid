@@ -23,7 +23,7 @@ namespace Cyphoid.Core.Execution
 
   public record PropertyFilterCondition(string PropertyName, MixedValue Value);
 
-  public enum ExpandDirectionType { Outgoing, Incoming }
+  public enum ExpandDirectionType { Outgoing, Incoming, Unidirectional }
 
   public delegate MixedValue RowEvaluator<TId>(IRow<TId> row) where TId : IEquatable<TId>;
 

@@ -54,6 +54,36 @@ namespace Cyphoid.Tests
     }
 
 
+    [TestCase("MATCH ()-[:nothing]-(:country) RETURN 1", 0)]
+    [TestCase("MATCH ()-[:lives_in]-(:country) RETURN 1", 4)]
+    [TestCase("MATCH (:country)-[:lives_in]-() RETURN 1", 4)]
+    [TestCase("MATCH (p:person)-[:lives_in]-(:country) RETURN 1", 4)]
+    [TestCase("MATCH (:country)-[:lives_in]-(p:person) RETURN 1", 4)]
+    public async Task ItCanExpandUnidirectional(string input, int rowCount)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+      Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
+    }
+
+
+    [TestCase("MATCH ()-->(:country) RETURN 1", 4)]
+    [TestCase("MATCH ()<--(:country) RETURN 1", 0)]
+    [TestCase("MATCH ()--(:country) RETURN 1", 4)]
+    public async Task ItCanExpandShorthands(string input, int rowCount)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("--", "-[]-")));
+      Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
+    }
+
+
     [TestCase("MATCH ()-[r:knows]->() RETURN r AS r", 1)]
     public async Task ItDoesNotCrashOnRelationshipVariables(string input, int rowCount)
     {

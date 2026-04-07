@@ -15,7 +15,6 @@ namespace Cyphoid.Core.Planning
   {
     public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
-      // FIXME: No need to calculate this all the time
       var destinationFilter = BuildPropertyFilter(DestinationPropertyMap);
 
 #pragma warning disable CS8524 // unnamed enum values
@@ -23,7 +22,7 @@ namespace Cyphoid.Core.Planning
       {
         RelationshipDirectionType.Right => ExpandDirectionType.Outgoing,
         RelationshipDirectionType.Left => ExpandDirectionType.Incoming,
-        RelationshipDirectionType.Both => throw new RuntimeException("Both directions not supported."),
+        RelationshipDirectionType.Unidirectional => ExpandDirectionType.Unidirectional,
       };
 #pragma warning restore CS8524
 

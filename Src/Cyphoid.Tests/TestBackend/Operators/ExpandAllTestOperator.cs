@@ -43,6 +43,8 @@ namespace Cyphoid.Tests.TestBackend.Operators
         return OutgoingAsync(context);
       else if (Direction == ExpandDirectionType.Incoming)
         return IncomingAsync(context);
+      else if (Direction == ExpandDirectionType.Unidirectional)
+        return OutgoingAsync(context).Concat(IncomingAsync(context));
       else
         throw new NotImplementedException();
     }
