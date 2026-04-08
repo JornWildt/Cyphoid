@@ -23,7 +23,8 @@ namespace Cyphoid.Core.Planning
       {
         RelationshipDirectionType.Right => ExpandDirectionType.Outgoing,
         RelationshipDirectionType.Left => ExpandDirectionType.Incoming,
-        RelationshipDirectionType.Unidirectional => ExpandDirectionType.Unidirectional
+        RelationshipDirectionType.Unidirectional => ExpandDirectionType.Unidirectional,
+        null => null
       };
 #pragma warning restore CS8524
 
