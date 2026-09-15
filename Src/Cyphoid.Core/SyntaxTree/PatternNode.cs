@@ -57,7 +57,8 @@ namespace Cyphoid.Core.SyntaxTree
             chainNode.RelationshipPattern!,
             chainNode.NodePattern.Variable,
             chainNode.NodePattern.Label,
-            chainNode.NodePattern.PropertyMap);
+            chainNode.NodePattern.PropertyMap,
+            matchColumns);
         }
         else
         {

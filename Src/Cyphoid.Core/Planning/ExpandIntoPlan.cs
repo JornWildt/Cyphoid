@@ -1,7 +1,6 @@
-﻿using System.Text;
-using Cyphoid.Core.Exceptions;
-using Cyphoid.Core.Execution;
+﻿using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
+using System.Text;
 
 namespace Cyphoid.Core.Planning
 {

@@ -47,7 +47,8 @@ namespace Cyphoid.Core.Execution
       string? relationLabel,
       VariableDefinition destinationVariable,
       string? destinationLabel,
-      PropertyFilter? destinationPropertyFilter);
+      PropertyFilter? destinationPropertyFilter,
+      IRowColumn[] matchColumns);
 
     IOperator<TId> BuildExpandInto(
       IOperator<TId> input,

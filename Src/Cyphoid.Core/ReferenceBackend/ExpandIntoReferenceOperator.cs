@@ -65,7 +65,5 @@ namespace Cyphoid.Core.ReferenceBackend
         }
       }
     }
-    
-    
   }
 }

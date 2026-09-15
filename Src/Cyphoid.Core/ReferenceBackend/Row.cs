@@ -33,7 +33,7 @@ namespace Cyphoid.Core.ReferenceBackend
     protected Row<TId> Clone(IReadOnlyList<IRowColumn> outputColumns)
     {
       var clone = new Row<TId>(outputColumns);
-      for (int i=0; i< Values.Length; i++)
+      for (int i=0; i<Values.Length; i++)
         clone.Values[i] = Values[i];
       return clone;
     }

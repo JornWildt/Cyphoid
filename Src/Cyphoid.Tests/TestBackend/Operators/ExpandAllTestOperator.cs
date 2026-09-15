@@ -14,6 +14,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     VariableDefinition DestinationVariable;
     string? DestinationLabel;
     PropertyFilter? DestinationPropertyFilter;
+    IRowColumn[] MatchColumns;
 
 
     public ExpandAllTestOperator(
@@ -24,7 +25,8 @@ namespace Cyphoid.Tests.TestBackend.Operators
       string? relationLabel,
       VariableDefinition destinationVariable,
       string? destinationLabel,
-      PropertyFilter? destinationPropertyFilter)
+      PropertyFilter? destinationPropertyFilter,
+      IRowColumn[] matchColumns)
       : base(graph)
     {
       Input = input;
@@ -34,6 +36,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
       DestinationVariable = destinationVariable;
       DestinationLabel = destinationLabel;
       DestinationPropertyFilter = destinationPropertyFilter;
+      MatchColumns = matchColumns;
     }
 
 
@@ -73,7 +76,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
               if ((DestinationLabel == null || targetNode.Labels.Contains(DestinationLabel)) &&
                 (DestinationPropertyFilter == null || PropertyMatch(DestinationPropertyFilter, targetNode)))
               {
-                var newRow = row.Clone(row.Columns);
+                var newRow = row.Clone(MatchColumns);
                 var newNode = new GraphNode<string>(
                   targetId,
                   targetNode.Labels.First(),

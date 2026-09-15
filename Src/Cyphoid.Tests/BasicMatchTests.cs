@@ -16,9 +16,9 @@ namespace Cyphoid.Tests
       Graph.SetNodeProperty("Lisa", "Name", "Lisa Nilson");
       Graph.SetNodeProperty("Lisa", "PreferedColor", "Red");
       Graph.SetNodeProperty("Mona", "Name", "Mona Marius");
-      Graph.SetNodeProperty("Lisa", "PreferedColor", "Green");
+      Graph.SetNodeProperty("Mona", "PreferedColor", "Green");
       Graph.SetNodeProperty("Martin", "Name", "Martin Mollerup");
-      Graph.SetNodeProperty("Lisa", "PreferedColor", "Yellow");
+      Graph.SetNodeProperty("Martin", "PreferedColor", "Yellow");
 
       Graph.AddNode("Copenhagen", "city");
       Graph.AddNode("Oslo", "city");
@@ -42,6 +42,13 @@ namespace Cyphoid.Tests
 
       Graph.SetNodeProperty("Denmark", "name", "Denmark");
       Graph.SetNodeProperty("Norway", "name", "Norway");
+
+      Graph.AddEdge("Lisa", "Stockholm", "lives_in");
+
+      Graph.AddEdge("Mona", "Copenhagen", "lives_in");
+      Graph.AddEdge("Mona", "Oslo", "born_in");
+      
+      Graph.AddEdge("Martin", "Oslo", "born_in"); // OBS: no "born_in"
     }
 
 
@@ -120,11 +127,28 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n) MATCH (n {name: 'Oslo'}) RETURN n", 1)]
     [TestCase("MATCH (n {name: 'Oslo'}) MATCH (n {name: 'Oslo'}) RETURN n", 1)]
     [TestCase("MATCH (n {name: 'København'}) MATCH (n {name: 'Oslo'}) RETURN n", 0)]
-    [TestCase("MATCH (n) MATCH (o)-[]->(n) RETURN n", 2)]
+    [TestCase("MATCH (n) MATCH (o)-[]->(n) RETURN n", 6)]
     [TestCase("MATCH (n) MATCH (o)-[]->(o) RETURN n", 0)]
     [TestCase("MATCH (n:country) MATCH (o)-[:located_in]->(n) RETURN n", 2)]
     [TestCase("MATCH (n:country) MATCH (o)<-[:located_in]-(n) RETURN n", 0)]
     public async Task ItCanHandleMultipleMatches(string input, int rowCount)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+      Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
+    }
+
+
+    [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) MATCH (q:person)-[:born_in]->(c2:city) RETURN p, q", 4)]
+    [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) MATCH (p)-[:born_in]->(c2:city) RETURN p", 1)]
+    [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) MATCH (c2:city)<-[:born_in]-(p) RETURN p", 1)]
+    [TestCase("MATCH (c2:city)<-[:born_in]-(p) RETURN p", 2)]
+    [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) RETURN p, c1", 2)]
+    [TestCase("MATCH (q:person)-[:born_in]->(c2:city) RETURN q, c2", 2)]
+    public async Task ItCanHandleMultipleMatchesSharingVariables(string input, int rowCount)
     {
       // Act
       var result = await ExecuteQuery(input);

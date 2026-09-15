@@ -15,8 +15,8 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator<TId> IOperatorFactory<TId>.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, IRowColumn[] matchColumns)
       => BuildNodeScan(variable, label, propertyFilter, matchColumns);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildExpandAll(IOperator<TId> input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
-      => BuildExpandAll(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
+    IOperator<TId> IOperatorFactory<TId>.BuildExpandAll(IOperator<TId> input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, IRowColumn[] matchColumns)
+      => BuildExpandAll(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter, matchColumns);
 
     IOperator<TId> IOperatorFactory<TId>.BuildExpandInto(IOperator<TId> input, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
       => BuildExpandInto(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
@@ -89,7 +89,7 @@ namespace Cyphoid.Core.ReferenceBackend
 
     protected abstract IOperator<TId> BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, IRowColumn[] matchColumns);
 
-    protected abstract IOperator<TId> BuildExpandAll(IOperator<TId> input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter);
+    protected abstract IOperator<TId> BuildExpandAll(IOperator<TId> input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, IRowColumn[] matchColumns);
 
 
     #endregion

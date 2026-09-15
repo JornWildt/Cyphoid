@@ -39,7 +39,8 @@ namespace Cyphoid.Tests.TestBackend
       string? relationLabel,
       VariableDefinition destinationVariable,
       string? destinationLabel,
-      PropertyFilter? destinationPropertyFilter)
+      PropertyFilter? destinationPropertyFilter,
+      IRowColumn[] matchColumns)
     {
       return new ExpandAllTestOperator<string>(
         Graph,
@@ -49,7 +50,8 @@ namespace Cyphoid.Tests.TestBackend
         relationLabel,
         destinationVariable,
         destinationLabel,
-        destinationPropertyFilter);
+        destinationPropertyFilter,
+        matchColumns);
     }
   }
 }

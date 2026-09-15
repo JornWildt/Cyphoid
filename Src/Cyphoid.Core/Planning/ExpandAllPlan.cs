@@ -1,7 +1,6 @@
-﻿using System.Text;
-using Cyphoid.Core.Exceptions;
-using Cyphoid.Core.Execution;
+﻿using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
+using System.Text;
 
 namespace Cyphoid.Core.Planning
 {
@@ -11,7 +10,8 @@ namespace Cyphoid.Core.Planning
     RelationshipPatternNode Relationship,
     VariableReference Destination,
     string? DestinationLabel,
-    PropertyMapNode? DestinationPropertyMap) : PipelinePlan<TId> where TId : IEquatable<TId>
+    PropertyMapNode? DestinationPropertyMap,
+    IRowColumn[] MatchColumns) : PipelinePlan<TId> where TId : IEquatable<TId>
   {
     public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
@@ -33,7 +33,8 @@ namespace Cyphoid.Core.Planning
         Relationship.RelationshipDetail?.RelationshipType,
         Destination.Definition,
         DestinationLabel,
-        destinationFilter);
+        destinationFilter,
+        MatchColumns);
     }
 
     public override void PrettyPrint(StringBuilder sb)
