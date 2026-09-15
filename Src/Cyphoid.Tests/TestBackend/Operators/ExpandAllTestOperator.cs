@@ -8,6 +8,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
   internal class ExpandAllTestOperator<TId> : OperatorTestBase, IOperator<string>
   {
     IOperator<string> Input;
+    bool Optional;
     VariableDefinition SourceVariable;
     ExpandDirectionType Direction;
     string? RelationLabel;
@@ -20,6 +21,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     public ExpandAllTestOperator(
       InMemoryGraph graph,
       IOperator<string> input,
+      bool optional,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
       string? relationLabel,
@@ -30,6 +32,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
       : base(graph)
     {
       Input = input;
+      Optional = optional;
       SourceVariable = sourceVariable;
       Direction = direction;
       RelationLabel = relationLabel;
@@ -57,6 +60,8 @@ namespace Cyphoid.Tests.TestBackend.Operators
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
+        bool hasMatch = false;
+
         var sourceVariable = row.Values[SourceVariable.SlotIndex];
         if (sourceVariable != null)
         {
@@ -83,10 +88,18 @@ namespace Cyphoid.Tests.TestBackend.Operators
                   targetNode.Outgoing.Select(o => new GraphEdge<string>(o.Type, o.To.Id)).ToArray(),
                   targetNode.Properties);
                 newRow.Values[DestinationVariable.SlotIndex] = MixedValue.GraphNode(newNode);
+
+                hasMatch = true;
                 yield return newRow;
               }
             }
           }
+        }
+
+        if (!hasMatch && Optional)
+        {
+          var newRow = row.Clone(MatchColumns);
+          yield return newRow;
         }
       }
     }

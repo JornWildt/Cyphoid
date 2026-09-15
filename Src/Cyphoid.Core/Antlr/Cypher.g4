@@ -15,6 +15,7 @@ matchWhereClause
 
 matchClause
   : MATCH pattern
+  | OPTIONAL MATCH pattern
   ;
 
 whereClause
@@ -231,6 +232,7 @@ stringLiteral
 // =========================
 
 MATCH      : [Mm][Aa][Tt][Cc][Hh];
+OPTIONAL   : [Oo][Pp][Tt][Ii][Oo][Nn][Aa][Ll];
 WHERE      : [Ww][Hh][Ee][Rr][Ee];
 RETURN     : [Rr][Ee][Tt][Uu][Rr][Nn];
 LIMIT      : [Ll][Ii][Mm][Ii][Tt];

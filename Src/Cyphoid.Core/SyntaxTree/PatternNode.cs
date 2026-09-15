@@ -8,6 +8,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public PipelinePlan<TId> BuildPlan<TId>(
       PipelinePlan<TId>? input,
+      bool optional,
       IRowColumn[] matchColumns) where TId : IEquatable<TId>
     {
       // FIXME: Only using first part so far
@@ -43,7 +44,6 @@ namespace Cyphoid.Core.SyntaxTree
           initialNodePattern.Variable,
           initialNodePattern.Label,
           initialNodePattern.PropertyMap);
-
       }
 
       var previousChainNode = part.PatternChain[0];
@@ -53,6 +53,7 @@ namespace Cyphoid.Core.SyntaxTree
         {
           plan = new ExpandAllPlan<TId>(
             plan,
+            optional,
             previousChainNode.NodePattern.Variable,
             chainNode.RelationshipPattern!,
             chainNode.NodePattern.Variable,

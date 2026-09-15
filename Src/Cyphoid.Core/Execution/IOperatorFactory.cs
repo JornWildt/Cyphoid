@@ -42,6 +42,7 @@ namespace Cyphoid.Core.Execution
 
     IOperator<TId> BuildExpandAll(
       IOperator<TId> input,
+      bool optional,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
       string? relationLabel,

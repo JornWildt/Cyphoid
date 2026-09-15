@@ -77,13 +77,15 @@ namespace Cyphoid.Core
         .Select((v, i) => new RowColumn(i, v.Key, v.Value.Type))
         .ToArray();
 
-      return new MatchWhereNode(match.Pattern, where?.Expr, declaredColumns);
+      return new MatchWhereNode(match.Optional, match.Pattern, where?.Expr, declaredColumns);
     }
 
 
     public override AstNode VisitMatchClause([NotNull] CypherParser.MatchClauseContext context)
     {
-      return new MatchNode(Visit<PatternNode>(context.pattern()));
+      var optional = context.OPTIONAL() != null;
+      var pattern = Visit<PatternNode>(context.pattern());
+      return new MatchNode(optional, pattern);
     }
 
     

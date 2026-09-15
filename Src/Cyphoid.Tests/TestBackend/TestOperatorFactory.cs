@@ -34,6 +34,7 @@ namespace Cyphoid.Tests.TestBackend
 
     protected override IOperator<string> BuildExpandAll(
       IOperator<string> input,
+      bool optional,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
       string? relationLabel,
@@ -45,6 +46,7 @@ namespace Cyphoid.Tests.TestBackend
       return new ExpandAllTestOperator<string>(
         Graph,
         input,
+        optional,
         sourceVariable,
         direction,
         relationLabel,

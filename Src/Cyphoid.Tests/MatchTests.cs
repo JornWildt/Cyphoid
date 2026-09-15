@@ -4,7 +4,7 @@ using NUnit.Framework.Constraints;
 namespace Cyphoid.Tests
 {
   [TestFixture]
-  internal class BasicMatchTests : TestHelper
+  internal class MatchTests : TestHelper
   {
     [OneTimeSetUp]
     public void OneTimeSetUp()
@@ -43,12 +43,12 @@ namespace Cyphoid.Tests
       Graph.SetNodeProperty("Denmark", "name", "Denmark");
       Graph.SetNodeProperty("Norway", "name", "Norway");
 
-      Graph.AddEdge("Lisa", "Stockholm", "lives_in");
+      Graph.AddEdge("Lisa", "Stockholm", "lives_in"); // No "born_in"
 
       Graph.AddEdge("Mona", "Copenhagen", "lives_in");
       Graph.AddEdge("Mona", "Oslo", "born_in");
       
-      Graph.AddEdge("Martin", "Oslo", "born_in"); // OBS: no "born_in"
+      Graph.AddEdge("Martin", "Oslo", "born_in"); // No "lives_in"
     }
 
 
@@ -145,10 +145,20 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) MATCH (q:person)-[:born_in]->(c2:city) RETURN p, q", 4)]
     [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) MATCH (p)-[:born_in]->(c2:city) RETURN p", 1)]
     [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) MATCH (c2:city)<-[:born_in]-(p) RETURN p", 1)]
-    [TestCase("MATCH (c2:city)<-[:born_in]-(p) RETURN p", 2)]
-    [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) RETURN p, c1", 2)]
-    [TestCase("MATCH (q:person)-[:born_in]->(c2:city) RETURN q, c2", 2)]
     public async Task ItCanHandleMultipleMatchesSharingVariables(string input, int rowCount)
+    {
+      // Act
+      var result = await ExecuteQuery(input);
+
+      // Assert
+      Assert.That(result.Print, Is.EqualTo(input.Replace("'", "\"")));
+      Assert.That(result.Rows.Count, Is.EqualTo(rowCount));
+    }
+
+
+    [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) OPTIONAL MATCH (p)-[:born_in]->(c2:city) RETURN p, c1, c2", 2)]
+    [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) OPTIONAL MATCH (p)-[:born_in]->(c2:city)-[:located_in]->(co) RETURN p, c1, c2", 2)]
+    public async Task ItCanHandleOptionalMatches(string input, int rowCount)
     {
       // Act
       var result = await ExecuteQuery(input);

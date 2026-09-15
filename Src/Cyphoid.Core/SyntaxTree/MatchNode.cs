@@ -3,7 +3,7 @@ using Cyphoid.Core.Planning;
 
 namespace Cyphoid.Core.SyntaxTree
 {
-  public record MatchNode(PatternNode Pattern) : AstNode
+  public record MatchNode(bool Optional, PatternNode Pattern) : AstNode
   {
     public PipelinePlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
     {

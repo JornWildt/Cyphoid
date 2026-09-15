@@ -89,11 +89,13 @@ java org.antlr.v4.Tool -Dlanguage=CSharp -visitor -o Generated Cypher.g4
 
 ## Manual Antlr installation
 
-Install Java (version 1.7 or higher) - NOT from java.com but rather one of the newer SDKs.
+Install Java (version 1.7 or higher) - NOT from java.com but rather one of the newer SDKs (for instance Eclipse Temurin).
 
 Download antlr-4.13.2-complete.jar (or whatever version) from https://www.antlr.org/download.html Save to your directory for 3rd party Java libraries, say C:\Javalib
 
 Add antlr-4.13.2-complete.jar to CLASSPATH, either:
 Permanently: Using System Properties dialog > Environment variables > Create or append to CLASSPATH variable
 Temporarily, at command line.
+
+> set CLASSPATH=D:\Javalib\antlr-4.13.2-complete.jar
 
