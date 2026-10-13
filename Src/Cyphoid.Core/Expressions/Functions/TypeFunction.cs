@@ -28,7 +28,7 @@ namespace Cyphoid.Core.Expressions.Functions
       IReadOnlyList<RowEvaluator<TId>> parameters,
       int outputSlotIndex)
     {
-      return new CountAggregator<TId>(parameters, outputSlotIndex);
+      throw new NotSupportedException("type() is a scalar function.");
     }
   }
 }

@@ -25,7 +25,6 @@ The Cypher engine is implemented as a pipeline of row-oriented physical operator
 ## Known limitations
 
 - Pattern matching currently only uses the first pattern part in a MATCH clause.
-- Bidirectional relationship patterns are not supported.
 
 ## References
 

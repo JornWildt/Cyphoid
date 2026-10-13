@@ -13,6 +13,7 @@ namespace Cyphoid.Core.Expressions.Functions
       ["Max"] = new MaxFunction(),
       ["Avg"] = new AvgFunction(),
       ["Type"] = new TypeFunction(),
+      ["Rand"] = new RandFunction(),
     };
 
 
