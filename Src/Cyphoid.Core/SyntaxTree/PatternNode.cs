@@ -17,6 +17,10 @@ namespace Cyphoid.Core.SyntaxTree
       // Parse guarantees existence of initial (left most) node.
       var initialNodePattern = part.PatternChain[0].NodePattern;
 
+      var nextRelationshipPattern = part.PatternChain.Count > 1
+        ? part.PatternChain[1].RelationshipPattern
+        : null;
+
       PipelinePlan<TId> plan;
       if (initialNodePattern.Variable.Binding == VariableReferenceBindingType.Unbound)
       {
@@ -24,6 +28,7 @@ namespace Cyphoid.Core.SyntaxTree
           initialNodePattern.Variable,
           initialNodePattern.Label,
           initialNodePattern.PropertyMap,
+          nextRelationshipPattern,
           matchColumns);
 
         if (input != null)
@@ -39,6 +44,7 @@ namespace Cyphoid.Core.SyntaxTree
 
         plan = new ExpandIntoPlan<TId>(
           input,
+          optional,
           null,
           null,
           initialNodePattern.Variable,
@@ -65,6 +71,7 @@ namespace Cyphoid.Core.SyntaxTree
         {
           plan = new ExpandIntoPlan<TId>(
             plan,
+            optional,
             previousChainNode.NodePattern.Variable,
             chainNode.RelationshipPattern!,
             chainNode.NodePattern.Variable,

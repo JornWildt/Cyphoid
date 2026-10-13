@@ -26,9 +26,10 @@ namespace Cyphoid.Tests.TestBackend
       VariableDefinition variable, 
       string? label, 
       PropertyFilter? propertyFilter,
+      string? targetRelationshipLabel,
       IRowColumn[] matchColumns)
     {
-      return new NodeScanTestOperator<string>(Graph, variable, label, propertyFilter, matchColumns);
+      return new NodeScanTestOperator<string>(Graph, variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
     }
 
 

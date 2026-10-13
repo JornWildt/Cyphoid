@@ -12,14 +12,14 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator<TId> IOperatorFactory<TId>.BuildEmptyResult()
       => BuildEmptyResult();
 
-    IOperator<TId> IOperatorFactory<TId>.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, IRowColumn[] matchColumns)
-      => BuildNodeScan(variable, label, propertyFilter, matchColumns);
+    IOperator<TId> IOperatorFactory<TId>.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, IRowColumn[] matchColumns)
+      => BuildNodeScan(variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
 
     IOperator<TId> IOperatorFactory<TId>.BuildExpandAll(IOperator<TId> input, bool optional, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, IRowColumn[] matchColumns)
       => BuildExpandAll(input, optional, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter, matchColumns);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildExpandInto(IOperator<TId> input, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
-      => BuildExpandInto(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
+    IOperator<TId> IOperatorFactory<TId>.BuildExpandInto(IOperator<TId> input, bool optional, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
+      => BuildExpandInto(input, optional, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
 
     IOperator<TId> IOperatorFactory<TId>.BuildCartesianProduct(IOperator<TId> left, IOperator<TId> right)
       => BuildCartesianProduct(left, right);
@@ -50,8 +50,8 @@ namespace Cyphoid.Core.ReferenceBackend
     protected virtual IOperator<TId> BuildEmptyResult()
       => new EmptyResultReferenceOperator<TId>();
 
-    protected virtual IOperator<TId> BuildExpandInto(IOperator<TId> input, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
-      => new ExpandIntoReferenceOperator<TId>(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
+    protected virtual IOperator<TId> BuildExpandInto(IOperator<TId> input, bool optional, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
+      => new ExpandIntoReferenceOperator<TId>(input, optional, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
 
     protected virtual IOperator<TId> BuildCartesianProduct(IOperator<TId> left, IOperator<TId> right)
       => new CartesianProductReferenceOperator<TId>(left, right);
@@ -87,7 +87,7 @@ namespace Cyphoid.Core.ReferenceBackend
 
     protected abstract IRow<TId> NewRow(IRowColumn[] matchColumns);
 
-    protected abstract IOperator<TId> BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, IRowColumn[] matchColumns);
+    protected abstract IOperator<TId> BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, IRowColumn[] matchColumns);
 
     protected abstract IOperator<TId> BuildExpandAll(IOperator<TId> input, bool optional, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, IRowColumn[] matchColumns);
 

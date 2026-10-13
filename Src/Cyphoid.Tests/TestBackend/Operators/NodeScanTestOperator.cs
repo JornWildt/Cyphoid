@@ -10,6 +10,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     VariableDefinition Variable;
     string? Label;
     PropertyFilter? PropertyFilter;
+    string? TargetRelationshipLabel;
     IRowColumn[] MatchColumns;
 
     public NodeScanTestOperator(
@@ -17,12 +18,14 @@ namespace Cyphoid.Tests.TestBackend.Operators
       VariableDefinition variable,
       string? label,
       PropertyFilter? propertyFilter,
+      string? targetRelationshipLabel,
       IRowColumn[] matchColumns)
       : base(graph)
     {
       Variable = variable;
       Label = label;
       PropertyFilter = propertyFilter;
+      TargetRelationshipLabel = targetRelationshipLabel;
       MatchColumns = matchColumns;
     }
 
@@ -34,8 +37,13 @@ namespace Cyphoid.Tests.TestBackend.Operators
 
       foreach (var node in Graph.Nodes)
       {
+        var hasExpectedRelationship = TargetRelationshipLabel != null
+          ? node.Value.Outgoing.Any(o => o.Type == TargetRelationshipLabel)
+          : true;
+
         if ((Label == null || node.Value.Labels.Contains(Label)) &&
-          (PropertyFilter == null || PropertyMatch(PropertyFilter, node.Value)))
+          (PropertyFilter == null || PropertyMatch(PropertyFilter, node.Value)) &&
+          hasExpectedRelationship)
         {
           IRow<string> row = new Row<string>(MatchColumns);
           var newNode = new GraphNode<string>(

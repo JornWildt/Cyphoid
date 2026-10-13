@@ -8,13 +8,20 @@ namespace Cyphoid.Core.Planning
     VariableReference Variable,
     string? Label,
     PropertyMapNode? PropertyMap,
+    RelationshipPatternNode? RelationshipDetail,
     IRowColumn[] MatchColumns) : PipelinePlan<TId> where TId : IEquatable<TId>
   {
     public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
     {
       // FIXME: No need to calculate this all the time
       var filter = BuildPropertyFilter(PropertyMap);
-      return factory.BuildNodeScan(Variable.Definition, Label, filter, MatchColumns);
+
+      // Use optional immediate -[:label]-> if there is such a label, to filter the scanned nodes
+      var targetRelationshipLabel = RelationshipDetail?.RelationshipDirection == RelationshipDirectionType.Right
+        ? RelationshipDetail?.RelationshipDetail?.RelationshipType
+        : null;
+
+      return factory.BuildNodeScan(Variable.Definition, Label, filter, targetRelationshipLabel, MatchColumns);
     }
     
     

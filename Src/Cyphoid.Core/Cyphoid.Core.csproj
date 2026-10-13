@@ -9,7 +9,7 @@
 
     <!-- NuGet package metadata -->
     <PackageId>Cyphoid</PackageId>
-    <Version>0.9.0</Version>
+    <Version>0.11.0</Version>
     <Authors>Jørn Wildt</Authors>
     <Description>A parser for the Cypher graph query language. It includes a simple implementation of the query language.</Description>
     <PackageTags>parser cypher query language</PackageTags>
@@ -25,7 +25,7 @@
 
   <PropertyGroup>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>0.9.0 - Add OPTIONAL match. Fix wrong column count for expand-all. Bump to .NET 10.</PackageReleaseNotes>
+    <PackageReleaseNotes>0.10.0 - Fix optional matches in expand-into reference operator. 0.11.0 - Pass relationship label to nodescan operator.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

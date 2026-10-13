@@ -158,6 +158,8 @@ namespace Cyphoid.Tests
 
     [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) OPTIONAL MATCH (p)-[:born_in]->(c2:city) RETURN p, c1, c2", 2)]
     [TestCase("MATCH (p:person)-[:lives_in]->(c1:city) OPTIONAL MATCH (p)-[:born_in]->(c2:city)-[:located_in]->(co) RETURN p, c1, c2", 2)]
+    [TestCase("MATCH (n:country) OPTIONAL MATCH (o)<-[:located_in]-(n) RETURN n", 60)]
+    [TestCase("MATCH (n:country) OPTIONAL MATCH (n)-[:located_in]->(o) RETURN n", 5)]
     public async Task ItCanHandleOptionalMatches(string input, int rowCount)
     {
       // Act

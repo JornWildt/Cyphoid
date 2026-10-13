@@ -7,6 +7,7 @@ namespace Cyphoid.Core.ReferenceBackend
 
   public record ExpandIntoReferenceOperator<TId>(
     IOperator<TId> Input,
+    bool Optional,
     VariableDefinition? SourceVariable,
     ExpandDirectionType? Direction,
     string? RelationLabel,
@@ -25,7 +26,7 @@ namespace Cyphoid.Core.ReferenceBackend
 
           bool isMatch = false;
 
-          if (SourceVariable != null)
+          if (SourceVariable != null && !Optional)
           {
             var sourceVariable = row.Values[SourceVariable.SlotIndex];
             if (sourceVariable != null)
