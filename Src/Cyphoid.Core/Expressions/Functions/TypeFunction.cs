@@ -9,10 +9,10 @@ namespace Cyphoid.Core.Expressions.Functions
     ValueKindType IFunctionDefinition.ValueKind => ValueKindType.Variable;
 
 
-    RowEvaluator<TId> IFunctionDefinition.GetRowEvaluator<TId>(
-      IReadOnlyList<RowEvaluator<TId>> parameters)
+    RowEvaluator IFunctionDefinition.GetRowEvaluator(
+      IReadOnlyList<RowEvaluator> parameters)
     {
-      return (IRow<TId> row) =>
+      return (IRow row) =>
       {
         var value = parameters[0](row);
         if (value.TryGetGraphNode(out var node))
@@ -24,8 +24,8 @@ namespace Cyphoid.Core.Expressions.Functions
     }
 
 
-    IAggregationEvaluator<TId> IFunctionDefinition.GetAggregator<TId>(
-      IReadOnlyList<RowEvaluator<TId>> parameters,
+    IAggregationEvaluator IFunctionDefinition.GetAggregator(
+      IReadOnlyList<RowEvaluator> parameters,
       int outputSlotIndex)
     {
       throw new NotSupportedException("type() is a scalar function.");

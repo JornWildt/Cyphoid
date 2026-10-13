@@ -6,10 +6,10 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record PatternNode(IReadOnlyList<PatternPartNode> Parts) : AstNode
   {
-    public PipelinePlan<TId> BuildPlan<TId>(
-      PipelinePlan<TId>? input,
+    public PipelinePlan BuildPlan(
+      PipelinePlan? input,
       bool optional,
-      IRowColumn[] matchColumns) where TId : IEquatable<TId>
+      IRowColumn[] matchColumns)
     {
       // FIXME: Only using first part so far
       var part = Parts[0];
@@ -21,10 +21,10 @@ namespace Cyphoid.Core.SyntaxTree
         ? part.PatternChain[1].RelationshipPattern
         : null;
 
-      PipelinePlan<TId> plan;
+      PipelinePlan plan;
       if (initialNodePattern.Variable.Binding == VariableReferenceBindingType.Unbound)
       {
-        plan = new NodeScanPlan<TId>(
+        plan = new NodeScanPlan(
           initialNodePattern.Variable,
           initialNodePattern.Label,
           initialNodePattern.PropertyMap,
@@ -33,7 +33,7 @@ namespace Cyphoid.Core.SyntaxTree
 
         if (input != null)
         {
-          plan = new CartesianProductPlan<TId>(
+          plan = new CartesianProductPlan(
             input,
             plan);
         }
@@ -42,7 +42,7 @@ namespace Cyphoid.Core.SyntaxTree
       {
         ArgumentNullException.ThrowIfNull(input, nameof(input));
 
-        plan = new ExpandIntoPlan<TId>(
+        plan = new ExpandIntoPlan(
           input,
           optional,
           null,
@@ -57,7 +57,7 @@ namespace Cyphoid.Core.SyntaxTree
       {
         if (chainNode.NodePattern.Variable.Binding == VariableReferenceBindingType.Unbound)
         {
-          plan = new ExpandAllPlan<TId>(
+          plan = new ExpandAllPlan(
             plan,
             optional,
             previousChainNode.NodePattern.Variable,
@@ -69,7 +69,7 @@ namespace Cyphoid.Core.SyntaxTree
         }
         else
         {
-          plan = new ExpandIntoPlan<TId>(
+          plan = new ExpandIntoPlan(
             plan,
             optional,
             previousChainNode.NodePattern.Variable,

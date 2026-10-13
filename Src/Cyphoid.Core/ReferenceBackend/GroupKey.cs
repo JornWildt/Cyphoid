@@ -3,14 +3,14 @@ using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public sealed class GroupKey<TId> : IEquatable<GroupKey<TId>> where TId : IEquatable<TId>
+  public sealed class GroupKey : IEquatable<GroupKey>
   {
     public MixedValue?[] Values { get; }
-    IReadOnlyList<GroupingEvaluator<TId>> Groupings;
+    IReadOnlyList<GroupingEvaluator> Groupings;
 
     public GroupKey(
-      IRow<TId> row,
-      IReadOnlyList<GroupingEvaluator<TId>> groupings)
+      IRow row,
+      IReadOnlyList<GroupingEvaluator> groupings)
     {
       Groupings = groupings;
       Values = new MixedValue?[groupings.Count];
@@ -21,7 +21,7 @@ namespace Cyphoid.Core.ReferenceBackend
     }
 
 
-    bool IEquatable<GroupKey<TId>>.Equals(GroupKey<TId>? other)
+    bool IEquatable<GroupKey>.Equals(GroupKey? other)
     {
       if (other is null || other.Values.Length != Values.Length)
         return false;
@@ -36,7 +36,7 @@ namespace Cyphoid.Core.ReferenceBackend
     }
 
 
-    public void WriteGroupData(IRow<TId> row)
+    public void WriteGroupData(IRow row)
     {
       for (int i = 0; i < Groupings.Count; i++)
       {
@@ -45,7 +45,7 @@ namespace Cyphoid.Core.ReferenceBackend
       }
     }
 
-    public override bool Equals(object? obj) => obj is GroupKey<TId> other && Equals(other);
+    public override bool Equals(object? obj) => obj is GroupKey other && Equals(other);
 
 
     public override int GetHashCode()

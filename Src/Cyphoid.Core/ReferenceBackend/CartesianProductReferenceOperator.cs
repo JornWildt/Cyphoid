@@ -2,11 +2,11 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public record CartesianProductReferenceOperator<TId>(
-    IOperator<TId> Left,
-    IOperator<TId> Right) : IOperator<TId> where TId : IEquatable<TId>
+  public record CartesianProductReferenceOperator(
+    IOperator Left,
+    IOperator Right) : IOperator
   {
-    async IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
     {
       await foreach (var row1 in Left.ExecuteAsync(context))
       {

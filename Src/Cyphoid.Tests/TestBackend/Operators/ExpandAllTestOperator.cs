@@ -5,9 +5,9 @@ using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Tests.TestBackend.Operators
 {
-  internal class ExpandAllTestOperator<TId> : OperatorTestBase, IOperator<string>
+  internal class ExpandAllTestOperator : OperatorTestBase, IOperator
   {
-    IOperator<string> Input;
+    IOperator Input;
     bool Optional;
     VariableDefinition SourceVariable;
     ExpandDirectionType Direction;
@@ -20,7 +20,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
 
     public ExpandAllTestOperator(
       InMemoryGraph graph,
-      IOperator<string> input,
+      IOperator input,
       bool optional,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
@@ -43,7 +43,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    IAsyncEnumerable<IRow<string>> IOperator<string>.ExecuteAsync(IQueryContext context)
+    IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
     {
       if (Direction == ExpandDirectionType.Outgoing)
         return OutgoingAsync(context);
@@ -56,7 +56,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    async IAsyncEnumerable<IRow<string>> OutgoingAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> OutgoingAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
@@ -65,11 +65,12 @@ namespace Cyphoid.Tests.TestBackend.Operators
         var sourceVariable = row.Values[SourceVariable.SlotIndex];
         if (sourceVariable != null)
         {
-          var sourceNode = sourceVariable.Value.AsGraphNode<string>();
+          var sourceNode = sourceVariable.Value.AsGraphNode();
           var matchingEdges = sourceNode.Edges
             .Where(e => RelationLabel == null || e.Type == RelationLabel);
 
           var targetIds = matchingEdges
+            .Cast<GraphEdge<string>>()
             .Select(e => e.Target)
             .Distinct()
             .ToList();
@@ -105,7 +106,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    async IAsyncEnumerable<IRow<string>> IncomingAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IncomingAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
@@ -116,7 +117,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
 
         if (sourceVariable != null)
         {
-          var sourceNode = sourceVariable.Value.AsGraphNode<string>();
+          var sourceNode = (GraphNode<string>)sourceVariable.Value.AsGraphNode();
           var sourceId = sourceNode.Id;
 
           var matchingEdges = Graph.Incoming(sourceId)

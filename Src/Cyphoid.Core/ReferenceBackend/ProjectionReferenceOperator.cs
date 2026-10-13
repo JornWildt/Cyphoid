@@ -1,22 +1,21 @@
-﻿using System.Security.Cryptography;
-using Cyphoid.Core.Execution;
+﻿using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class ProjectionReferenceOperator<TId>(
-    IOperator<TId> Input,
-    IReadOnlyList<ProjectionEvaluator<TId>> Projections,
-    IRowColumn[] Columns) : IOperator<TId> where TId : IEquatable<TId>
+  public class ProjectionReferenceOperator(
+    IOperator Input,
+    IReadOnlyList<ProjectionEvaluator> Projections,
+    IRowColumn[] Columns) : IOperator
   {
     public ProjectionReferenceOperator(
-      IOperator<TId> input,
-      IReadOnlyList<ProjectionEvaluator<TId>> projections)
+      IOperator input,
+      IReadOnlyList<ProjectionEvaluator> projections)
       : this(input, projections, MakeColumns(projections))
     {
     }
 
 
-    private static IRowColumn[] MakeColumns(IReadOnlyList<ProjectionEvaluator<TId>> projections)
+    private static IRowColumn[] MakeColumns(IReadOnlyList<ProjectionEvaluator> projections)
     {
       return projections
         .Select((p, i) => new RowColumn(i, p.OutputVariable.Name, p.OutputVariable.Type))
@@ -24,11 +23,11 @@ namespace Cyphoid.Core.ReferenceBackend
     }
 
 
-    async IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
-        IRow<TId> newRow = new Row<TId>(Columns);
+        IRow newRow = new Row(Columns);
 
         foreach (var p in Projections)
         {

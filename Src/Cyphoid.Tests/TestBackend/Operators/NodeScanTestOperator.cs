@@ -5,7 +5,7 @@ using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Tests.TestBackend.Operators
 {
-  internal class NodeScanTestOperator<TId> : OperatorTestBase, IOperator<string> where TId : IEquatable<TId>
+  internal class NodeScanTestOperator : OperatorTestBase, IOperator
   {
     VariableDefinition Variable;
     string? Label;
@@ -30,7 +30,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    async IAsyncEnumerable<IRow<string>> IOperator<string>.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
     {
       // Just to satisfy "await"
       await Task.Yield();
@@ -45,7 +45,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
           (PropertyFilter == null || PropertyMatch(PropertyFilter, node.Value)) &&
           hasExpectedRelationship)
         {
-          IRow<string> row = new Row<string>(MatchColumns);
+          IRow row = new Row(MatchColumns);
           var newNode = new GraphNode<string>(
             node.Value.Id,
             node.Value.Labels.First(),

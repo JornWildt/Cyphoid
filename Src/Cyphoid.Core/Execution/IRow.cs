@@ -10,11 +10,10 @@ namespace Cyphoid.Core.Execution
   }
 
 
-  // FIXME: Remove <TId> (it is found in MixedValue instead)
-  public interface IRow<TId> where TId : IEquatable<TId>
+  public interface IRow
   {
     IRowColumn[] Columns { get; }
     MixedValue?[] Values { get; }
-    IRow<TId> Clone(IReadOnlyList<IRowColumn> outputColumns);
+    IRow Clone(IReadOnlyList<IRowColumn> outputColumns);
   }
 }

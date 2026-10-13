@@ -5,26 +5,26 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
 {
-  public record ProjectionPlan<TId>(
-    PipelinePlan<TId> Input,
-    IReadOnlyList<ProjectionNode> Projections) : PipelinePlan<TId> where TId : IEquatable<TId>
+  public record ProjectionPlan(
+    PipelinePlan Input,
+    IReadOnlyList<ProjectionNode> Projections) : PipelinePlan
   {
-    public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
+    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {
-      var projections = new List<ProjectionEvaluator<TId>>();
+      var projections = new List<ProjectionEvaluator>();
 
-      var groupings = new List<GroupingEvaluator<TId>>();
-      var aggregators = new List<IAggregationEvaluator<TId>>();
+      var groupings = new List<GroupingEvaluator>();
+      var aggregators = new List<IAggregationEvaluator>();
 
       foreach (var p in Projections)
       {
-        var evaluator = p.Expr.BuildEvaluator<TId>();
-        projections.Add(new ProjectionEvaluator<TId>(evaluator, p.Variable));
+        var evaluator = p.Expr.BuildEvaluator();
+        projections.Add(new ProjectionEvaluator(evaluator, p.Variable));
 
         if (p.Expr.ValueKind == ValueKindType.Aggregate)
           aggregators.Add(p.Expr.GetAggregationEvaluator(evaluator, p.Variable.SlotIndex));
         else
-          groupings.Add(new GroupingEvaluator<TId>(evaluator, p.Variable.SlotIndex));
+          groupings.Add(new GroupingEvaluator(evaluator, p.Variable.SlotIndex));
       }
 
       if (aggregators.Count > 0)

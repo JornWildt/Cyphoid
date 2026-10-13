@@ -4,19 +4,19 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
 {
-  public record OrderByPlan<TId>(
-    PipelinePlan<TId> Input,
-    IReadOnlyList<OrderByItemNode> Ordering) : PipelinePlan<TId> where TId : IEquatable<TId>
+  public record OrderByPlan(
+    PipelinePlan Input,
+    IReadOnlyList<OrderByItemNode> Ordering) : PipelinePlan
   {
-    public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
+    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {
-      var ordering = new List<OrderByEvaluator<TId>>();
+      var ordering = new List<OrderByEvaluator>();
 
       foreach (var o in Ordering)
       {
-        var evaluator = o.Expression.BuildEvaluator<TId>();
+        var evaluator = o.Expression.BuildEvaluator();
         var direction = o.Direction == OrderByDirectionType.Descending ? SortDirection.Descending : SortDirection.Ascending;
-        ordering.Add(new OrderByEvaluator<TId>(evaluator, direction));
+        ordering.Add(new OrderByEvaluator(evaluator, direction));
       }
 
       return factory.BuildOrderBy(Input.BuildExecutionPlan(factory), ordering);

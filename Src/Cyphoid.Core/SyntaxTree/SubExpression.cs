@@ -7,13 +7,13 @@ namespace Cyphoid.Core.SyntaxTree
   public record SubExpression(ExprNode Sub)
     : ExprNode(Sub.ValueKind)
   {
-    public override RowEvaluator<TId> BuildEvaluator<TId>()
+    public override RowEvaluator BuildEvaluator()
     {
-      return Sub.BuildEvaluator<TId>();
+      return Sub.BuildEvaluator();
     }
 
 
-    public override IAggregationEvaluator<TId> GetAggregationEvaluator<TId>(RowEvaluator<TId> expression, int outputSlotIndex)
+    public override IAggregationEvaluator GetAggregationEvaluator(RowEvaluator expression, int outputSlotIndex)
     {
       return Sub.GetAggregationEvaluator(expression, outputSlotIndex);
     }

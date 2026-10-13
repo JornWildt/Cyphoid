@@ -8,11 +8,11 @@ namespace Cyphoid.Core.Expressions.Functions
   {
     ValueKindType ValueKind { get; }
     
-    RowEvaluator<TId> GetRowEvaluator<TId>(
-      IReadOnlyList<RowEvaluator<TId>> parameters) where TId : IEquatable<TId>;
+    RowEvaluator GetRowEvaluator(
+      IReadOnlyList<RowEvaluator> parameters);
     
-    IAggregationEvaluator<TId> GetAggregator<TId>(
-      IReadOnlyList<RowEvaluator<TId>> parameters,
-      int outputSlotIndex) where TId : IEquatable<TId>;
+    IAggregationEvaluator GetAggregator(
+      IReadOnlyList<RowEvaluator> parameters,
+      int outputSlotIndex);
   }
 }

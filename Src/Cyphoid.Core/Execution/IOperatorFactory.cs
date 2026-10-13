@@ -5,7 +5,7 @@ namespace Cyphoid.Core.Execution
 {
   public record PropertyFilter(IReadOnlyList<PropertyFilterCondition> Conditions)
   {
-    public bool IsMatch<TId>(IGraphNode<TId> node) where TId : IEquatable<TId>
+    public bool IsMatch(IGraphNode node)
     {
       foreach (var p in Conditions)
       {
@@ -25,24 +25,24 @@ namespace Cyphoid.Core.Execution
 
   public enum ExpandDirectionType { Outgoing, Incoming, Unidirectional }
 
-  public delegate MixedValue RowEvaluator<TId>(IRow<TId> row) where TId : IEquatable<TId>;
+  public delegate MixedValue RowEvaluator(IRow row);
 
 
-  public interface IOperatorFactory<TId> where TId : IEquatable<TId>
+  public interface IOperatorFactory
   {
-    IRow<TId> NewRow(IRowColumn[] matchColumns);
+    IRow NewRow(IRowColumn[] matchColumns);
 
-    IOperator<TId> BuildEmptyResult();
+    IOperator BuildEmptyResult();
 
-    IOperator<TId> BuildNodeScan(
+    IOperator BuildNodeScan(
       VariableDefinition variable,
       string? label,
       PropertyFilter? propertyFilter,
       string? targetRelationshipLabel,
       IRowColumn[] matchColumns);
 
-    IOperator<TId> BuildExpandAll(
-      IOperator<TId> input,
+    IOperator BuildExpandAll(
+      IOperator input,
       bool optional,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
@@ -52,8 +52,8 @@ namespace Cyphoid.Core.Execution
       PropertyFilter? destinationPropertyFilter,
       IRowColumn[] matchColumns);
 
-    IOperator<TId> BuildExpandInto(
-      IOperator<TId> input,
+    IOperator BuildExpandInto(
+      IOperator input,
       bool optional,
       VariableDefinition? sourceVariable,
       ExpandDirectionType? direction,
@@ -62,34 +62,34 @@ namespace Cyphoid.Core.Execution
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter);
 
-    IOperator<TId> BuildCartesianProduct(
-      IOperator<TId> operator1,
-      IOperator<TId> operator2);
+    IOperator BuildCartesianProduct(
+      IOperator operator1,
+      IOperator operator2);
 
-    IOperator<TId> BuildFilter(
-      IOperator<TId> input,
-      RowEvaluator<TId> evaluator);
+    IOperator BuildFilter(
+      IOperator input,
+      RowEvaluator evaluator);
 
-    IOperator<TId> BuildLimit(
-      IOperator<TId> input,
+    IOperator BuildLimit(
+      IOperator input,
       int limit);
 
-    IOperator<TId> BuildProjection(
-      IOperator<TId> input,
-      IReadOnlyList<ProjectionEvaluator<TId>> projections);
+    IOperator BuildProjection(
+      IOperator input,
+      IReadOnlyList<ProjectionEvaluator> projections);
 
-    IOperator<TId> BuildDistinct(
-      IOperator<TId> input,
-      List<GroupingEvaluator<TId>> groupings);
+    IOperator BuildDistinct(
+      IOperator input,
+      List<GroupingEvaluator> groupings);
 
-    IOperator<TId> BuildAggregationProjection(
-      IOperator<TId> input,
-      List<GroupingEvaluator<TId>> groupings,
-      List<IAggregationEvaluator<TId>> aggregators,
+    IOperator BuildAggregationProjection(
+      IOperator input,
+      List<GroupingEvaluator> groupings,
+      List<IAggregationEvaluator> aggregators,
       IRowColumn[] outputColumns);
 
-    IOperator<TId> BuildOrderBy(
-      IOperator<TId> input,
-      IReadOnlyList<OrderByEvaluator<TId>> ordering);
+    IOperator BuildOrderBy(
+      IOperator input,
+      IReadOnlyList<OrderByEvaluator> ordering);
   }
 }

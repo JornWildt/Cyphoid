@@ -3,19 +3,19 @@ using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.Expressions.Functions
 {
-  public record SumAggregator<TId>(
-    IReadOnlyList<RowEvaluator<TId>> Parameters,
-    int SlotIndex) : IAggregationEvaluator<TId> where TId : IEquatable<TId>
+  public record SumAggregator(
+    IReadOnlyList<RowEvaluator> Parameters,
+    int SlotIndex) : IAggregationEvaluator
   {
     MixedValue? Sum = null;
 
-    void IAggregationEvaluator<TId>.Initialize()
+    void IAggregationEvaluator.Initialize()
     {
       Sum = null;
     }
 
 
-    void IAggregationEvaluator<TId>.Accumulate(IRow<TId> row)
+    void IAggregationEvaluator.Accumulate(IRow row)
     {
       var rowValue = Parameters[0](row);
       if (!rowValue.IsNull())
@@ -28,7 +28,7 @@ namespace Cyphoid.Core.Expressions.Functions
     }
 
 
-    void IAggregationEvaluator<TId>.WriteResult(IRow<TId> row)
+    void IAggregationEvaluator.WriteResult(IRow row)
     {
       row.Values[SlotIndex] = Sum != null ? Sum : MixedValue.Null();
     }

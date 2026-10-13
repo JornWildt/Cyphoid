@@ -5,18 +5,18 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning
 {
-  public record DistinctPlan<TId>(
-    PipelinePlan<TId> Input,
-    IReadOnlyList<ProjectionNode> Projections) : PipelinePlan<TId> where TId : IEquatable<TId>
+  public record DistinctPlan(
+    PipelinePlan Input,
+    IReadOnlyList<ProjectionNode> Projections) : PipelinePlan
   {
-    public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
+    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {
-      var groupings = new List<GroupingEvaluator<TId>>();
+      var groupings = new List<GroupingEvaluator>();
       foreach (var p in Projections)
       {
         var varExpr = new VariableExprNode(p.Variable);
-        var evaluator = varExpr.BuildEvaluator<TId>();
-        groupings.Add(new GroupingEvaluator<TId>(evaluator, p.Variable.SlotIndex));
+        var evaluator = varExpr.BuildEvaluator();
+        groupings.Add(new GroupingEvaluator(evaluator, p.Variable.SlotIndex));
       }
 
       return factory.BuildDistinct(

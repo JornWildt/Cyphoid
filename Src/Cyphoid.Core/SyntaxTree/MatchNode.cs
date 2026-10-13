@@ -5,7 +5,7 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record MatchNode(bool Optional, PatternNode Pattern) : AstNode
   {
-    public PipelinePlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
+    public PipelinePlan BuildQueryPlan()
     {
       throw new NotImplementedException();
     }

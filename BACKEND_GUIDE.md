@@ -1,14 +1,14 @@
 # Backend Implementation Guide
 
-This document explains how to implement a backend for Cyphoid by providing an `IOperatorFactory<TId>` and a small set of data-access operators. The easiest path is to inherit from `ReferenceOperatorFactory<TId>`, which supplies all generic operators (filter, projection, aggregation, order by, etc.) using `IAsyncEnumerable` row pipelines. You then implement the few abstract methods that perform real graph lookups.
+This document explains how to implement a backend for Cyphoid by providing an `IOperatorFactory` and a small set of data-access operators. The easiest path is to inherit from `ReferenceOperatorFactory`, which supplies all generic operators (filter, projection, aggregation, order by, etc.) using `IAsyncEnumerable` row pipelines. You then implement the few abstract methods that perform real graph lookups.
 
 ## Key concepts
-- **Rows are positional**: each variable has a fixed `SlotIndex` (see `VariableDefinition`), and operators write values into `IRow<TId>.Values[slot]`.
+- **Rows are positional**: each variable has a fixed `SlotIndex` (see `VariableDefinition`), and operators write values into `IRow.Values[slot]`.
 - **Values are `MixedValue`**: nodes and properties are transported through rows as `MixedValue` instances.
-- **Operators are async streams**: every `IOperator<TId>` exposes `IAsyncEnumerable<IRow<TId>> ExecuteAsync(IQueryContext context)`.
+- **Operators are async streams**: every `IOperator` exposes `IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context)`.
 
 ## Recommended approach
-Create a concrete operator factory by inheriting from `ReferenceOperatorFactory<TId>` and implementing the abstract methods. These are the only required backend hooks.
+Create a concrete operator factory by inheriting from `ReferenceOperatorFactory` and implementing the abstract methods. These are the only required backend hooks.
 
 Required overrides:
 - `NewRow(IRowColumn[] matchColumns)` - create your row implementation.
@@ -66,7 +66,7 @@ internal sealed class MyOperatorFactory : ReferenceOperatorFactory<string>
 - Preserve existing row values (copy/clone if your row type is mutable).
 
 ## Optional overrides (performance)
-`ReferenceOperatorFactory<TId>` implements these generically, but you can override them for better performance or pushdowns:
+`ReferenceOperatorFactory` implements these generically, but you can override them for better performance or pushdowns:
 - `BuildExpandInto` (relationship check between already-bound nodes)
 - `BuildFilter` (WHERE)
 - `BuildProjection` and `BuildAggregationProjection`

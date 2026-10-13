@@ -2,44 +2,44 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public abstract class ReferenceOperatorFactory<TId> : IOperatorFactory<TId> where TId : IEquatable<TId>
+  public abstract class ReferenceOperatorFactory : IOperatorFactory
   {
     #region IOperatorFactory
 
-    IRow<TId> IOperatorFactory<TId>.NewRow(IRowColumn[] matchColumns)
+    IRow IOperatorFactory.NewRow(IRowColumn[] matchColumns)
       => NewRow(matchColumns);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildEmptyResult()
+    IOperator IOperatorFactory.BuildEmptyResult()
       => BuildEmptyResult();
 
-    IOperator<TId> IOperatorFactory<TId>.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, IRowColumn[] matchColumns)
+    IOperator IOperatorFactory.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, IRowColumn[] matchColumns)
       => BuildNodeScan(variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildExpandAll(IOperator<TId> input, bool optional, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, IRowColumn[] matchColumns)
+    IOperator IOperatorFactory.BuildExpandAll(IOperator input, bool optional, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, IRowColumn[] matchColumns)
       => BuildExpandAll(input, optional, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter, matchColumns);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildExpandInto(IOperator<TId> input, bool optional, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
+    IOperator IOperatorFactory.BuildExpandInto(IOperator input, bool optional, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
       => BuildExpandInto(input, optional, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildCartesianProduct(IOperator<TId> left, IOperator<TId> right)
+    IOperator IOperatorFactory.BuildCartesianProduct(IOperator left, IOperator right)
       => BuildCartesianProduct(left, right);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildFilter(IOperator<TId> input, RowEvaluator<TId> evaluator)
+    IOperator IOperatorFactory.BuildFilter(IOperator input, RowEvaluator evaluator)
       => BuildFilter(input, evaluator);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildLimit(IOperator<TId> input, int limit)
+    IOperator IOperatorFactory.BuildLimit(IOperator input, int limit)
       => BuildLimit(input, limit);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
+    IOperator IOperatorFactory.BuildProjection(IOperator input, IReadOnlyList<ProjectionEvaluator> projections)
       => BuildProjection(input, projections);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildDistinct(IOperator<TId> input, List<GroupingEvaluator<TId>> groupings)
+    IOperator IOperatorFactory.BuildDistinct(IOperator input, List<GroupingEvaluator> groupings)
       => BuildDistinct(input, groupings);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildAggregationProjection(IOperator<TId> input, List<GroupingEvaluator<TId>> groupings, List<IAggregationEvaluator<TId>> aggregators, IRowColumn[] matchColumns)
+    IOperator IOperatorFactory.BuildAggregationProjection(IOperator input, List<GroupingEvaluator> groupings, List<IAggregationEvaluator> aggregators, IRowColumn[] matchColumns)
       => BuildAggregateProjection(input, groupings, aggregators, matchColumns);
 
-    IOperator<TId> IOperatorFactory<TId>.BuildOrderBy(IOperator<TId> input, IReadOnlyList<OrderByEvaluator<TId>> ordering)
+    IOperator IOperatorFactory.BuildOrderBy(IOperator input, IReadOnlyList<OrderByEvaluator> ordering)
       => BuildOrderBy(input, ordering);
 
     #endregion
@@ -47,49 +47,49 @@ namespace Cyphoid.Core.ReferenceBackend
 
     #region Reference implementation
 
-    protected virtual IOperator<TId> BuildEmptyResult()
-      => new EmptyResultReferenceOperator<TId>();
+    protected virtual IOperator BuildEmptyResult()
+      => new EmptyResultReferenceOperator();
 
-    protected virtual IOperator<TId> BuildExpandInto(IOperator<TId> input, bool optional, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
-      => new ExpandIntoReferenceOperator<TId>(input, optional, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
+    protected virtual IOperator BuildExpandInto(IOperator input, bool optional, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
+      => new ExpandIntoReferenceOperator(input, optional, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
 
-    protected virtual IOperator<TId> BuildCartesianProduct(IOperator<TId> left, IOperator<TId> right)
-      => new CartesianProductReferenceOperator<TId>(left, right);
-
-
-    protected virtual IOperator<TId> BuildFilter(IOperator<TId> input, RowEvaluator<TId> evaluator)
-      => new FilterReferenceOperator<TId>(input, evaluator);
+    protected virtual IOperator BuildCartesianProduct(IOperator left, IOperator right)
+      => new CartesianProductReferenceOperator(left, right);
 
 
-    protected virtual IOperator<TId> BuildLimit(IOperator<TId> input, int limit)
-      => new LimitReferenceOperator<TId>(input, limit);
+    protected virtual IOperator BuildFilter(IOperator input, RowEvaluator evaluator)
+      => new FilterReferenceOperator(input, evaluator);
 
 
-    protected virtual IOperator<TId> BuildProjection(IOperator<TId> input, IReadOnlyList<ProjectionEvaluator<TId>> projections)
-      => new ProjectionReferenceOperator<TId>(input, projections);
+    protected virtual IOperator BuildLimit(IOperator input, int limit)
+      => new LimitReferenceOperator(input, limit);
 
 
-    protected virtual IOperator<TId> BuildDistinct(IOperator<TId> input, List<GroupingEvaluator<TId>> groupings)
-      => new DistinctReferenceOperator<TId>(input, groupings);
+    protected virtual IOperator BuildProjection(IOperator input, IReadOnlyList<ProjectionEvaluator> projections)
+      => new ProjectionReferenceOperator(input, projections);
 
 
-    protected virtual IOperator<TId> BuildAggregateProjection(IOperator<TId> input, List<GroupingEvaluator<TId>> groupings, List<IAggregationEvaluator<TId>> aggregators, IRowColumn[] outputColumns)
-      => new AggregateReferenceOperator<TId>(input, groupings, aggregators, NewRow, outputColumns);
+    protected virtual IOperator BuildDistinct(IOperator input, List<GroupingEvaluator> groupings)
+      => new DistinctReferenceOperator(input, groupings);
 
 
-    protected virtual IOperator<TId> BuildOrderBy(IOperator<TId> input, IReadOnlyList<OrderByEvaluator<TId>> ordering)
-      => new OrderByReferenceOperator<TId>(input, ordering);
+    protected virtual IOperator BuildAggregateProjection(IOperator input, List<GroupingEvaluator> groupings, List<IAggregationEvaluator> aggregators, IRowColumn[] outputColumns)
+      => new AggregateReferenceOperator(input, groupings, aggregators, NewRow, outputColumns);
+
+
+    protected virtual IOperator BuildOrderBy(IOperator input, IReadOnlyList<OrderByEvaluator> ordering)
+      => new OrderByReferenceOperator(input, ordering);
 
     #endregion
 
 
     #region Backend implementation specific
 
-    protected abstract IRow<TId> NewRow(IRowColumn[] matchColumns);
+    protected abstract IRow NewRow(IRowColumn[] matchColumns);
 
-    protected abstract IOperator<TId> BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, IRowColumn[] matchColumns);
+    protected abstract IOperator BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, IRowColumn[] matchColumns);
 
-    protected abstract IOperator<TId> BuildExpandAll(IOperator<TId> input, bool optional, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, IRowColumn[] matchColumns);
+    protected abstract IOperator BuildExpandAll(IOperator input, bool optional, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, IRowColumn[] matchColumns);
 
 
     #endregion

@@ -2,15 +2,15 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public record OrderByReferenceOperator<TId>(
-    IOperator<TId> Input,
-    IReadOnlyList<OrderByEvaluator<TId>> Ordering) : IOperator<TId> where TId : IEquatable<TId>
+  public record OrderByReferenceOperator(
+    IOperator Input,
+    IReadOnlyList<OrderByEvaluator> Ordering) : IOperator
   {
-    async IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
     {
       var result = Input.ExecuteAsync(context);
 
-      IOrderedAsyncEnumerable<IRow<TId>>? ordered = null;
+      IOrderedAsyncEnumerable<IRow>? ordered = null;
 
       foreach (var orderBy in Ordering)
       {

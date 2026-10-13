@@ -10,18 +10,18 @@ namespace Cyphoid.Core.SyntaxTree
     IFunctionDefinition Definition,
     IReadOnlyList<ExprNode> Parameters) : ExprNode(Definition.ValueKind)
   {
-    public override RowEvaluator<TId> BuildEvaluator<TId>()
+    public override RowEvaluator BuildEvaluator()
     {
-      var parameters = Parameters.Select(p => p.BuildEvaluator<TId>()).ToArray();
-      return Definition.GetRowEvaluator<TId>(parameters);
+      var parameters = Parameters.Select(p => p.BuildEvaluator()).ToArray();
+      return Definition.GetRowEvaluator(parameters);
     }
 
 
-    public override IAggregationEvaluator<TId> GetAggregationEvaluator<TId>(
-      RowEvaluator<TId> expression,
+    public override IAggregationEvaluator GetAggregationEvaluator(
+      RowEvaluator expression,
       int outputSlotIndex)
     {
-      var parameters = Parameters.Select(p => p.BuildEvaluator<TId>()).ToArray();
+      var parameters = Parameters.Select(p => p.BuildEvaluator()).ToArray();
       return Definition.GetAggregator(parameters, outputSlotIndex);
     }
 

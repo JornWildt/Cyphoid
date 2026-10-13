@@ -6,11 +6,11 @@ namespace Cyphoid.Core.SyntaxTree
   public record WithNode(
     IReadOnlyList<ProjectionNode> Projections) : ClauseNode()
   {
-    public override PipelinePlan<TId> BuildQueryPlan<TId>(
-      PipelinePlan<TId>? input)
+    public override PipelinePlan BuildQueryPlan(
+      PipelinePlan? input)
     {
-      input = input ?? new EmptyPlan<TId>();
-      input = new ProjectionPlan<TId>(input, Projections);
+      input = input ?? new EmptyPlan();
+      input = new ProjectionPlan(input, Projections);
 
       return input;
     }

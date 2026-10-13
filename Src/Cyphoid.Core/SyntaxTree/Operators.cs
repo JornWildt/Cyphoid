@@ -56,27 +56,27 @@ namespace Cyphoid.Core.SyntaxTree
     }
 
 
-    public override RowEvaluator<TId> BuildEvaluator<TId>()
+    public override RowEvaluator BuildEvaluator()
     {
-      var leftEvaluator = Left.BuildEvaluator<TId>();
-      var rightEvaluator = Right.BuildEvaluator<TId>();
+      var leftEvaluator = Left.BuildEvaluator();
+      var rightEvaluator = Right.BuildEvaluator();
 
 #pragma warning disable CS8524 // unnamed enum values
       return Operator switch
       {
-        BinaryOperatorType.And => (IRow<TId> r) => MixedValue.Bool(leftEvaluator(r).AsBool() && rightEvaluator(r).AsBool()),
-        BinaryOperatorType.Or => (IRow<TId> r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
-        BinaryOperatorType.EQ => (IRow<TId> r) => MixedValue.Bool(leftEvaluator(r).Equals(rightEvaluator(r))),
-        BinaryOperatorType.NEQ => (IRow<TId> r) => MixedValue.Bool(!leftEvaluator(r).Equals(rightEvaluator(r))),
-        BinaryOperatorType.LTE => (IRow<TId> r) => leftEvaluator(r) <= rightEvaluator(r),
-        BinaryOperatorType.LT => (IRow<TId> r) => leftEvaluator(r) < rightEvaluator(r),
-        BinaryOperatorType.GTE => (IRow<TId> r) => leftEvaluator(r) >= rightEvaluator(r),
-        BinaryOperatorType.GT => (IRow<TId> r) => leftEvaluator(r) > rightEvaluator(r),
-        BinaryOperatorType.Add => (IRow<TId> r) => leftEvaluator(r) + rightEvaluator(r),
-        BinaryOperatorType.Sub => (IRow<TId> r) => leftEvaluator(r) - rightEvaluator(r),
-        BinaryOperatorType.Mult => (IRow<TId> r) => leftEvaluator(r) * rightEvaluator(r),
-        BinaryOperatorType.Div => (IRow<TId> r) => leftEvaluator(r) / rightEvaluator(r),
-        BinaryOperatorType.Mod => (IRow<TId> r) => leftEvaluator(r) % rightEvaluator(r),
+        BinaryOperatorType.And => (IRow r) => MixedValue.Bool(leftEvaluator(r).AsBool() && rightEvaluator(r).AsBool()),
+        BinaryOperatorType.Or => (IRow r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
+        BinaryOperatorType.EQ => (IRow r) => MixedValue.Bool(leftEvaluator(r).Equals(rightEvaluator(r))),
+        BinaryOperatorType.NEQ => (IRow r) => MixedValue.Bool(!leftEvaluator(r).Equals(rightEvaluator(r))),
+        BinaryOperatorType.LTE => (IRow r) => leftEvaluator(r) <= rightEvaluator(r),
+        BinaryOperatorType.LT => (IRow r) => leftEvaluator(r) < rightEvaluator(r),
+        BinaryOperatorType.GTE => (IRow r) => leftEvaluator(r) >= rightEvaluator(r),
+        BinaryOperatorType.GT => (IRow r) => leftEvaluator(r) > rightEvaluator(r),
+        BinaryOperatorType.Add => (IRow r) => leftEvaluator(r) + rightEvaluator(r),
+        BinaryOperatorType.Sub => (IRow r) => leftEvaluator(r) - rightEvaluator(r),
+        BinaryOperatorType.Mult => (IRow r) => leftEvaluator(r) * rightEvaluator(r),
+        BinaryOperatorType.Div => (IRow r) => leftEvaluator(r) / rightEvaluator(r),
+        BinaryOperatorType.Mod => (IRow r) => leftEvaluator(r) % rightEvaluator(r),
         BinaryOperatorType.CONTAINS => throw new RuntimeException("Unsupported operator CONTAINS."),
         BinaryOperatorType.STARTS_WITH => throw new RuntimeException("Unsupported operator STARTS WITH."),
         BinaryOperatorType.ENDS_WITH => throw new RuntimeException("Unsupported operator ENDS WITH.")
@@ -101,16 +101,16 @@ namespace Cyphoid.Core.SyntaxTree
   {
     private static readonly string[] OperatorSymbols = ["NOT ", "+", "-"];
 
-    public override RowEvaluator<TId> BuildEvaluator<TId>()
+    public override RowEvaluator BuildEvaluator()
     {
-      var exprEvaluator = Expr.BuildEvaluator<TId>();
+      var exprEvaluator = Expr.BuildEvaluator();
 
 #pragma warning disable CS8524 // unnamed enum values
       return Operator switch
       {
-        UnaryOperatorType.Not => (IRow<TId> r) => MixedValue.Bool(exprEvaluator(r).IsAnythingButTrue()),
-        UnaryOperatorType.Plus => (IRow<TId> r) => +exprEvaluator(r),
-        UnaryOperatorType.Minus => (IRow<TId> r) => -exprEvaluator(r)
+        UnaryOperatorType.Not => (IRow r) => MixedValue.Bool(exprEvaluator(r).IsAnythingButTrue()),
+        UnaryOperatorType.Plus => (IRow r) => +exprEvaluator(r),
+        UnaryOperatorType.Minus => (IRow r) => -exprEvaluator(r)
       };
     }
 #pragma warning restore CS8524
@@ -127,11 +127,11 @@ namespace Cyphoid.Core.SyntaxTree
   public record InOperatorNode(ExprNode Expr, IReadOnlyList<ExprNode> Items)
     : ExprNode(ValueKindType.Variable)
   {
-    public override RowEvaluator<TId> BuildEvaluator<TId>()
+    public override RowEvaluator BuildEvaluator()
     {
-      var exprEvaluator = Expr.BuildEvaluator<TId>();
-      var itemEvaluators = Items.Select(i => i.BuildEvaluator<TId>());
-      return (IRow<TId> r) =>
+      var exprEvaluator = Expr.BuildEvaluator();
+      var itemEvaluators = Items.Select(i => i.BuildEvaluator());
+      return (IRow r) =>
       {
         var exprValue = exprEvaluator(r);
         var any = itemEvaluators.Any(e => e(r).Equals(exprValue));

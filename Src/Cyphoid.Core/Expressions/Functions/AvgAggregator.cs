@@ -3,21 +3,21 @@ using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.Expressions.Functions
 {
-  public record AvgAggregator<TId>(
-    IReadOnlyList<RowEvaluator<TId>> Parameters,
-    int SlotIndex) : IAggregationEvaluator<TId> where TId : IEquatable<TId>
+  public record AvgAggregator(
+    IReadOnlyList<RowEvaluator> Parameters,
+    int SlotIndex) : IAggregationEvaluator
   {
     MixedValue? SumValue = null;
     int Counter = 0;
 
-    void IAggregationEvaluator<TId>.Initialize()
+    void IAggregationEvaluator.Initialize()
     {
       SumValue = null;
       Counter = 0;
     }
 
 
-    void IAggregationEvaluator<TId>.Accumulate(IRow<TId> row)
+    void IAggregationEvaluator.Accumulate(IRow row)
     {
       var rowValue = Parameters[0](row);
       if (!rowValue.IsNull())
@@ -31,7 +31,7 @@ namespace Cyphoid.Core.Expressions.Functions
     }
 
 
-    void IAggregationEvaluator<TId>.WriteResult(IRow<TId> row)
+    void IAggregationEvaluator.WriteResult(IRow row)
     {
       row.Values[SlotIndex] = Counter > 0 ? SumValue / MixedValue.Int(Counter) : MixedValue.Null();
     }

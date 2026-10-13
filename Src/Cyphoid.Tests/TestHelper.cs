@@ -13,12 +13,12 @@ namespace Cyphoid.Tests
     protected async Task<(string Print, IReadOnlyList<IDictionary<string, object?>> Rows)> ExecuteQuery(string input)
     {
       ICypherParser parser = new CypherAstParser();
-      IOperatorFactory<string> factory = new TestOperatorFactory(Graph);
+      IOperatorFactory factory = new TestOperatorFactory(Graph);
 
       var queryNode = parser.ParseQuery(input);
       var prettyPrint = queryNode.PrettyPrint();
 
-      var plan = queryNode.BuildQueryPlan<string>();
+      var plan = queryNode.BuildQueryPlan();
       var execution = plan.BuildExecutionPlan(factory);
       var context = new QueryContext();
 

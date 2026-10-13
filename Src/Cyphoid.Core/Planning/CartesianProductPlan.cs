@@ -3,11 +3,11 @@ using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.Planning
 {
-  public record CartesianProductPlan<TId>(
-    PipelinePlan<TId> Left,
-    PipelinePlan<TId> Right) : PipelinePlan<TId> where TId : IEquatable<TId>
+  public record CartesianProductPlan(
+    PipelinePlan Left,
+    PipelinePlan Right) : PipelinePlan
   {
-    public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
+    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {
       return factory.BuildCartesianProduct(
         Left.BuildExecutionPlan(factory),

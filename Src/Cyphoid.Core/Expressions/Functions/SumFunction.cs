@@ -9,18 +9,18 @@ namespace Cyphoid.Core.Expressions.Functions
     ValueKindType IFunctionDefinition.ValueKind => ValueKindType.Aggregate;
 
 
-    RowEvaluator<TId> IFunctionDefinition.GetRowEvaluator<TId>(
-      IReadOnlyList<RowEvaluator<TId>> parameters)
+    RowEvaluator IFunctionDefinition.GetRowEvaluator(
+      IReadOnlyList<RowEvaluator> parameters)
     {
-      return (IRow<TId> row) => MixedValue.Int(-1);
+      return (IRow row) => MixedValue.Int(-1);
     }
 
 
-    IAggregationEvaluator<TId> IFunctionDefinition.GetAggregator<TId>(
-      IReadOnlyList<RowEvaluator<TId>> parameters,
+    IAggregationEvaluator IFunctionDefinition.GetAggregator(
+      IReadOnlyList<RowEvaluator> parameters,
       int outputSlotIndex)
     {
-      return new SumAggregator<TId>(parameters, outputSlotIndex);
+      return new SumAggregator(parameters, outputSlotIndex);
     }
   }
 }

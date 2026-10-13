@@ -3,19 +3,19 @@ using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.Expressions.Functions
 {
-  public record MinAggregator<TId>(
-    IReadOnlyList<RowEvaluator<TId>> Parameters,
-    int SlotIndex) : IAggregationEvaluator<TId> where TId : IEquatable<TId>
+  public record MinAggregator(
+    IReadOnlyList<RowEvaluator> Parameters,
+    int SlotIndex) : IAggregationEvaluator
   {
     MixedValue? MinValue = null;
 
-    void IAggregationEvaluator<TId>.Initialize()
+    void IAggregationEvaluator.Initialize()
     {
       MinValue = null;
     }
 
 
-    void IAggregationEvaluator<TId>.Accumulate(IRow<TId> row)
+    void IAggregationEvaluator.Accumulate(IRow row)
     {
       var rowValue = Parameters[0](row);
       if (!rowValue.IsNull())
@@ -28,7 +28,7 @@ namespace Cyphoid.Core.Expressions.Functions
     }
 
 
-    void IAggregationEvaluator<TId>.WriteResult(IRow<TId> row)
+    void IAggregationEvaluator.WriteResult(IRow row)
     {
       row.Values[SlotIndex] = MinValue != null ? MinValue : MixedValue.Null();
     }

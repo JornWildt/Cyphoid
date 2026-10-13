@@ -1,34 +1,35 @@
 ﻿using Cyphoid.Core.Execution;
+using System.Security.Cryptography;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public record GroupingEvaluator<TId>(
-    RowEvaluator<TId> Expression,
-    int OutputSlotIndex) where TId : IEquatable<TId>
+  public record GroupingEvaluator(
+    RowEvaluator Expression,
+    int OutputSlotIndex)
   {
 
   }
 
 
-  public interface IAggregationEvaluator<TId> where TId : IEquatable<TId>
+  public interface IAggregationEvaluator
   {
     void Initialize();
-    void Accumulate(IRow<TId> row);
-    void WriteResult(IRow<TId> row);
+    void Accumulate(IRow row);
+    void WriteResult(IRow row);
   }
 
-  public record AggregateReferenceOperator<TId>(
-    IOperator<TId> Input,
-    IReadOnlyList<GroupingEvaluator<TId>> Groupings,
-    IReadOnlyList<IAggregationEvaluator<TId>> Aggregators,
-    Func<IRowColumn[], IRow<TId>> RowFactory,
-    IRowColumn[] OutputColumns) : IOperator<TId> where TId : IEquatable<TId>
+  public record AggregateReferenceOperator(
+    IOperator Input,
+    IReadOnlyList<GroupingEvaluator> Groupings,
+    IReadOnlyList<IAggregationEvaluator> Aggregators,
+    Func<IRowColumn[], IRow> RowFactory,
+    IRowColumn[] OutputColumns) : IOperator
   {
-    async IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
     {
       var result = Input.ExecuteAsync(context);
 
-      var groups = result.GroupBy(r => new GroupKey<TId>(r, Groupings));
+      var groups = result.GroupBy(r => new GroupKey(r, Groupings));
 
       await foreach (var group in groups)
       {

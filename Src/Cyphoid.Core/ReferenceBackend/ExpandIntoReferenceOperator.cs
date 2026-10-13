@@ -5,24 +5,24 @@ namespace Cyphoid.Core.ReferenceBackend
   // FIXME: Source not nullable (that would be cartesian product????)
 
 
-  public record ExpandIntoReferenceOperator<TId>(
-    IOperator<TId> Input,
+  public record ExpandIntoReferenceOperator(
+    IOperator Input,
     bool Optional,
     VariableDefinition? SourceVariable,
     ExpandDirectionType? Direction,
     string? RelationLabel,
     VariableDefinition DestinationVariable,
     string? DestinationLabel,
-    PropertyFilter? DestinationPropertyFilter) : IOperator<TId> where TId : IEquatable<TId>
+    PropertyFilter? DestinationPropertyFilter) : IOperator
   {
-    async IAsyncEnumerable<IRow<TId>> IOperator<TId>.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
         var destinationVariable = row.Values[DestinationVariable.SlotIndex];
         if (destinationVariable != null)
         {
-          var destinationNode = destinationVariable.Value.AsGraphNode<TId>();
+          var destinationNode = destinationVariable.Value.AsGraphNode();
 
           bool isMatch = false;
 
@@ -31,14 +31,13 @@ namespace Cyphoid.Core.ReferenceBackend
             var sourceVariable = row.Values[SourceVariable.SlotIndex];
             if (sourceVariable != null)
             {
-              var sourceNode = sourceVariable.Value.AsGraphNode<TId>();
+              var sourceNode = sourceVariable.Value.AsGraphNode();
               if (Direction == ExpandDirectionType.Outgoing)
               {
                 var matchingEdges = sourceNode.Edges
                   .Where(e => RelationLabel == null || e.Type == RelationLabel);
 
-                // FIXME: Edge destination must be TId (not string)
-                if (matchingEdges.Any(e => EqualityComparer<TId>.Default.Equals(e.Target, destinationNode.Id)))
+                if (matchingEdges.Any(e => e.RefersTo(destinationNode)))
                   isMatch = true;
               }
               else
@@ -47,7 +46,7 @@ namespace Cyphoid.Core.ReferenceBackend
                   .Where(e => RelationLabel == null || e.Type == RelationLabel);
 
                 // FIXME: Edge destination must be TId (not string)
-                if (matchingEdges.Any(e => EqualityComparer<TId>.Default.Equals(e.Target, sourceNode.Id)))
+                if (matchingEdges.Any(e => e.RefersTo(sourceNode)))
                   isMatch = true;
               }
             }

@@ -8,15 +8,15 @@ namespace Cyphoid.Core.SyntaxTree
     IReadOnlyList<ClauseNode> Clauses,
     ReturnLimitNode ReturnLimit) : AstNode
   {
-    public PipelinePlan<TId> BuildQueryPlan<TId>() where TId : IEquatable<TId>
+    public PipelinePlan BuildQueryPlan()
     {
-      PipelinePlan<TId>? plan = null;
+      PipelinePlan? plan = null;
       foreach (var c in Clauses)
       {
         plan = c.BuildQueryPlan(plan);
       }
       
-      plan = plan ?? new EmptyPlan<TId>();
+      plan = plan ?? new EmptyPlan();
 
       var projectionPlan = ReturnLimit.BuildProjectionPlan(plan);
       return projectionPlan;

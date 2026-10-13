@@ -27,9 +27,9 @@ namespace Cyphoid.Core.SyntaxTree
   public abstract record ExprNode(
     ValueKindType ValueKind) : AstNode
   {
-    public abstract RowEvaluator<TId> BuildEvaluator<TId>() where TId : IEquatable<TId>;
+    public abstract RowEvaluator BuildEvaluator();
 
-    public virtual IAggregationEvaluator<TId> GetAggregationEvaluator<TId>(RowEvaluator<TId> expression, int outputSlotIndex) where TId : IEquatable<TId>
+    public virtual IAggregationEvaluator GetAggregationEvaluator(RowEvaluator expression, int outputSlotIndex)
     {
       throw new NotImplementedException();
     }

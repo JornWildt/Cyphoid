@@ -7,15 +7,15 @@ namespace Cyphoid.Core.SyntaxTree
   public record PropertyAccessNode(VariableDefinition Variable, IReadOnlyList<string> Properties) 
     : ExprNode(ValueKindType.Variable)
   {
-    public override RowEvaluator<TId> BuildEvaluator<TId>()
+    public override RowEvaluator BuildEvaluator()
     {
-      return (IRow<TId> r) =>
+      return (IRow r) =>
       {
         var v = r.Values[Variable.SlotIndex];
         if (v == null)
           return MixedValue.Null();
         var propertyName = Properties[0];
-        var node = v.Value.AsGraphNode<TId>();
+        var node = v.Value.AsGraphNode();
         if (node.Attributes.TryGetValue(propertyName, out var attributeValue))
           return MixedValue.FromObject(attributeValue);
         else
@@ -47,9 +47,9 @@ namespace Cyphoid.Core.SyntaxTree
   public record VariableExprNode(VariableDefinition Variable) 
     : ExprNode(ValueKindType.Variable)
   {
-    public override RowEvaluator<TId> BuildEvaluator<TId>()
+    public override RowEvaluator BuildEvaluator()
     {
-      return (IRow<TId> r) =>
+      return (IRow r) =>
       {
         var v = r.Values[Variable.SlotIndex];
         return v != null ? v.Value : MixedValue.Null();

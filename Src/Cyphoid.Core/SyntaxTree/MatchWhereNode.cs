@@ -10,13 +10,13 @@ namespace Cyphoid.Core.SyntaxTree
     ExprNode? WhereExpr,
     IRowColumn[] DeclaredColumns) : ClauseNode
   {
-    public override PipelinePlan<TId> BuildQueryPlan<TId>(
-      PipelinePlan<TId>? input)
+    public override PipelinePlan BuildQueryPlan(
+      PipelinePlan? input)
     {
-      var plan = MatchPattern.BuildPlan<TId>(input, Optional, DeclaredColumns);
+      var plan = MatchPattern.BuildPlan(input, Optional, DeclaredColumns);
       if (WhereExpr != null)
       {
-        plan = new FilterPlan<TId>(plan, WhereExpr);
+        plan = new FilterPlan(plan, WhereExpr);
       }
       return plan;
     }

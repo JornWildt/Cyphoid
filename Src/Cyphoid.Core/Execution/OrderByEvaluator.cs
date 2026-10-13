@@ -2,7 +2,7 @@
 {
   public enum SortDirection { Ascending, Descending}
 
-  public record OrderByEvaluator<TId>(
-    RowEvaluator<TId> ExpressionEvaluator,
-    SortDirection Direction) where TId : IEquatable<TId>;
+  public record OrderByEvaluator(
+    RowEvaluator ExpressionEvaluator,
+    SortDirection Direction);
 }

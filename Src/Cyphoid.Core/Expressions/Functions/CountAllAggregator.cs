@@ -3,24 +3,24 @@ using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.Expressions.Functions
 {
-  public record CountAllAggregator<TId>(
-    int SlotIndex) : IAggregationEvaluator<TId> where TId : IEquatable<TId>
+  public record CountAllAggregator(
+    int SlotIndex) : IAggregationEvaluator
   {
     int Count = 0;
 
-    void IAggregationEvaluator<TId>.Initialize()
+    void IAggregationEvaluator.Initialize()
     {
       Count = 0;
     }
 
 
-    void IAggregationEvaluator<TId>.Accumulate(IRow<TId> row)
+    void IAggregationEvaluator.Accumulate(IRow row)
     {
       Count++;
     }
 
 
-    void IAggregationEvaluator<TId>.WriteResult(IRow<TId> row)
+    void IAggregationEvaluator.WriteResult(IRow row)
     {
       row.Values[SlotIndex] = MixedValue.Int(Count);
     }

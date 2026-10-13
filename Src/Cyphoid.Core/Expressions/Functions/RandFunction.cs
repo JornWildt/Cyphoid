@@ -9,15 +9,15 @@ namespace Cyphoid.Core.Expressions.Functions
     ValueKindType IFunctionDefinition.ValueKind => ValueKindType.Variable;
 
 
-    RowEvaluator<TId> IFunctionDefinition.GetRowEvaluator<TId>(
-      IReadOnlyList<RowEvaluator<TId>> parameters)
+    RowEvaluator IFunctionDefinition.GetRowEvaluator(
+      IReadOnlyList<RowEvaluator> parameters)
     {
-      return (IRow<TId> row) => MixedValue.Double(Random.Shared.NextDouble());
+      return (IRow row) => MixedValue.Double(Random.Shared.NextDouble());
     }
 
 
-    IAggregationEvaluator<TId> IFunctionDefinition.GetAggregator<TId>(
-      IReadOnlyList<RowEvaluator<TId>> parameters,
+    IAggregationEvaluator IFunctionDefinition.GetAggregator(
+      IReadOnlyList<RowEvaluator> parameters,
       int outputSlotIndex)
     {
       throw new NotSupportedException("rand() is a scalar function.");

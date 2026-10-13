@@ -3,15 +3,15 @@ using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public class Row<TId> : IRow<TId> where TId : IEquatable<TId>
+  public class Row : IRow
   {
     #region IRow
 
-    IRowColumn[] IRow<TId>.Columns => Columns;
+    IRowColumn[] IRow.Columns => Columns;
 
-    MixedValue?[] IRow<TId>.Values => Values;
+    MixedValue?[] IRow.Values => Values;
 
-    IRow<TId> IRow<TId>.Clone(IReadOnlyList<IRowColumn> outputColumns)
+    IRow IRow.Clone(IReadOnlyList<IRowColumn> outputColumns)
     {
       return Clone(outputColumns);
     }
@@ -30,9 +30,9 @@ namespace Cyphoid.Core.ReferenceBackend
     }
 
 
-    protected Row<TId> Clone(IReadOnlyList<IRowColumn> outputColumns)
+    protected Row Clone(IReadOnlyList<IRowColumn> outputColumns)
     {
-      var clone = new Row<TId>(outputColumns);
+      var clone = new Row(outputColumns);
       for (int i=0; i<Values.Length; i++)
         clone.Values[i] = Values[i];
       return clone;

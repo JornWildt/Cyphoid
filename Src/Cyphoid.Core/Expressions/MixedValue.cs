@@ -123,8 +123,8 @@ namespace Cyphoid.Core.Expressions
     public string AsString() =>
         _kind == ValueType.String ? (string)_ref! : throw new RuntimeException($"Value is not a string. Got {_kind} {ToString()}.");
 
-    public IGraphNode<TId> AsGraphNode<TId>() where TId : IEquatable<TId> =>
-        _kind == ValueType.Node ? (IGraphNode<TId>)_ref! : throw new RuntimeException($"Value is not a node. Got {_kind} {ToString()}.");
+    public IGraphNode AsGraphNode() =>
+        _kind == ValueType.Node ? (IGraphNode)_ref! : throw new RuntimeException($"Value is not a node. Got {_kind} {ToString()}.");
 
     public object? AsObject() => Match<object?>(
       () => null,

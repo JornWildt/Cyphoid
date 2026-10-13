@@ -2,20 +2,73 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
-  public record GraphNode<TId>(
-    TId Id,
-    string Type,
-    IReadOnlyList<IGraphEdge<TId>> Edges,
-    Dictionary<string, object?> Attributes) : IGraphNode<TId> where TId : IEquatable<TId>
+  public class GraphNode<TId> : IGraphNode where TId : IEquatable<TId>
   {
-    bool IGraphNode.HasSameIdAs(IGraphNode? other)
+    public TId Id { get; private init; }
+
+    public string Type { get; private init; }
+
+    public IReadOnlyList<GraphEdge<TId>> Edges { get; private init; }
+
+    public Dictionary<string, object?> Attributes { get; private init; }
+
+
+    public GraphNode(
+      TId id,
+      string type,
+      IReadOnlyList<GraphEdge<TId>> edges,
+      Dictionary<string, object?> attributes)
     {
-      return (other is IGraphNode<TId> otherNode && Id.Equals(otherNode.Id));
+      Id = id;
+      Type = type;
+      Edges = edges;
+      Attributes = attributes;
     }
+
+
+    #region IGraphNode
+
+    string IGraphNode.Type => Type;
+
+    Dictionary<string, object?> IGraphNode.Attributes => Attributes;
+
+    IReadOnlyList<IGraphEdge> IGraphNode.Edges => (IReadOnlyList<IGraphEdge>)Edges;
+
+    bool IGraphNode.HasSameIdAs(IGraphNode? node)
+    {
+      if (node == null)
+        return false;
+
+      if (node is GraphNode<TId> n)
+        return Id.Equals(n.Id);
+
+      throw new NotImplementedException($"Cannot compare graph nodes of type {GetType()} with {node.GetType()}.");
+    }
+
+    #endregion
   }
 
 
-  public record GraphEdge<TId>(
-    string Type,
-    TId Target) : IGraphEdge<TId> where TId : IEquatable<TId>;
+  public class GraphEdge<TId> : IGraphEdge where TId : IEquatable<TId>
+  {
+    public string Type { get; private init; }
+    
+    public TId Target { get; private init;  }
+
+    public GraphEdge(string type, TId target)
+    {
+      Type = type;
+      Target = target;
+    }
+
+    string IGraphEdge.Type => Type;
+
+    bool IGraphEdge.RefersTo(IGraphNode node)
+    {
+      if (node is GraphNode<TId> n)
+        return Target.Equals(n.Id);
+
+      throw new NotImplementedException($"Cannot compare graph edges of type {GetType()} to nodes of type {node.GetType()}.");
+    }
+  }
 }

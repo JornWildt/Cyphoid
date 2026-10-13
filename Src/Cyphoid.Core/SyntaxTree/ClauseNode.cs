@@ -5,7 +5,7 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public abstract record ClauseNode() : AstNode
   {
-    public abstract PipelinePlan<TId> BuildQueryPlan<TId>(
-      PipelinePlan<TId>? input) where TId : IEquatable<TId>;
+    public abstract PipelinePlan BuildQueryPlan(
+      PipelinePlan? input);
   }
 }

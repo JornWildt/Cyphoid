@@ -4,16 +4,16 @@ using System.Text;
 
 namespace Cyphoid.Core.Planning
 {
-  public record ExpandIntoPlan<TId>(
-    PipelinePlan<TId> Input,
+  public record ExpandIntoPlan(
+    PipelinePlan Input,
     bool Optional,
     VariableReference? Source,
     RelationshipPatternNode? Relationship,
     VariableReference Destination,
     string? DestinationLabel,
-    PropertyMapNode? DestinationPropertyMap) : PipelinePlan<TId> where TId : IEquatable<TId>
+    PropertyMapNode? DestinationPropertyMap) : PipelinePlan
   {
-    public override IOperator<TId> BuildExecutionPlan(IOperatorFactory<TId> factory)
+    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {
       // FIXME: No need to calculate this all the time
       var destinationFilter = BuildPropertyFilter(DestinationPropertyMap);
