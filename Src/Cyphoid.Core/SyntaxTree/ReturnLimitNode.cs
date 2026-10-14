@@ -7,11 +7,16 @@ namespace Cyphoid.Core.SyntaxTree
     bool Distinct,
     IReadOnlyList<ProjectionNode> Projections, 
     OrderByNode? OrderBy,
-    int? Limit) : AstNode
+    int? Limit,
+    IReadOnlyList<ProjectionNode>? OrderingProjections = null) : AstNode
   {
     public PipelinePlan BuildProjectionPlan(PipelinePlan input)
     {
-      input = new ProjectionPlan(input, Projections);
+      var hasHiddenProjections = OrderingProjections is { Count: > 0 };
+
+      input = new ProjectionPlan(input, hasHiddenProjections
+        ? Projections.Concat(OrderingProjections!).ToArray()
+        : Projections);
 
       if (Distinct)
         input = new DistinctPlan(input, Projections);
@@ -21,6 +26,11 @@ namespace Cyphoid.Core.SyntaxTree
 
       if (Limit != null)
         input = new LimitPlan(input, Limit.Value);
+
+      if (hasHiddenProjections)
+        input = new ProjectionPlan(input, Projections
+          .Select(p => new ProjectionNode(new VariableExprNode(p.Variable), p.Variable))
+          .ToArray());
 
       return input;
     }

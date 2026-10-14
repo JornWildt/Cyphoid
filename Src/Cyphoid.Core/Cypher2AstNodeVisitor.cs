@@ -22,6 +22,8 @@ namespace Cyphoid.Core
 
     Dictionary<string, VariableDefinition> VariableDefinitions = new Dictionary<string, VariableDefinition>();
     Dictionary<string, VariableDefinition> OutputVariableDefinitions = new Dictionary<string, VariableDefinition>();
+    Dictionary<string, VariableDefinition>? OrderingInputVariables;
+    List<ProjectionNode>? OrderingProjections;
 
 
     #region Visitors
@@ -111,11 +113,27 @@ namespace Cyphoid.Core
     {
       var @return = Visit<ReturnNode>(context.returnClause());
 
+      var inputVariables = VariableDefinitions;
       TransferOutputVariablesToCurrentVariables();
 
-      var ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
+      var hiddenProjections = new List<ProjectionNode>();
+      OrderByNode? ordering;
+      try
+      {
+        if (!@return.Distinct && !@return.Projections.Projections.Any(p => p.Expr.ValueKind == ValueKindType.Aggregate))
+        {
+          OrderingInputVariables = inputVariables;
+          OrderingProjections = hiddenProjections;
+        }
+        ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
+      }
+      finally
+      {
+        OrderingInputVariables = null;
+        OrderingProjections = null;
+      }
       var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
-      return new ReturnLimitNode(@return.Distinct, @return.Projections.Projections, ordering, limit?.Limit);
+      return new ReturnLimitNode(@return.Distinct, @return.Projections.Projections, ordering, limit?.Limit, hiddenProjections);
     }
 
 
@@ -632,7 +650,13 @@ namespace Cyphoid.Core
 
       if (!VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
       {
-        throw new ParseException($"Undefined variable '{variableName}'.");
+        if (OrderingInputVariables == null || !OrderingInputVariables.TryGetValue(variableName, out var inputVariable))
+          throw new ParseException($"Undefined variable '{variableName}'.");
+
+        // Preserve only input variables referenced by ORDER BY, after the visible output slots.
+        variableDefinition = inputVariable with { SlotIndex = VariableDefinitions.Count };
+        VariableDefinitions.Add(variableName, variableDefinition);
+        OrderingProjections!.Add(new ProjectionNode(new VariableExprNode(inputVariable), variableDefinition));
       }
 
       return variableDefinition;

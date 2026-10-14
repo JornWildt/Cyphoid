@@ -59,6 +59,8 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (n) RETURN n.name ORDER BY name", "name", 15, true)]
     [TestCase("MATCH (n) RETURN n.name ORDER BY name ASC", "name", 15, true)]
     [TestCase("MATCH (n) RETURN n.name ORDER BY name DESC", "name", 15, false)]
+    [TestCase("MATCH (c:Country) RETURN c.name ORDER BY name", "name", 5, true)]
+    [TestCase("MATCH (c:Country) RETURN c.name ORDER BY c.name", "name", 5, true)]
     public async Task ItCanOrderBy(string input, string columnName, int rowCount, bool ascending)
     {
       // Act
@@ -111,6 +113,28 @@ namespace Cyphoid.Tests
         var json = JsonConvert.SerializeObject(result.Rows);
         Assert.That(json, Is.EqualTo(expectedJson));
       }
+    }
+
+    [TestCase("MATCH (c:country) RETURN c.name AS country ORDER BY c.name DESC LIMIT 2", "country", "Tyskland", "Sverige")]
+    [TestCase("MATCH (c:country) RETURN c.name AS country ORDER BY country, c.name LIMIT 2", "country", "Danmark", "England")]
+    [TestCase("MATCH (c:country) RETURN c.name AS c ORDER BY c DESC LIMIT 2", "c", "Tyskland", "Sverige")]
+    [TestCase("MATCH (c:country) RETURN 1 AS value ORDER BY c.name LIMIT 2", "value", 1L, 1L)]
+    public async Task OrderingPreservesOnlyReturnedColumns(string input, string column, object first, object second)
+    {
+      var result = await ExecuteQuery(input);
+
+      Assert.That(result.Print, Is.EqualTo(input));
+      Assert.That(result.Rows.Select(r => r[column]), Is.EqualTo(new[] { first, second }));
+      Assert.That(result.Rows.All(r => r.Keys.SequenceEqual(new[] { column })), Is.True);
+    }
+
+    [TestCase("MATCH (c:country) RETURN DISTINCT c.name ORDER BY c.name")]
+    [TestCase("MATCH (c:country) RETURN COUNT(*) AS count ORDER BY c.name")]
+    [TestCase("MATCH (c:country) RETURN c.name ORDER BY missing.name")]
+    public void OrderingRejectsVariablesOutsideItsScope(string input)
+    {
+      Cyphoid.Core.ICypherParser parser = new Cyphoid.Core.CypherAstParser();
+      Assert.Throws<Cyphoid.Core.Exceptions.ParseException>(() => parser.ParseQuery(input));
     }
   }
 }
