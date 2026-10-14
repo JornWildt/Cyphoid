@@ -30,8 +30,6 @@ namespace Cyphoid.Core.Execution
 
   public interface IOperatorFactory
   {
-    IRow NewRow(IRowColumn[] matchColumns);
-
     IOperator BuildEmptyResult();
 
     IOperator BuildNodeScan(

@@ -1,6 +1,5 @@
 ﻿using Cyphoid.Core;
 using Cyphoid.Core.Execution;
-using Cyphoid.Core.ReferenceBackend;
 using Cyphoid.Tests.TestBackend;
 
 namespace Cyphoid.Tests
@@ -12,6 +11,25 @@ namespace Cyphoid.Tests
 
     protected async Task<(string Print, IReadOnlyList<IDictionary<string, object?>> Rows)> ExecuteQuery(string input)
     {
+      var result = await RunQuery(input);
+
+      var output = result.Rows
+        .Select(r => r.Values.Select((v, i) => (v, i)).ToDictionary(v => r.Columns[v.i].Name, v => v.v?.AsObject()))
+        .ToArray();
+
+      return (result.Print, output);
+    }
+
+
+    protected async Task<List<IRow>> BasicExecuteQuery(string input)
+    {
+      var result = await RunQuery(input);
+      return result.Rows;
+    }
+
+
+    async Task<(string Print, List<IRow> Rows)> RunQuery(string input)
+    {
       ICypherParser parser = new CypherAstParser();
       IOperatorFactory factory = new TestOperatorFactory(Graph);
 
@@ -20,15 +38,11 @@ namespace Cyphoid.Tests
 
       var plan = queryNode.BuildQueryPlan();
       var execution = plan.BuildExecutionPlan(factory);
-      var context = new QueryContext();
+      var context = new TestQueryContext();
 
       var result = await execution.ExecuteAsync(context).ToListAsync();
 
-      var output = result
-        .Select(r => r.Values.Select((v,i) => (v,i)).ToDictionary(v => r.Columns[v.i].Name, v => v.v?.AsObject()))
-        .ToArray();
-
-      return (prettyPrint, output);
+      return (prettyPrint, result);
     }
   }
 }

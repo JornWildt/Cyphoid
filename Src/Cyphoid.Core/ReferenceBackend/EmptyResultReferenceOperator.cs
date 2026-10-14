@@ -11,7 +11,7 @@ namespace Cyphoid.Core.ReferenceBackend
     
     protected virtual async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context)
     {
-      yield return new Row([]);
+      yield return context.RowFactory.EmptyRow([]);
     }
 
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

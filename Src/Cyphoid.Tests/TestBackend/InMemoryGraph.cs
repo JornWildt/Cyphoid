@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Cyphoid.Tests.TestBackend
+﻿namespace Cyphoid.Tests.TestBackend
 {
   using System;
   using System.Collections.Generic;

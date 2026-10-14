@@ -27,7 +27,7 @@ namespace Cyphoid.Core.ReferenceBackend
     {
       await foreach (var row in Input.ExecuteAsync(context))
       {
-        IRow newRow = new Row(Columns);
+        IRow newRow = context.RowFactory.EmptyRow(row, Columns);
 
         foreach (var p in Projections)
         {

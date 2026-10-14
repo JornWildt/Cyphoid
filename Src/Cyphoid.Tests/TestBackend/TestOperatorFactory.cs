@@ -16,12 +16,6 @@ namespace Cyphoid.Tests.TestBackend
     }
 
 
-    protected override IRow NewRow(IRowColumn[] matchColumns)
-    {
-      return new Row(matchColumns);
-    }
-
-
     protected override IOperator BuildNodeScan(
       VariableDefinition variable, 
       string? label, 

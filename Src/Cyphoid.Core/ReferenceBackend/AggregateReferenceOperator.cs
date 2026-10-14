@@ -22,7 +22,6 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator Input,
     IReadOnlyList<GroupingEvaluator> Groupings,
     IReadOnlyList<IAggregationEvaluator> Aggregators,
-    Func<IRowColumn[], IRow> RowFactory,
     IRowColumn[] OutputColumns) : IOperator
   {
     async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
@@ -46,7 +45,7 @@ namespace Cyphoid.Core.ReferenceBackend
           }
         }
 
-        var groupRow = RowFactory(OutputColumns);
+        var groupRow = context.RowFactory.EmptyRow(OutputColumns);
         foreach (var a in Aggregators)
         {
           a.WriteResult(groupRow);

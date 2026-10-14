@@ -6,9 +6,6 @@ namespace Cyphoid.Core.ReferenceBackend
   {
     #region IOperatorFactory
 
-    IRow IOperatorFactory.NewRow(IRowColumn[] matchColumns)
-      => NewRow(matchColumns);
-
     IOperator IOperatorFactory.BuildEmptyResult()
       => BuildEmptyResult();
 
@@ -74,7 +71,7 @@ namespace Cyphoid.Core.ReferenceBackend
 
 
     protected virtual IOperator BuildAggregateProjection(IOperator input, List<GroupingEvaluator> groupings, List<IAggregationEvaluator> aggregators, IRowColumn[] outputColumns)
-      => new AggregateReferenceOperator(input, groupings, aggregators, NewRow, outputColumns);
+      => new AggregateReferenceOperator(input, groupings, aggregators, outputColumns);
 
 
     protected virtual IOperator BuildOrderBy(IOperator input, IReadOnlyList<OrderByEvaluator> ordering)
@@ -84,8 +81,6 @@ namespace Cyphoid.Core.ReferenceBackend
 
 
     #region Backend implementation specific
-
-    protected abstract IRow NewRow(IRowColumn[] matchColumns);
 
     protected abstract IOperator BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, IRowColumn[] matchColumns);
 

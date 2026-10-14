@@ -14,6 +14,7 @@ namespace Cyphoid.Core.Execution
   {
     IRowColumn[] Columns { get; }
     MixedValue?[] Values { get; }
-    IRow Clone(IReadOnlyList<IRowColumn> outputColumns);
+    IRow CopyAndExpand(IReadOnlyList<IRowColumn> outputColumns);
+    IRow MergeWith(IRow other);
   }
 }

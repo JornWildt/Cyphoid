@@ -45,13 +45,16 @@ namespace Cyphoid.Tests.TestBackend.Operators
           (PropertyFilter == null || PropertyMatch(PropertyFilter, node.Value)) &&
           hasExpectedRelationship)
         {
-          IRow row = new Row(MatchColumns);
+          IRow row = context.RowFactory.EmptyRow(MatchColumns);
           var newNode = new GraphNode<string>(
             node.Value.Id,
             node.Value.Labels.First(),
             node.Value.Outgoing.Select(o => new GraphEdge<string>(o.Type, o.To.Id)).ToArray(),
             node.Value.Properties.ToDictionary(a => a.Key, a => a.Value));
           row.Values[Variable.SlotIndex] = MixedValue.GraphNode(newNode);
+
+          // Register node IDs for this row (used to verify passing of metadata)
+          ((TestRow)row).NodeIdsForRow.Add(node.Value.Id);
 
           yield return row;
         }
