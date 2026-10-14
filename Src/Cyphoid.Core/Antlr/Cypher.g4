@@ -6,7 +6,7 @@ query
 
 repeatableClause
   : matchWhereClause
-  | withClause
+  | withLimitClause
   ;
 
 matchWhereClause
@@ -20,6 +20,10 @@ matchClause
 
 whereClause
   : WHERE expression
+  ;
+
+withLimitClause
+  : withClause orderingClause? limitClause?
   ;
 
 withClause

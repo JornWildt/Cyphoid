@@ -41,6 +41,12 @@ namespace Cyphoid.Tests
       @"[{""name"":""Norge""}]")]
     [TestCase("WITH 'Norge' AS cn MATCH (c) WHERE c.name = cn WITH c AS x RETURN x.name",
       @"[{""name"":""Norge""}]")]
+    [TestCase("MATCH (c:country) WITH c.name AS Country RETURN Country",
+      @"[{""Country"":""Danmark""},{""Country"":""Norge""}]")]
+    [TestCase("MATCH (c:country) WITH c.name AS Country ORDER BY Country LIMIT 1 RETURN Country",
+      @"[{""Country"":""Danmark""}]")]
+    [TestCase("MATCH (c:country) WITH c.name AS Country ORDER BY Country DESC LIMIT 1 RETURN Country",
+      @"[{""Country"":""Norge""}]")]
     public async Task ItCanUseWith(string input, string expectedOutputJson)
     {
       // Act

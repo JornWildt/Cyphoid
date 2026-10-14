@@ -96,6 +96,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitWhereClause([NotNull] CypherParser.WhereClauseContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.withLimitClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterWithLimitClause([NotNull] CypherParser.WithLimitClauseContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.withLimitClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitWithLimitClause([NotNull] CypherParser.WithLimitClauseContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.withClause"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

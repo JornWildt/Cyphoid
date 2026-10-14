@@ -43,9 +43,9 @@ namespace Cyphoid.Core
 
     public override AstNode VisitRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context)
     {
-      if (context.withClause() != null)
+      if (context.withLimitClause() != null)
       {
-        return Visit<WithNode>(context.withClause());
+        return Visit<WithLimitNode>(context.withLimitClause());
       }
       else if (context.matchWhereClause() != null)
       {
@@ -53,18 +53,6 @@ namespace Cyphoid.Core
       }
       else
         throw new ParseException("Unhandled repeatable clause state.");
-    }
-
-
-    public override AstNode VisitWithClause([NotNull] CypherParser.WithClauseContext context)
-    {
-      // Projections dependents on current variable declarations and generates a new set of output variables
-      var projections = Visit<ProjectionsNode>(context.projectionList());
-
-      // Once the projections have been setup, the output variables becomes the new current variables.
-      TransferOutputVariablesToCurrentVariables();
-
-      return new WithNode(projections.Projections);
     }
 
     
@@ -93,6 +81,29 @@ namespace Cyphoid.Core
     {
       var expr = Visit<ExprNode>(context.expression());
       return new WhereNode(expr);
+    }
+
+
+    public override AstNode VisitWithLimitClause([NotNull] CypherParser.WithLimitClauseContext context)
+    {
+      var with = Visit<WithNode>(context.withClause());
+
+      var ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
+      var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
+
+      return new WithLimitNode(with.Projections, ordering, limit?.Limit);
+    }
+
+
+    public override AstNode VisitWithClause([NotNull] CypherParser.WithClauseContext context)
+    {
+      // Projections dependents on current variable declarations and generates a new set of output variables
+      var projections = Visit<ProjectionsNode>(context.projectionList());
+
+      // Once the projections have been setup, the output variables becomes the new current variables.
+      TransferOutputVariablesToCurrentVariables();
+
+      return new WithNode(projections.Projections);
     }
 
 

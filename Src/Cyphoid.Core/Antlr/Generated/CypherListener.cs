@@ -81,6 +81,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitWhereClause([NotNull] CypherParser.WhereClauseContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.withLimitClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterWithLimitClause([NotNull] CypherParser.WithLimitClauseContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.withLimitClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitWithLimitClause([NotNull] CypherParser.WithLimitClauseContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.withClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

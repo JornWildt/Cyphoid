@@ -62,6 +62,12 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitWhereClause([NotNull] CypherParser.WhereClauseContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.withLimitClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitWithLimitClause([NotNull] CypherParser.WithLimitClauseContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.withClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
