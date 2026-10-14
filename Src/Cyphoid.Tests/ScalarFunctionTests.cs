@@ -72,6 +72,10 @@ namespace Cyphoid.Tests
 
     [TestCase("MATCH (o:person) RETURN type(o) AS value", "person")]
     [TestCase("MATCH (o:city) RETURN type(o) AS value", "city")]
+    [TestCase("MATCH (o:person) RETURN labels(o) AS value", "person")]
+    [TestCase("MATCH (o:city) RETURN LABELS(o) AS value", "city")]
+    [TestCase("MATCH (o:person) WITH labels(o) AS value RETURN value", "person")]
+    [TestCase("MATCH (o:person) WHERE labels(o) = 'person' RETURN labels(o) AS value", "person")]
     public async Task ItCanGetTypeOfNode(string input, object expectedValue)
     {
       // Act
@@ -82,6 +86,27 @@ namespace Cyphoid.Tests
 
       Assert.That(result.Rows.Count, Is.EqualTo(1));
       Assert.That(result.Rows[0]["value"], Is.EqualTo(MixedValue.FromObject(expectedValue)));
+    }
+
+    [TestCase("MATCH (o:person) RETURN labels(null) AS value")]
+    [TestCase("MATCH (o:person) RETURN labels(1) AS value")]
+    public async Task LabelsReturnsNullForNonNodes(string input)
+    {
+      var result = await ExecuteQuery(input);
+      Assert.That(result.Rows.Count, Is.EqualTo(1));
+      Assert.That(result.Rows[0]["value"], Is.Null);
+    }
+
+    [Test]
+    public async Task LabelsAndTypeReturnTheSameString()
+    {
+      var result = await ExecuteQuery("MATCH (o) RETURN labels(o) AS label, type(o) AS type");
+      Assert.That(result.Rows.Count, Is.EqualTo(2));
+      foreach (var row in result.Rows)
+      {
+        Assert.That(row["label"], Is.TypeOf<string>());
+        Assert.That(row["label"], Is.EqualTo(row["type"]));
+      }
     }
   }
 }

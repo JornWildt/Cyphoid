@@ -12,6 +12,14 @@ Cyphoid expects developers to implement various operators that interact with the
 - In-memory implementation of query plans for any backend.
 
 ## Example usage
+### Node labels
+
+`labels(node)` returns the node's single `IGraphNode.Type` as a string. It is an alias for Cyphoid's `type(node)`; both return null for null or non-node inputs. This differs from standard Cypher, where `labels(node)` returns a list and `type()` reads a relationship type. Cyphoid does not currently bind relationship values to runtime rows.
+
+```cypher
+MATCH (s:person) RETURN labels(s) AS label
+```
+
 
 
 ```
