@@ -136,7 +136,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
               if ((DestinationLabel == null || targetNode.Labels.Contains(DestinationLabel)) &&
                 (DestinationPropertyFilter == null || PropertyMatch(DestinationPropertyFilter, targetNode)))
               {
-                var newRow = row.CopyAndExpand(row.Columns);
+                var newRow = row.CopyAndExpand(MatchColumns);
                 var newNode = new GraphNode<string>(
                   targetId,
                   targetNode.Labels.First(),

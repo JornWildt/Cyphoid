@@ -13,6 +13,9 @@ namespace Cyphoid.Core.SyntaxTree
     public override PipelinePlan BuildQueryPlan(
       PipelinePlan? input)
     {
+      if (Optional)
+        return new OptionalMatchPlan(input ?? new EmptyPlan(), MatchPattern, WhereExpr, DeclaredColumns);
+
       var plan = MatchPattern.BuildPlan(input, Optional, DeclaredColumns);
       if (WhereExpr != null)
       {
