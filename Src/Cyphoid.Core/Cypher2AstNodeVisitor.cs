@@ -376,7 +376,7 @@ namespace Cyphoid.Core
       if (left == null)
         return right;
 
-      var operatorText = context.comparisonOperator().GetText().ToUpper();
+      var operatorText = context.comparisonOperator().GetText().ToUpperInvariant();
       var op = operatorText switch
       {
         "=" => BinaryOperatorType.EQ,
@@ -386,8 +386,8 @@ namespace Cyphoid.Core
         "<" => BinaryOperatorType.LT,
         ">" => BinaryOperatorType.GT,
         "CONTAINS" => BinaryOperatorType.CONTAINS,
-        "STARTS WITH" => BinaryOperatorType.STARTS_WITH,
-        "ENDS WITH" => BinaryOperatorType.ENDS_WITH,
+        "STARTSWITH" => BinaryOperatorType.STARTS_WITH,
+        "ENDSWITH" => BinaryOperatorType.ENDS_WITH,
         _ => throw new ParseException($"Unhandled operator '{operatorText}'.")
       };
 

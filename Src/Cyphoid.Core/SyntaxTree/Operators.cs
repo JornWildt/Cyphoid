@@ -77,13 +77,26 @@ namespace Cyphoid.Core.SyntaxTree
         BinaryOperatorType.Mult => (IRow r) => leftEvaluator(r) * rightEvaluator(r),
         BinaryOperatorType.Div => (IRow r) => leftEvaluator(r) / rightEvaluator(r),
         BinaryOperatorType.Mod => (IRow r) => leftEvaluator(r) % rightEvaluator(r),
-        BinaryOperatorType.CONTAINS => throw new RuntimeException("Unsupported operator CONTAINS."),
-        BinaryOperatorType.STARTS_WITH => throw new RuntimeException("Unsupported operator STARTS WITH."),
-        BinaryOperatorType.ENDS_WITH => throw new RuntimeException("Unsupported operator ENDS WITH.")
+        BinaryOperatorType.CONTAINS => BuildStringEvaluator(leftEvaluator, rightEvaluator, (left, right) => left.Contains(right, StringComparison.Ordinal)),
+        BinaryOperatorType.STARTS_WITH => BuildStringEvaluator(leftEvaluator, rightEvaluator, (left, right) => left.StartsWith(right, StringComparison.Ordinal)),
+        BinaryOperatorType.ENDS_WITH => BuildStringEvaluator(leftEvaluator, rightEvaluator, (left, right) => left.EndsWith(right, StringComparison.Ordinal))
       };
 #pragma warning restore CS8524
     }
 
+
+    private static RowEvaluator BuildStringEvaluator(
+      RowEvaluator leftEvaluator, RowEvaluator rightEvaluator, Func<string, string, bool> matches)
+    {
+      return (IRow row) =>
+      {
+        var left = leftEvaluator(row);
+        var right = rightEvaluator(row);
+        return left.TryGetString(out var text) && right.TryGetString(out var pattern)
+          ? MixedValue.Bool(matches(text, pattern))
+          : MixedValue.Null();
+      };
+    }
 
     public override void PrettyPrint(StringBuilder sb)
     {
