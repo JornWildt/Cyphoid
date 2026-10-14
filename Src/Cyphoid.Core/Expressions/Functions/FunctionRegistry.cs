@@ -14,6 +14,7 @@ namespace Cyphoid.Core.Expressions.Functions
       ["Avg"] = new AvgFunction(),
       ["Type"] = new TypeFunction(),
       ["Rand"] = new RandFunction(),
+      ["Id"] = new IdFunction(),
     };
 
 

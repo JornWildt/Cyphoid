@@ -2,6 +2,8 @@
 
 namespace Cyphoid.Core.ReferenceBackend
 {
+  using Cyphoid.Core.Expressions;
+
   public class GraphNode<TId> : IGraphNode where TId : IEquatable<TId>
   {
     public TId Id { get; private init; }
@@ -27,6 +29,8 @@ namespace Cyphoid.Core.ReferenceBackend
 
 
     #region IGraphNode
+
+    public virtual MixedValue GetId() => MixedValue.FromObject(Id);
 
     string IGraphNode.Type => Type;
 
