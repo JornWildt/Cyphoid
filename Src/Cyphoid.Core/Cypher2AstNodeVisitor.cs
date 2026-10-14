@@ -368,6 +368,9 @@ namespace Cyphoid.Core
     public override AstNode VisitComparisonExpression([NotNull] CypherParser.ComparisonExpressionContext context)
     {
       var left = context.comparisonExpression() != null ? Visit<ExprNode>(context.comparisonExpression()) : null;
+      if (context.IS() != null)
+        return new NullCheckNode(left!, context.NOT() != null);
+
       var right = Visit<ExprNode>(context.additiveExpression());
 
       if (left == null)

@@ -136,6 +136,7 @@ notExpression
 comparisonExpression
   : additiveExpression 
   | comparisonExpression comparisonOperator additiveExpression
+  | comparisonExpression IS NOT? NULL
   ;
 
 comparisonOperator
@@ -244,6 +245,7 @@ AS         : [Aa][Ss];
 AND        : [Aa][Nn][Dd];
 OR         : [Oo][Rr];
 NOT        : [Nn][Oo][Tt];
+IS         : [Ii][Ss];
 CONTAINS   : [Cc][Oo][Nn][Tt][Aa][Ii][Nn][Ss];
 STARTS     : [Ss][Tt][Aa][Rr][Tt][Ss];
 ENDS       : [Ee][Nn][Dd][Ss];
