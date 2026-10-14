@@ -55,7 +55,6 @@ namespace Cyphoid.Core.ReferenceBackend
 
         yield return groupRow;
       }
-
     }
   }
 }
