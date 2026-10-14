@@ -9,7 +9,7 @@
 
     <!-- NuGet package metadata -->
     <PackageId>Cyphoid</PackageId>
-    <Version>0.11.0</Version>
+    <Version>0.12.0</Version>
     <Authors>Jørn Wildt</Authors>
     <Description>A parser for the Cypher graph query language. It includes a simple implementation of the query language.</Description>
     <PackageTags>parser cypher query language</PackageTags>
@@ -25,11 +25,13 @@
 
   <PropertyGroup>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>0.10.0 - Fix optional matches in expand-into reference operator. 0.11.0 - Pass relationship label to nodescan operator.</PackageReleaseNotes>
+    <PackageReleaseNotes>0.12.0: Added rand(), id(), labels(), IS NULL / IS NOT NULL, and CONTAINS / STARTS WITH / ENDS WITH. Added ORDER BY and LIMIT for WITH and support for sorting by variables omitted from RETURN. Fixed OPTIONAL MATCH and added row metadata support. Breaking backend API changes: removed generic ID parameters from execution interfaces and added IGraphNode.GetId().
+Full changelog: https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../CHANGES.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   
   <ItemGroup>

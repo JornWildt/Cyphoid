@@ -4,6 +4,8 @@ This project implements a Cypher parser that can be used in C# to query any sort
 
 Cyphoid expects developers to implement various operators that interact with their own backend.
 
+See the [changelog](https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md) for version history and backend API changes.
+
 
 ## Features
 

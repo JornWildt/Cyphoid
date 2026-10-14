@@ -1,0 +1,103 @@
+# Changelog
+
+Changes are listed by version, newest first. Historical dates follow version updates in Git, rather than verified package publication dates. Version 0.10.0 appears in package release notes but has no separate version commit.
+
+## 0.12.0 — 2026-10-14
+
+### Added
+
+- `rand()` scalar function returning a random double in the range [0, 1).
+- `id(node)` scalar function returning a backend-defined identifier. `id(null)` returns null.
+- `labels(node)` as a string-returning alias for Cyphoid's `type(node)`. Unlike standard Cypher, it returns the node's single type rather than a list.
+- `IS NULL` and `IS NOT NULL` predicates.
+- Case-sensitive, literal `CONTAINS`, `STARTS WITH`, and `ENDS WITH` string operators. Null or non-string operands return null.
+- `ORDER BY` and `LIMIT` on `WITH` clauses.
+- Support for backend-specific row metadata, preserving and merging it through row operations. Aggregated results do not collect source-row metadata.
+
+### Fixed
+
+- `ORDER BY` can reference input variables omitted from an ordinary `RETURN`, such as `RETURN c.name ORDER BY c.name`. Internal sorting variables are removed from the output. DISTINCT and aggregate projections retain their projected scope.
+- Recognition of the two-token `STARTS WITH` and `ENDS WITH` operators in AST construction.
+- `OPTIONAL MATCH` now matches the complete clause, including its WHERE predicate, for each incoming row. When no complete match exists, it emits one row with newly introduced variables null and preserves existing bindings. Unrelated candidates and partial matches no longer leak into the result.
+- Incoming expansion in the test backend uses the complete output column layout.
+
+### Backend API changes
+
+- Removed generic ID parameters from execution interfaces, plans, and operators. `GraphNode<TId>` and `GraphEdge<TId>` retain their generic identifiers in the reference backend.
+- Added `MixedValue GetId()` to the non-generic `IGraphNode` interface. Custom node implementations must provide it. `GraphNode<TId>` uses `MixedValue.FromObject(Id)` and permits overriding the conversion for custom identifier types.
+- Added a clause-level optional-match plan and reference operator. Scan-based optional patterns execute against each incoming row.
+
+## 0.11.0 — 2026-10-13
+
+- Pass the immediate outgoing relationship type to node scans, allowing backends to exclude nodes without a relationship of that type.
+- Extended the node-scan factory contract with a target relationship label.
+
+## 0.10.0 — Historical package release notes
+
+- Recorded a change to optional matching in the ExpandInto reference operator. The complete clause-level correction is included in 0.12.0.
+
+## 0.9.0 — 2026-09-16
+
+- Added initial `OPTIONAL MATCH` support.
+- Fixed the output column count used by ExpandAll.
+- Updated the target framework from .NET 8 to .NET 10.
+- Updated runtime and test dependencies.
+
+## 0.8.0 — 2026-04-08
+
+- Added undirected relationship patterns, including `-[]-`.
+- Fixed a null-pattern handling problem.
+
+## 0.7.2 — 2026-04-07
+
+- Allowed chained comparison expressions such as `a = b = c`.
+- Added the node `type()` scalar function after the preceding version update.
+
+## 0.7.1 — 2026-04-06
+
+- Recorded the unary-operator fixes in an updated package version and release notes.
+
+## 0.7.0 — 2026-04-06
+
+- Added `SUM`, `MIN`, `MAX`, `AVG`, and `COUNT(expression)` aggregation support; aggregate functions skip null values.
+- Added `DISTINCT` projection support.
+- Added arithmetic operators `+`, `-`, `*`, `/`, and `%`, and ordered comparisons `<`, `>`, `<=`, and `>=`.
+- Improved decimal-number handling and fixed unary operators.
+- Introduced dedicated parse and runtime exceptions and extended the function-definition framework.
+- Converted pipeline operator definitions to records.
+
+## 0.6.0 — 2026-03-26
+
+- Added `WITH` projections, implicit grouping, and `COUNT(*)` aggregation.
+- Implemented runtime `ORDER BY`.
+- Unified operator and projection output as positional rows containing `MixedValue` values and column metadata.
+- Added backend implementation and architecture documentation.
+
+## 0.5.0 — 2026-03-22
+
+- Fixed relationship-direction checks in ExpandInto.
+- Made edge target identifiers generic, matching node identifier types.
+
+## 0.4.0 — 2026-03-22
+
+- Added multiple MATCH clauses and bound/unbound variable tracking.
+- Added ExpandInto for checking relationships between already-bound nodes.
+- Introduced generic graph-node identifiers and node types.
+- Improved query pretty-printing.
+
+## 0.3.0 — 2026-03-19
+
+- Added graph nodes as expression values.
+- Improved null handling.
+
+## 0.2.0 — 2026-03-19
+
+- Added a reference backend implementation and async sequence support.
+- Added NuGet packaging with README and symbol packages.
+
+## 0.1.0 — 2026-03-19
+
+- Initial Cypher parser, AST, pretty-printer, and logical planning implementation.
+- Added node scans and relationship expansion with label and property constraints.
+- Added WHERE filtering, RETURN projections, property access, and the `IN` operator.
+- Introduced `MixedValue` and backend operator contracts.
