@@ -41,7 +41,6 @@ namespace Cyphoid.Core.Execution
 
     IOperator BuildExpandAll(
       IOperator input,
-      bool optional,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
       string? relationLabel,
@@ -52,7 +51,6 @@ namespace Cyphoid.Core.Execution
 
     IOperator BuildExpandInto(
       IOperator input,
-      bool optional,
       VariableDefinition? sourceVariable,
       ExpandDirectionType? direction,
       string? relationLabel,

@@ -16,7 +16,7 @@ namespace Cyphoid.Core.SyntaxTree
       if (Optional)
         return new OptionalMatchPlan(input ?? new EmptyPlan(), MatchPattern, WhereExpr, DeclaredColumns);
 
-      var plan = MatchPattern.BuildPlan(input, Optional, DeclaredColumns);
+      var plan = MatchPattern.BuildPlan(input, DeclaredColumns);
       if (WhereExpr != null)
       {
         plan = new FilterPlan(plan, WhereExpr);

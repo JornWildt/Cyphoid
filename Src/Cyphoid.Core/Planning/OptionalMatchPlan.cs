@@ -13,7 +13,7 @@ namespace Cyphoid.Core.Planning
       return new OptionalMatchReferenceOperator(Input.BuildExecutionPlan(factory), row =>
       {
         // Match the whole clause normally; only the enclosing operator supplies null fallback rows.
-        var plan = Pattern.BuildPlan(new InputRowPlan(row), false, Columns);
+        var plan = Pattern.BuildPlan(new InputRowPlan(row), Columns);
         if (Predicate != null)
           plan = new FilterPlan(plan, Predicate);
         return plan.BuildExecutionPlan(factory);

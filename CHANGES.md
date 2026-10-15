@@ -2,6 +2,13 @@
 
 Changes are listed by version, newest first. Historical dates follow version updates in Git, rather than verified package publication dates. Version 0.10.0 appears in package release notes but has no separate version commit.
 
+## 0.13.0 — 2026-10-14
+
+- Removed obsolete optional flags from expansion plans and operators. Expansion always checks relationships and emits only matches; clause-level OPTIONAL MATCH supplies null fallback rows.
+- Removed per-expansion optional fallback and match tracking from the test backend.
+- Breaking backend API change: removed the `bool optional` parameter from `IOperatorFactory.BuildExpandAll`, `IOperatorFactory.BuildExpandInto`, and the corresponding `ReferenceOperatorFactory` methods. Backend overrides and calls must remove this parameter and leave optional fallback to the enclosing clause operator.
+- Removed the optional parameter from `PatternNode.BuildPlan` and the expansion plan and reference operator constructors.
+
 ## 0.12.0 — 2026-10-14
 
 ### Added

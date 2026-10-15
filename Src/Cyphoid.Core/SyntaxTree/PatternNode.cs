@@ -8,7 +8,6 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public PipelinePlan BuildPlan(
       PipelinePlan? input,
-      bool optional,
       IRowColumn[] matchColumns)
     {
       // FIXME: Only using first part so far
@@ -44,7 +43,6 @@ namespace Cyphoid.Core.SyntaxTree
 
         plan = new ExpandIntoPlan(
           input,
-          optional,
           null,
           null,
           initialNodePattern.Variable,
@@ -59,7 +57,6 @@ namespace Cyphoid.Core.SyntaxTree
         {
           plan = new ExpandAllPlan(
             plan,
-            optional,
             previousChainNode.NodePattern.Variable,
             chainNode.RelationshipPattern!,
             chainNode.NodePattern.Variable,
@@ -71,7 +68,6 @@ namespace Cyphoid.Core.SyntaxTree
         {
           plan = new ExpandIntoPlan(
             plan,
-            optional,
             previousChainNode.NodePattern.Variable,
             chainNode.RelationshipPattern!,
             chainNode.NodePattern.Variable,

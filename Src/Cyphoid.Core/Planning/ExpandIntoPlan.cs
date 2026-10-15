@@ -6,7 +6,6 @@ namespace Cyphoid.Core.Planning
 {
   public record ExpandIntoPlan(
     PipelinePlan Input,
-    bool Optional,
     VariableReference? Source,
     RelationshipPatternNode? Relationship,
     VariableReference Destination,
@@ -30,7 +29,6 @@ namespace Cyphoid.Core.Planning
 
       return factory.BuildExpandInto(
         Input.BuildExecutionPlan(factory),
-        Optional,
         Source?.Definition,
         direction,
         Relationship?.RelationshipDetail?.RelationshipType,
