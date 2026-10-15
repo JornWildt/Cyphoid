@@ -17,7 +17,6 @@ Graph nodes implement the non-generic `IGraphNode` interface, including `MixedVa
 Create a concrete operator factory by inheriting from `ReferenceOperatorFactory` and implementing the abstract methods. These are the only required backend hooks.
 
 Required overrides:
-- `NewRow(IRowColumn[] matchColumns)` - create your row implementation.
 - `BuildNodeScan(...)` - fetch initial nodes for `MATCH` patterns.
 - `BuildExpandAll(...)` - expand relationships from a bound source node to a new (unbound) destination.
 
@@ -25,39 +24,40 @@ You can see a working example in `Src/Cyphoid.Tests/TestBackend/TestOperatorFact
 
 ## Minimal skeleton
 ```csharp
-internal sealed class MyOperatorFactory : ReferenceOperatorFactory<string>
+internal sealed class MyOperatorFactory : ReferenceOperatorFactory
 {
-  protected override IRow<string> NewRow(IRowColumn[] matchColumns)
-    => new Row<string>(matchColumns);
-
-  protected override IOperator<string> BuildNodeScan(
+  protected override IOperator BuildNodeScan(
     VariableDefinition variable,
     string? label,
     PropertyFilter? propertyFilter,
+    string? targetRelationshipLabel,
     IRowColumn[] matchColumns)
     => new MyNodeScanOperator(...);
 
-  protected override IOperator<string> BuildExpandAll(
-    IOperator<string> input,
+  protected override IOperator BuildExpandAll(
+    IOperator input,
     VariableDefinition sourceVariable,
     ExpandDirectionType direction,
     string? relationLabel,
     VariableDefinition destinationVariable,
     string? destinationLabel,
-    PropertyFilter? destinationPropertyFilter)
+    PropertyFilter? destinationPropertyFilter,
+    IRowColumn[] matchColumns)
     => new MyExpandAllOperator(...);
 }
 ```
 
 ## Operator responsibilities
 
-### NewRow
-- Return a row that matches the provided `matchColumns`.
-- The row must be able to hold values for every declared variable slot.
+### Row creation
+- Supply an `IQueryRowFactory` through `IQueryContext.RowFactory`; row creation is separate from the operator factory.
+- Implement both `EmptyRow(IReadOnlyList<IRowColumn> columns)` and `EmptyRow(IRow source, IReadOnlyList<IRowColumn> columns)`. The second overload can preserve backend metadata from a source row.
+- Return an `IRow` with the supplied columns and enough values for every declared variable slot. The reference `Row` class is available if no custom row implementation is needed.
 
 ### Node scan (BuildNodeScan)
 - Produce one row per matching node in your storage layer.
 - Apply `label` and `propertyFilter` when provided.
+- `targetRelationshipLabel` is a hint for the following relationship expansion; any optimization using it must preserve the scan's matching semantics.
 - For each match, set `row.Values[variable.SlotIndex]` to a `MixedValue` that wraps your graph node.
 - Use `matchColumns` when constructing the row so downstream operators can access the correct metadata.
 
@@ -75,7 +75,7 @@ internal sealed class MyOperatorFactory : ReferenceOperatorFactory<string>
 `ReferenceOperatorFactory` implements these generically, but you can override them for better performance or pushdowns:
 - `BuildExpandInto` (relationship check between already-bound nodes)
 - `BuildFilter` (WHERE)
-- `BuildProjection` and `BuildAggregationProjection`
+- `BuildProjection`, `BuildDistinct`, and `BuildAggregateProjection` (the last implements `IOperatorFactory.BuildAggregationProjection`)
 - `BuildOrderBy`, `BuildLimit`, `BuildCartesianProduct`
 
 If you override, preserve semantics and output row shapes exactly.

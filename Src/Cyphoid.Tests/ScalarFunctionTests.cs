@@ -33,6 +33,17 @@ namespace Cyphoid.Tests
     }
 
 
+    [TestCase("MATCH (o) RETURN rand(1) AS value")]
+    [TestCase("MATCH (o) RETURN RAND(null, 2) AS value")]
+    [TestCase("MATCH (o) WITH rand(o) AS value RETURN value")]
+    public void RandRejectsArguments(string input)
+    {
+      var exception = Assert.ThrowsAsync<Cyphoid.Core.Exceptions.ParseException>(
+        async () => await ExecuteQuery(input));
+      Assert.That(exception!.Message, Does.Contain("rand() requires no arguments"));
+    }
+
+
     [TestCase("MATCH (s:person) RETURN id(s) AS value", "Lisa")]
     [TestCase("MATCH (s:city) RETURN ID(s) AS value", "Holte")]
     [TestCase("MATCH (s:person) WITH id(s) AS value RETURN value", "Lisa")]

@@ -7,11 +7,11 @@ namespace Cyphoid.Core.Expressions.Functions
     IReadOnlyList<RowEvaluator> Parameters,
     int SlotIndex) : IAggregationEvaluator
   {
-    int? Count = null;
+    int Count = 0;
 
     void IAggregationEvaluator.Initialize()
     {
-      Count = null;
+      Count = 0;
     }
 
 
@@ -20,14 +20,14 @@ namespace Cyphoid.Core.Expressions.Functions
       var rowValue = Parameters[0](row);
       if (!rowValue.IsNull())
       {
-        Count = Count == null ? 1 : Count + 1;
+        Count++;
       }
     }
 
 
     void IAggregationEvaluator.WriteResult(IRow row)
     {
-      row.Values[SlotIndex] = Count != null ? MixedValue.Int(Count.Value) : MixedValue.Null();
+      row.Values[SlotIndex] = MixedValue.Int(Count);
     }
   }
 }

@@ -11,15 +11,15 @@ The Cypher engine is implemented as a pipeline of row-oriented physical operator
 
 ## Execution model
 
-- Pipeline is `IAsyncEnumerable` of rows; operators implement `IOperator<TId>.ExecuteAsync`.
-- Rows are positional; each variable binds to a fixed `SlotIndex` in `IRow<TId>.Values`.
+- Pipeline is `IAsyncEnumerable` of rows; operators implement `IOperator.ExecuteAsync`.
+- Rows are positional; each variable binds to a fixed `SlotIndex` in `IRow.Values`.
 - Expressions compile into evaluators, not runtime dictionary lookups.
 
 ## Backend contract
 
-- Backends implement `IOperatorFactory<TId>`; the recommended path is to inherit `ReferenceOperatorFactory<TId>`.
-- Required overrides: `NewRow`, `BuildNodeScan`, `BuildExpandAll`.
-- Optional overrides: `BuildExpandInto`, `BuildFilter`, `BuildProjection`, `BuildAggregationProjection`, `BuildOrderBy`, `BuildLimit`, `BuildCartesianProduct` for performance/pushdown.
+- Backends implement `IOperatorFactory`; the recommended path is to inherit `ReferenceOperatorFactory`.
+- Required overrides: `BuildNodeScan`, `BuildExpandAll`. Row creation is provided through `IQueryContext.RowFactory` implementing `IQueryRowFactory`.
+- Optional overrides: `BuildExpandInto`, `BuildFilter`, `BuildProjection`, `BuildDistinct`, `BuildAggregateProjection`, `BuildOrderBy`, `BuildLimit`, `BuildCartesianProduct` for performance/pushdown.
 - See `BACKEND_GUIDE.md` for detailed guidance and the test backend for examples.
 
 ## Pattern parts

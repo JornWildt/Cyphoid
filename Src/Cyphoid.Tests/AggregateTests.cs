@@ -179,6 +179,40 @@ namespace Cyphoid.Tests
     }
 
 
+    [TestCase("MATCH (s:missing)")]
+    [TestCase("MATCH (s:salesperson) WHERE false")]
+    public async Task GlobalAggregatesReturnOneRowForEmptyInput(string source)
+    {
+      var result = await ExecuteQuery(source +
+        " RETURN count(*) AS total, count(s.age) AS ages, sum(s.age) AS sumv, avg(s.age) AS avgv, min(s.age) AS minv, max(s.age) AS maxv");
+
+      Assert.That(result.Rows.Count, Is.EqualTo(1));
+      Assert.That(result.Rows[0]["total"], Is.EqualTo(MixedValue.Int(0)));
+      Assert.That(result.Rows[0]["ages"], Is.EqualTo(MixedValue.Int(0)));
+      foreach (var column in new[] { "sumv", "avgv", "minv", "maxv" })
+        Assert.That(result.Rows[0][column], Is.Null);
+    }
+
+
+    [Test]
+    public async Task EmptyGlobalAggregateCanBeProjectedAndFiltered()
+    {
+      var result = await ExecuteQuery(
+        "MATCH (s:missing) WITH count(*) AS total WHERE total = 0 RETURN total");
+      Assert.That(result.Rows.Count, Is.EqualTo(1));
+      Assert.That(result.Rows[0]["total"], Is.EqualTo(MixedValue.Int(0)));
+    }
+
+
+    [Test]
+    public async Task GroupedAggregatesReturnNoRowsForEmptyInput()
+    {
+      var result = await ExecuteQuery(
+        "MATCH (s:missing) RETURN s.age AS age, count(*) AS total");
+      Assert.That(result.Rows, Is.Empty);
+    }
+
+
     [TestCase("MATCH (o:order) RETURN COUNT(*) AS value", 6)]
     [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN COUNT(*) AS value", 10)]
     [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN sum(l.lineAmount) AS value", 7800.0)]
@@ -187,6 +221,7 @@ namespace Cyphoid.Tests
     [TestCase("MATCH (o:order)-[:has_line]->(l:order_line) RETURN max(l.lineAmount) AS value", 2200.0)]
     [TestCase("MATCH (s:salesperson) RETURN count(*) AS value", 3)]
     [TestCase("MATCH (s:salesperson) RETURN count(s.age) AS value", 2)]
+    [TestCase("MATCH (s:salesperson) RETURN count(s.missing) AS value", 0)]
     [TestCase("MATCH (s:salesperson) RETURN sum(s.age) AS value", 54.0)]
     [TestCase("MATCH (s:salesperson) RETURN min(s.age) AS value", 24.0)]
     [TestCase("MATCH (s:salesperson) RETURN max(s.age) AS value", 30.0)]
