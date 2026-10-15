@@ -4,6 +4,7 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- MATCH now executes all comma-separated pattern parts, combining independent parts and enforcing shared-variable constraints. OPTIONAL MATCH fallback applies only when the complete set of parts has no matches.
 - Added `WITH ... WHERE` to filter projected aliases and aggregate results. WHERE uses the projected scope and follows any WITH ORDER BY and LIMIT modifiers.
 
 ## 0.13.0 — 2026-10-14

@@ -10,8 +10,17 @@ namespace Cyphoid.Core.SyntaxTree
       PipelinePlan? input,
       IRowColumn[] matchColumns)
     {
-      // FIXME: Only using first part so far
-      var part = Parts[0];
+      foreach (var part in Parts)
+        input = BuildPartPlan(part, input, matchColumns);
+
+      return input ?? new EmptyPlan();
+    }
+
+    private static PipelinePlan BuildPartPlan(
+      PatternPartNode part,
+      PipelinePlan? input,
+      IRowColumn[] matchColumns)
+    {
 
       // Parse guarantees existence of initial (left most) node.
       var initialNodePattern = part.PatternChain[0].NodePattern;

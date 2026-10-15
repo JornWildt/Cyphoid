@@ -12,6 +12,7 @@ See the [changelog](https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md)
 - Implements a subset of Cyhper.
 - Fast parser implementation with Antlr.
 - In-memory implementation of query plans for any backend.
+- Multiple comma-separated MATCH patterns, including independent patterns and patterns sharing node variables.
 
 ## Example usage
 

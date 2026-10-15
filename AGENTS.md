@@ -22,9 +22,9 @@ The Cypher engine is implemented as a pipeline of row-oriented physical operator
 - Optional overrides: `BuildExpandInto`, `BuildFilter`, `BuildProjection`, `BuildAggregationProjection`, `BuildOrderBy`, `BuildLimit`, `BuildCartesianProduct` for performance/pushdown.
 - See `BACKEND_GUIDE.md` for detailed guidance and the test backend for examples.
 
-## Known limitations
+## Pattern parts
 
-- Pattern matching currently only uses the first pattern part in a MATCH clause.
+- Every comma-separated pattern part in MATCH is executed. Independent parts form Cartesian products; shared variables retain their bindings and constrain later parts. OPTIONAL MATCH fallback applies to the complete set of parts and its WHERE predicate.
 
 ## References
 
