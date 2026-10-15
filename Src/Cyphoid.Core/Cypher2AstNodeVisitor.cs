@@ -459,6 +459,9 @@ namespace Cyphoid.Core
 
     public override AstNode VisitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context)
     {
+      if (context.labelPredicate() != null)
+        return Visit<LabelPredicateNode>(context.labelPredicate());
+
       if (context.literal() != null)
       {
         return Visit<ExprNode>(context.literal());
@@ -486,6 +489,13 @@ namespace Cyphoid.Core
         throw new ParseException($"Unhandled primary expression state.");
     }
 
+
+    public override AstNode VisitLabelPredicate([NotNull] CypherParser.LabelPredicateContext context)
+    {
+      var variable = FindVariable(Visit<VariableNode>(context.variable()));
+      var label = Visit<IdentifierNode>(context.identifier());
+      return new LabelPredicateNode(variable, label.Name);
+    }
 
     public override AstNode VisitPropertyAccess([NotNull] CypherParser.PropertyAccessContext context)
     {

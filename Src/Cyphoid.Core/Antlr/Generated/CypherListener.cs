@@ -391,6 +391,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.labelPredicate"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLabelPredicate([NotNull] CypherParser.LabelPredicateContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.labelPredicate"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLabelPredicate([NotNull] CypherParser.LabelPredicateContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.propertyAccess"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

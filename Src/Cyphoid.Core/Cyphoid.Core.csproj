@@ -26,6 +26,7 @@
   <PropertyGroup>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
     <PackageReleaseNotes>0.15.0: Added coalesce(), toLower(), toUpper(), trim(), ltrim(), rtrim(), toString(), toInteger(), toFloat(), toBoolean(), string size(), substring(), replace(), left(), right(), abs(), round(), floor(), and ceil(). Functions use .NET semantics, with lazy coalescing, null propagation, argument validation, invariant casing and conversions, UTF-16 string indexing, and .NET midpoint rounding modes.
+Added n:label predicates for checking a node's single type, including boolean combinations in WHERE and projected expressions. Label comparisons are ordinal and case-sensitive; null nodes produce null.
 Full changelog: https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md</PackageReleaseNotes>
   </PropertyGroup>
 

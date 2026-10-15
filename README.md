@@ -46,6 +46,8 @@ When combined in one WITH clause, modifiers follow the order `WITH ... ORDER BY 
 
 ### Node labels
 
+Use label predicates to check a node's single type: `WHERE n:pressure OR n:activity OR n:impact`. The comparison is ordinal and case-sensitive. A null node produces null; non-node values raise a query error. Single-label predicates can also be projected, such as `RETURN n:pressure AS isPressure`.
+
 `labels(node)` returns the node's single `IGraphNode.Type` as a string. It is an alias for Cyphoid's `type(node)`; both return null for null or non-node inputs. This differs from standard Cypher, where `labels(node)` returns a list and `type()` reads a relationship type. Cyphoid does not currently bind relationship values to runtime rows.
 
 ```cypher

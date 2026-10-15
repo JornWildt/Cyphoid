@@ -179,10 +179,15 @@ inExpression
 
 primaryExpression
   : literal
+  | labelPredicate
   | propertyAccess
   | functionCall
   | variable
   | LPAREN expression RPAREN
+  ;
+
+labelPredicate
+  : variable COLON identifier
   ;
 
 propertyAccess

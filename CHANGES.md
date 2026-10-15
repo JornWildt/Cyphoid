@@ -4,6 +4,8 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## 0.15.0 — 2026-10-15
 
+- Added `n:label` predicates for checking a node's single type in WHERE and projected expressions. Predicates support boolean combinations, use ordinal case-sensitive comparison, and return null for null nodes.
+
 - Added `coalesce`, `toLower`, `toUpper`, `trim`, `ltrim`, `rtrim`, `toString`, `toInteger`, `toFloat`, `toBoolean`, string `size`, `substring`, `replace`, `left`, `right`, `abs`, `round`, `floor`, and `ceil` using .NET semantics. Includes lazy coalescing, null propagation, argument validation, invariant casing/conversion, UTF-16 string indexing, and .NET midpoint rounding modes.
 
 ## 0.14.0 — 2026-10-15
