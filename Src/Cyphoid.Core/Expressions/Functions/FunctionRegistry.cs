@@ -19,6 +19,12 @@ namespace Cyphoid.Core.Expressions.Functions
     };
 
 
+    static FunctionRegistry()
+    {
+      foreach (var function in StandardScalarFunctions.Create())
+        FunctionDefinitions.Add(function.Key, function.Value);
+    }
+
     static public IFunctionDefinition GetFunctionDefinition(string name)
     {
       if (FunctionDefinitions.TryGetValue(name, out var definition))

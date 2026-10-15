@@ -2,6 +2,10 @@
 
 Changes are listed by version, newest first. Historical dates follow version updates in Git, rather than verified package publication dates. Version 0.10.0 appears in package release notes but has no separate version commit.
 
+## Unreleased
+
+- Added `coalesce`, `toLower`, `toUpper`, `trim`, `ltrim`, `rtrim`, `toString`, `toInteger`, `toFloat`, `toBoolean`, string `size`, `substring`, `replace`, `left`, `right`, `abs`, `round`, `floor`, and `ceil` using .NET semantics. Includes lazy coalescing, null propagation, argument validation, invariant casing/conversion, UTF-16 string indexing, and .NET midpoint rounding modes.
+
 ## 0.14.0 — 2026-10-15
 
 - Two-node patterns with an unbound left node and an already-bound right node now expand from the bound endpoint instead of scanning the left node. Traversal direction is reversed internally while retaining labels, property constraints, and OPTIONAL MATCH fallback.

@@ -16,6 +16,23 @@ See the [changelog](https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md)
 
 ## Example usage
 
+### Scalar functions
+
+Supported scalar functions include `coalesce`, `toLower`, `toUpper`, `trim`, `ltrim`, `rtrim`, `toString`, `toInteger`, `toFloat`, `toBoolean`, `size`, `substring`, `replace`, `left`, `right`, `abs`, `round`, `floor`, and `ceil`. Names are case-insensitive.
+
+These functions use .NET semantics rather than full Cypher compatibility:
+
+- `coalesce(value, ...)` evaluates arguments in order and returns the first non-null value, without evaluating later arguments. It requires at least one argument.
+- Other functions return null when any supplied argument is null. Invalid argument counts, types, conversions, and ranges raise query errors.
+- Casing uses `ToLowerInvariant` / `ToUpperInvariant`. Trim functions use .NET whitespace rules and accept one string argument.
+- Conversions use `Convert.ToString`, `Convert.ToInt64`, `Convert.ToDouble`, and `Convert.ToBoolean` with invariant culture. For example, `toInteger(2.5)` returns `2`, `toString(true)` returns `"True"`, and `toBoolean(1)` returns true. Nodes cannot be converted.
+- `size(string)` counts UTF-16 code units. `substring(string, start [, length])`, `left(string, length)`, and `right(string, length)` use zero-based .NET substring indexing and require valid ranges; oversized lengths raise errors. No list values are introduced.
+- `replace(string, search, replacement)` performs ordinal, case-sensitive replacement; the search string must not be empty.
+- `abs(number)` preserves integer or double type. `floor(number)`, `ceil(number)`, and `round(number [, precision [, mode]])` return doubles. Precision is an integer from 0 to 15. Rounding defaults to `ToEven`; mode accepts .NET `MidpointRounding` names: `ToEven`, `AwayFromZero`, `ToZero`, `ToNegativeInfinity`, and `ToPositiveInfinity`.
+
+Scalar functions can wrap other scalar expressions. To transform an aggregate result, project it first: `WITH avg(p.score) AS average RETURN round(average)`.
+
+
 `WITH ... WHERE` filters projected values and aggregate results:
 
 ```cypher
