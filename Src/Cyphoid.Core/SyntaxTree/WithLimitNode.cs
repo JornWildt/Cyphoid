@@ -6,7 +6,8 @@ namespace Cyphoid.Core.SyntaxTree
   public record WithLimitNode(
     IReadOnlyList<ProjectionNode> Projections,
     OrderByNode? OrderBy,
-    int? Limit) : ClauseNode()
+    int? Limit,
+    ExprNode? Predicate = null) : ClauseNode()
   {
     public override PipelinePlan BuildQueryPlan(
       PipelinePlan? input)
@@ -20,6 +21,9 @@ namespace Cyphoid.Core.SyntaxTree
 
       if (Limit != null)
         input = new LimitPlan(input, Limit.Value);
+
+      if (Predicate != null)
+        input = new FilterPlan(input, Predicate);
 
       return input;
     }
@@ -46,6 +50,11 @@ namespace Cyphoid.Core.SyntaxTree
       if (Limit != null)
       {
         sb.Append(" LIMIT " + Limit);
+      }
+      if (Predicate != null)
+      {
+        sb.Append(" WHERE ");
+        Predicate.PrettyPrint(sb);
       }
     }
   }

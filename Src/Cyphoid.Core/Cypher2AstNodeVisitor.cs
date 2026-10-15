@@ -93,7 +93,8 @@ namespace Cyphoid.Core
       var ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
       var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
 
-      return new WithLimitNode(with.Projections, ordering, limit?.Limit);
+      var where = context.whereClause() != null ? Visit<WhereNode>(context.whereClause()) : null;
+      return new WithLimitNode(with.Projections, ordering, limit?.Limit, where?.Expr);
     }
 
 

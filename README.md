@@ -14,6 +14,18 @@ See the [changelog](https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md)
 - In-memory implementation of query plans for any backend.
 
 ## Example usage
+
+`WITH ... WHERE` filters projected values and aggregate results:
+
+```cypher
+MATCH (p:person)
+WITH p.country AS country, count(*) AS total
+WHERE total > 10
+RETURN country, total
+```
+
+When combined in one WITH clause, modifiers follow the order `WITH ... ORDER BY ... LIMIT ... WHERE ...`. WHERE sees the projected variables and filters after LIMIT. To filter before sorting or limiting, use a second WITH clause.
+
 ### Node labels
 
 `labels(node)` returns the node's single `IGraphNode.Type` as a string. It is an alias for Cyphoid's `type(node)`; both return null for null or non-node inputs. This differs from standard Cypher, where `labels(node)` returns a list and `type()` reads a relationship type. Cyphoid does not currently bind relationship values to runtime rows.

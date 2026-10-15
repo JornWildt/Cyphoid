@@ -2,6 +2,10 @@
 
 Changes are listed by version, newest first. Historical dates follow version updates in Git, rather than verified package publication dates. Version 0.10.0 appears in package release notes but has no separate version commit.
 
+## Unreleased
+
+- Added `WITH ... WHERE` to filter projected aliases and aggregate results. WHERE uses the projected scope and follows any WITH ORDER BY and LIMIT modifiers.
+
 ## 0.13.0 — 2026-10-14
 
 - Removed obsolete optional flags from expansion plans and operators. Expansion always checks relationships and emits only matches; clause-level OPTIONAL MATCH supplies null fallback rows.

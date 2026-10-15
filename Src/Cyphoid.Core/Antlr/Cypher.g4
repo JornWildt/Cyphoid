@@ -23,7 +23,7 @@ whereClause
   ;
 
 withLimitClause
-  : withClause orderingClause? limitClause?
+  : withClause orderingClause? limitClause? whereClause?
   ;
 
 withClause
