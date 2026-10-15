@@ -21,6 +21,28 @@ namespace Cyphoid.Core.SyntaxTree
       PipelinePlan? input,
       IRowColumn[] matchColumns)
     {
+      // A two-node pattern can start at its bound right endpoint without scanning the left node.
+      if (part.PatternChain.Count == 2 &&
+          part.PatternChain[0].NodePattern.Variable.Binding == VariableReferenceBindingType.Unbound &&
+          part.PatternChain[1].NodePattern.Variable.Binding == VariableReferenceBindingType.Bound &&
+          part.PatternChain[0].NodePattern.Variable.Definition.SlotIndex !=
+            part.PatternChain[1].NodePattern.Variable.Definition.SlotIndex)
+      {
+        var relationship = part.PatternChain[1].RelationshipPattern!;
+        var reversed = relationship with
+        {
+          RelationshipDirection = relationship.RelationshipDirection switch
+          {
+            RelationshipDirectionType.Right => RelationshipDirectionType.Left,
+            RelationshipDirectionType.Left => RelationshipDirectionType.Right,
+            _ => relationship.RelationshipDirection
+          }
+        };
+        var reversedPart = new PatternPartNode([
+          new PatternChainNode(null, part.PatternChain[1].NodePattern),
+          new PatternChainNode(reversed, part.PatternChain[0].NodePattern)]);
+        return BuildPartPlan(reversedPart, input, matchColumns);
+      }
 
       // Parse guarantees existence of initial (left most) node.
       var initialNodePattern = part.PatternChain[0].NodePattern;

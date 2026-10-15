@@ -4,6 +4,7 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- Two-node patterns with an unbound left node and an already-bound right node now expand from the bound endpoint instead of scanning the left node. Traversal direction is reversed internally while retaining labels, property constraints, and OPTIONAL MATCH fallback.
 - MATCH now executes all comma-separated pattern parts, combining independent parts and enforcing shared-variable constraints. OPTIONAL MATCH fallback applies only when the complete set of parts has no matches.
 - Added `WITH ... WHERE` to filter projected aliases and aggregate results. WHERE uses the projected scope and follows any WITH ORDER BY and LIMIT modifiers.
 
