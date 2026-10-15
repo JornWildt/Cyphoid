@@ -2,7 +2,7 @@
 
 Changes are listed by version, newest first. Historical dates follow version updates in Git, rather than verified package publication dates. Version 0.10.0 appears in package release notes but has no separate version commit.
 
-## Unreleased
+## 0.14.0 — 2026-10-15
 
 - Two-node patterns with an unbound left node and an already-bound right node now expand from the bound endpoint instead of scanning the left node. Traversal direction is reversed internally while retaining labels, property constraints, and OPTIONAL MATCH fallback.
 - MATCH now executes all comma-separated pattern parts, combining independent parts and enforcing shared-variable constraints. OPTIONAL MATCH fallback applies only when the complete set of parts has no matches.

@@ -9,7 +9,7 @@
 
     <!-- NuGet package metadata -->
     <PackageId>Cyphoid</PackageId>
-    <Version>0.13.0</Version>
+    <Version>0.14.0</Version>
     <Authors>Jørn Wildt</Authors>
     <Description>A parser for the Cypher graph query language. It includes a simple implementation of the query language.</Description>
     <PackageTags>parser cypher query language</PackageTags>
@@ -25,7 +25,7 @@
 
   <PropertyGroup>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>0.13.0: Removed obsolete optional flags and fallback logic from expansion plans, operators, and backend factory methods. OPTIONAL MATCH fallback is handled exclusively at clause level. Breaking backend API change: remove the bool optional parameter from BuildExpandAll and BuildExpandInto implementations.
+    <PackageReleaseNotes>0.14.0: Added WITH WHERE filtering for projected values and aggregate results. MATCH now executes every comma-separated pattern part, preserving shared-variable constraints and clause-level OPTIONAL MATCH fallback. Two-node patterns expand from an already-bound right endpoint instead of scanning the unbound left node, retaining labels and property constraints.
 Full changelog: https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md</PackageReleaseNotes>
   </PropertyGroup>
 
