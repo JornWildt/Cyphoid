@@ -66,8 +66,12 @@ namespace Cyphoid.Core.SyntaxTree
       {
         BinaryOperatorType.And => (IRow r) => MixedValue.Bool(leftEvaluator(r).AsBool() && rightEvaluator(r).AsBool()),
         BinaryOperatorType.Or => (IRow r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
-        BinaryOperatorType.EQ => (IRow r) => MixedValue.Bool(leftEvaluator(r).Equals(rightEvaluator(r))),
-        BinaryOperatorType.NEQ => (IRow r) => MixedValue.Bool(!leftEvaluator(r).Equals(rightEvaluator(r))),
+        BinaryOperatorType.EQ => (IRow r) => MixedValue.QueryEquals(leftEvaluator(r), rightEvaluator(r)),
+        BinaryOperatorType.NEQ => (IRow r) =>
+        {
+          var equal = MixedValue.QueryEquals(leftEvaluator(r), rightEvaluator(r));
+          return equal.IsNull() ? equal : MixedValue.Bool(!equal.AsBool());
+        },
         BinaryOperatorType.LTE => (IRow r) => leftEvaluator(r) <= rightEvaluator(r),
         BinaryOperatorType.LT => (IRow r) => leftEvaluator(r) < rightEvaluator(r),
         BinaryOperatorType.GTE => (IRow r) => leftEvaluator(r) >= rightEvaluator(r),
@@ -147,8 +151,14 @@ namespace Cyphoid.Core.SyntaxTree
       return (IRow r) =>
       {
         var exprValue = exprEvaluator(r);
-        var any = itemEvaluators.Any(e => e(r).Equals(exprValue));
-        return MixedValue.Bool(any);
+        var unknown = false;
+        foreach (var evaluate in itemEvaluators)
+        {
+          var equal = MixedValue.QueryEquals(exprValue, evaluate(r));
+          if (equal.IsNull()) unknown = true;
+          else if (equal.AsBool()) return MixedValue.Bool(true);
+        }
+        return unknown ? MixedValue.Null() : MixedValue.Bool(false);
       };
     }
 

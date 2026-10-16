@@ -4,6 +4,7 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- Added immutable Map values to MixedValue, nested map literals, dot/bracket lookup, node/map projections, structural grouping and hashing, and map parameters/results for procedures. Host maps use `Map`, `AsMap`, and `TryGetMap`; object conversion supports nested string-keyed dictionaries. Missing/null lookups return null; invalid lookup types raise query errors.
 - Added public runtime errors with stable diagnostic codes, error phases, and source spans. Syntax errors retain individually accessible diagnostics. Scalar conversions retain inner exceptions and compiled query expressions report their failing location.
 - Built-in function signatures and unsupported aggregate placement are now validated during parsing. `type`/`labels` and aggregates reject missing or extra arguments; only `count(*)` accepts `*`. Oversized LIMIT values are rejected instead of truncated.
 - Integer arithmetic now reports overflow and division/remainder by zero as runtime query errors. Double arithmetic retains .NET IEEE semantics.

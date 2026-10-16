@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Collections.ObjectModel;
 using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.Execution;
 
@@ -15,7 +16,8 @@ namespace Cyphoid.Core.Expressions
       Double = 3,
       String = 4,
       Node = 5,
-      Edge = 6
+      Edge = 6,
+      Map = 7
     }
 
     private readonly ValueType _kind;
@@ -93,8 +95,34 @@ namespace Cyphoid.Core.Expressions
 
     public static MixedValue GraphNode(IGraphNode? value) => value == null ? Null() : new(value);
 
+    private MixedValue(IEnumerable<KeyValuePair<string, MixedValue>> values)
+    {
+      _kind = ValueType.Map;
+      _bool = default;
+      _int = default;
+      _double = default;
+      _ref = new ReadOnlyDictionary<string, MixedValue>(values.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal));
+    }
+
+    /// <summary>Creates an immutable, ordinal, case-sensitive snapshot.</summary>
+    public static MixedValue Map(IEnumerable<KeyValuePair<string, MixedValue>>? values) =>
+      values == null ? Null() : new(values);
+
+    public IReadOnlyDictionary<string, MixedValue> AsMap() =>
+      _kind == ValueType.Map ? (IReadOnlyDictionary<string, MixedValue>)_ref!
+        : throw new RuntimeException($"Value is not a map. Got {_kind}.");
+
+    public bool TryGetMap([NotNullWhen(true)] out IReadOnlyDictionary<string, MixedValue>? value)
+    {
+      value = _ref as IReadOnlyDictionary<string, MixedValue>;
+      return _kind == ValueType.Map;
+    }
+
     public static MixedValue FromObject(object? value) =>
-      value is bool b ? Bool(b)
+      value is MixedValue mixed ? mixed
+      : value is IEnumerable<KeyValuePair<string, MixedValue>> map ? Map(map)
+      : value is IEnumerable<KeyValuePair<string, object?>> objects ? Map(objects.Select(p => new KeyValuePair<string, MixedValue>(p.Key, FromObject(p.Value))))
+      : value is bool b ? Bool(b)
       : value is int i ? Int(i)
       : value is double d ? Double(d)
       : value is long l ? Int(l)
@@ -132,7 +160,8 @@ namespace Cyphoid.Core.Expressions
       i => i,
       d => d,
       s => s,
-      g => g);
+      g => g,
+      m => new ReadOnlyDictionary<string, object?>(m.ToDictionary(p => p.Key, p => p.Value.AsObject(), StringComparer.Ordinal)));
 
     public bool TryGetBool(out bool value)
     {
@@ -170,7 +199,17 @@ namespace Cyphoid.Core.Expressions
       Func<long, T> onInt,
       Func<double, T> onDouble,
       Func<string, T> onString,
-      Func<IGraphNode, T> onGraphNode)
+      Func<IGraphNode, T> onGraphNode) =>
+      Match(onNull, onBool, onInt, onDouble, onString, onGraphNode, null);
+
+    public T Match<T>(
+      Func<T> onNull,
+      Func<bool, T> onBool,
+      Func<long, T> onInt,
+      Func<double, T> onDouble,
+      Func<string, T> onString,
+      Func<IGraphNode, T> onGraphNode,
+      Func<IReadOnlyDictionary<string, MixedValue>, T>? onMap)
     {
       return _kind switch
       {
@@ -180,6 +219,8 @@ namespace Cyphoid.Core.Expressions
         ValueType.Double => onDouble(_double),
         ValueType.String => onString((string)_ref!),
         ValueType.Node => onGraphNode((IGraphNode)_ref!),
+        ValueType.Map => onMap != null ? onMap(AsMap())
+          : throw new RuntimeException("A map handler is required to match a map value."),
         _ => throw new RuntimeException($"Unhandled value type '{_kind}'.")
       };
     }
@@ -195,8 +236,30 @@ namespace Cyphoid.Core.Expressions
         ValueType.String => (string?)_ref == (string?)other._ref,
         ValueType.Null => _ref == other._ref,
         ValueType.Node => ((IGraphNode)_ref!).HasSameIdAs((IGraphNode?)other._ref),
+        ValueType.Map => AsMap().Count == other.AsMap().Count &&
+          AsMap().All(p => other.AsMap().TryGetValue(p.Key, out var value) && p.Value.Equals(value)),
         _ => true
       };
+
+    // Grouping uses structural Equals; query equality must retain unknown results
+    // when matching map entries contain null. A definite mismatch takes precedence.
+    internal static MixedValue QueryEquals(MixedValue left, MixedValue right)
+    {
+      if (left.Type != ValueType.Map && right.Type != ValueType.Map)
+        return Bool(left.Equals(right));
+      if (left.IsNull() || right.IsNull()) return Null();
+      if (!left.TryGetMap(out var a) || !right.TryGetMap(out var b)) return Bool(false);
+      if (a.Count != b.Count) return Bool(false);
+      var unknown = false;
+      foreach (var pair in a)
+      {
+        if (!b.TryGetValue(pair.Key, out var other)) return Bool(false);
+        var equal = pair.Value.IsNull() || other.IsNull() ? Null() : QueryEquals(pair.Value, other);
+        if (equal.IsNull()) unknown = true;
+        else if (!equal.AsBool()) return Bool(false);
+      }
+      return unknown ? Null() : Bool(true);
+    }
 
 
     public override bool Equals(object? obj) =>
@@ -216,7 +279,11 @@ namespace Cyphoid.Core.Expressions
         ValueType.Int => HashCode.Combine(_kind, _int),
         ValueType.Double => HashCode.Combine(_kind, _double),
         ValueType.String => HashCode.Combine(_kind, _ref),
-        ValueType.Node => HashCode.Combine(_kind, _ref),
+        // Node equality is backend-defined. Use a conservative hash so equal
+        // nodes, including nodes nested inside maps, always hash equally.
+        ValueType.Node => (int)_kind,
+        ValueType.Map => HashCode.Combine(_kind, AsMap().Aggregate(0,
+          (hash, p) => hash ^ HashCode.Combine(StringComparer.Ordinal.GetHashCode(p.Key), p.Value.GetHashCode()))),
         _ => (int)_kind
       };
 
@@ -230,6 +297,7 @@ namespace Cyphoid.Core.Expressions
         ValueType.Double => _double.ToString(CultureInfo.InvariantCulture),
         ValueType.String => _ref!.ToString() ?? "",
         ValueType.Node => "-node-",
+        ValueType.Map => "{" + string.Join(", ", AsMap().Select(p => p.Key + ": " + p.Value)) + "}",
         _ => "<undefined>"
       };
 

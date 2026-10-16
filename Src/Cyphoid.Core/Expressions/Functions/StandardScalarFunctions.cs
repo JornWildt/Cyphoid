@@ -44,7 +44,7 @@ namespace Cyphoid.Core.Expressions.Functions
 
     private static int Index(MixedValue value) => checked((int)value.AsInt());
     private static double Number(MixedValue value) => value.TryGetInt(out var integer) ? integer : value.AsDouble();
-    private static object Primitive(MixedValue value) => value.Type == MixedValue.ValueType.Node
-      ? throw new InvalidCastException("Cannot convert a node to a scalar value.") : value.AsObject()!;
+    private static object Primitive(MixedValue value) => value.Type is MixedValue.ValueType.Node or MixedValue.ValueType.Map
+      ? throw new InvalidCastException("Cannot convert a node or map to a scalar value.") : value.AsObject()!;
   }
 }

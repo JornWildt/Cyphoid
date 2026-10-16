@@ -272,6 +272,42 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitInExpression([NotNull] CypherParser.InExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.postfixExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPostfixExpression([NotNull] CypherParser.PostfixExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.accessSuffix"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAccessSuffix([NotNull] CypherParser.AccessSuffixContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.mapProjectionItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMapProjectionItem([NotNull] CypherParser.MapProjectionItemContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.mapLiteral"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMapLiteral([NotNull] CypherParser.MapLiteralContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.mapEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMapEntry([NotNull] CypherParser.MapEntryContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.mapKey"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMapKey([NotNull] CypherParser.MapKeyContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.primaryExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

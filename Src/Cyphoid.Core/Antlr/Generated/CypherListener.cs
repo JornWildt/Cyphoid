@@ -431,6 +431,66 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitInExpression([NotNull] CypherParser.InExpressionContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.postfixExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterPostfixExpression([NotNull] CypherParser.PostfixExpressionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.postfixExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitPostfixExpression([NotNull] CypherParser.PostfixExpressionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.accessSuffix"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterAccessSuffix([NotNull] CypherParser.AccessSuffixContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.accessSuffix"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitAccessSuffix([NotNull] CypherParser.AccessSuffixContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.mapProjectionItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterMapProjectionItem([NotNull] CypherParser.MapProjectionItemContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.mapProjectionItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitMapProjectionItem([NotNull] CypherParser.MapProjectionItemContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.mapLiteral"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterMapLiteral([NotNull] CypherParser.MapLiteralContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.mapLiteral"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitMapLiteral([NotNull] CypherParser.MapLiteralContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.mapEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterMapEntry([NotNull] CypherParser.MapEntryContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.mapEntry"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitMapEntry([NotNull] CypherParser.MapEntryContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.mapKey"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterMapKey([NotNull] CypherParser.MapKeyContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.mapKey"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitMapKey([NotNull] CypherParser.MapKeyContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.primaryExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

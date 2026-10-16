@@ -193,14 +193,46 @@ unaryExpression
     ;
 
 inExpression
-  : primaryExpression IN LBRACK expressionList RBRACK
-  | primaryExpression
+  : postfixExpression IN LBRACK expressionList RBRACK
+  | postfixExpression
+  ;
+
+postfixExpression
+  : primaryExpression accessSuffix*
+  ;
+
+accessSuffix
+  : DOT mapKey
+  | LBRACK expression RBRACK
+  | LBRACE (mapProjectionItem (COMMA mapProjectionItem)*)? RBRACE
+  ;
+
+mapProjectionItem
+  : DOT (mapKey | ASTERIX)
+  | mapKey COLON expression
+  | variable
+  ;
+
+mapLiteral
+  : LBRACE (mapEntry (COMMA mapEntry)*)? RBRACE
+  ;
+
+mapEntry
+  : mapKey COLON expression
+  ;
+
+mapKey
+  : identifier
+  | MATCH | CALL | YIELD | UNION | ALL | OPTIONAL | WHERE | RETURN | LIMIT
+  | AS | AND | OR | NOT | IS | CONTAINS | STARTS | ENDS | IN | WITH
+  | TRUE | FALSE | NULL | ASC | DESC | DISTINCT
   ;
 
 // (all operators not here yet)
 
 primaryExpression
   : literal
+  | mapLiteral
   | labelPredicate
   | propertyAccess
   | functionCall
@@ -213,7 +245,7 @@ labelPredicate
   ;
 
 propertyAccess
-  : variable (DOT identifier)+
+  : variable (DOT mapKey)+
   ;
 
 functionCall

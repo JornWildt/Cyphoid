@@ -516,6 +516,78 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitInExpression([NotNull] CypherParser.InExpressionContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.postfixExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterPostfixExpression([NotNull] CypherParser.PostfixExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.postfixExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitPostfixExpression([NotNull] CypherParser.PostfixExpressionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.accessSuffix"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAccessSuffix([NotNull] CypherParser.AccessSuffixContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.accessSuffix"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAccessSuffix([NotNull] CypherParser.AccessSuffixContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.mapProjectionItem"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterMapProjectionItem([NotNull] CypherParser.MapProjectionItemContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.mapProjectionItem"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitMapProjectionItem([NotNull] CypherParser.MapProjectionItemContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.mapLiteral"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterMapLiteral([NotNull] CypherParser.MapLiteralContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.mapLiteral"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitMapLiteral([NotNull] CypherParser.MapLiteralContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.mapEntry"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterMapEntry([NotNull] CypherParser.MapEntryContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.mapEntry"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitMapEntry([NotNull] CypherParser.MapEntryContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.mapKey"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterMapKey([NotNull] CypherParser.MapKeyContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.mapKey"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitMapKey([NotNull] CypherParser.MapKeyContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.primaryExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

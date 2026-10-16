@@ -11,15 +11,10 @@ namespace Cyphoid.Core.SyntaxTree
     {
       return (IRow r) =>
       {
-        var v = r.Values[Variable.SlotIndex];
-        if (v == null)
-          return MixedValue.Null();
-        var propertyName = Properties[0];
-        var node = v.Value.AsGraphNode();
-        if (node.Attributes.TryGetValue(propertyName, out var attributeValue))
-          return MixedValue.FromObject(attributeValue);
-        else
-          return MixedValue.Null();
+        var value = r.Values[Variable.SlotIndex] ?? MixedValue.Null();
+        foreach (var property in Properties)
+          value = MapAccessNode.Read(value, MixedValue.String(property));
+        return value;
       };
     }
 

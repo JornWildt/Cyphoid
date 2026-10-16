@@ -118,9 +118,11 @@ projected in WITH.
 
 ## Values, schemas, and errors
 
-Arguments and results use existing MixedValue types only. There are no list, map,
-or path values added by this API. For collections, return multiple rows; for paths,
-for example, return path ID, step index, and node columns.
+Arguments and results use MixedValue types, including `MixedValue.ValueType.Map`
+for configuration objects and structured results. Maps can be passed inline or
+through variables, and read using `arguments[i].AsMap()`. See [MAPS.md](MAPS.md)
+for query syntax and a procedure configuration example. List and path values
+remain unsupported; represent those collections as multiple rows.
 
 Signatures are fixed and ordered. Argument counts, names, variable bindings, and
 YIELD fields are checked while parsing. Runtime types must match exactly, with no

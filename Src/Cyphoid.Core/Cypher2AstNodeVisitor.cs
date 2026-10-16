@@ -275,9 +275,12 @@ namespace Cyphoid.Core
       var variableName = id?.Name ??
         ((expr is VariableExprNode v) ? v.Variable.Name
         : (expr is PropertyAccessNode pa) ? pa.Properties[pa.Properties.Count - 1]
+        : (expr is MapAccessNode access && access.Property != null) ? access.Property
         : $"p{AnonymousProjectionCounter++}");
 
-      var variable = RegisterOutputVariable(id == null, variableName, MixedValue.ValueType.String);
+      var type = expr is MapLiteralNode or MapProjectionNode ? MixedValue.ValueType.Map
+        : expr is VariableExprNode reference ? reference.Variable.Type : MixedValue.ValueType.String;
+      var variable = RegisterOutputVariable(id == null, variableName, type);
 
       return new ProjectionNode(expr, variable);
     }
@@ -518,7 +521,7 @@ namespace Cyphoid.Core
 
     public override AstNode VisitInExpression([NotNull] CypherParser.InExpressionContext context)
     {
-      var expr = Visit<ExprNode>(context.primaryExpression());
+      var expr = Visit<ExprNode>(context.postfixExpression());
       if (context.IN() == null || context.expressionList() == null)
         return expr;
 
@@ -535,6 +538,7 @@ namespace Cyphoid.Core
 
     public override AstNode VisitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context)
     {
+      if (context.mapLiteral() != null) return Visit<MapLiteralNode>(context.mapLiteral());
       if (context.labelPredicate() != null)
         return Visit<LabelPredicateNode>(context.labelPredicate());
 
@@ -577,12 +581,51 @@ namespace Cyphoid.Core
     {
       var variable = Visit<VariableNode>(context.variable());
       var properties = new List<string>();
-      foreach (var p in context.identifier())
+      foreach (var p in context.mapKey())
       {
-        var property = Visit<IdentifierNode>(p);
-        properties.Add(property.Name);
+        properties.Add(p.GetText());
       }
       return new PropertyAccessNode(FindVariable(variable), properties);
+    }
+
+    public override AstNode VisitMapLiteral([NotNull] CypherParser.MapLiteralContext context)
+    {
+      RejectAggregateCalls(context);
+      var entries = context.mapEntry().Select(e => new MapEntryNode(e.mapKey().GetText(), Visit<ExprNode>(e.expression()))).ToArray();
+      if (entries.Select(e => e.Key).Distinct(StringComparer.Ordinal).Count() != entries.Length)
+        throw new ParseException("A map literal cannot contain duplicate keys.", CypherErrorCode.InvalidArgumentValue);
+      return new MapLiteralNode(entries);
+    }
+
+    public override AstNode VisitPostfixExpression([NotNull] CypherParser.PostfixExpressionContext context)
+    {
+      var expr = Visit<ExprNode>(context.primaryExpression());
+      foreach (var suffix in context.accessSuffix())
+      {
+        RejectAggregateCalls(context);
+        if (suffix.DOT() != null)
+        {
+          var key = suffix.mapKey().GetText();
+          expr = new MapAccessNode(expr, new StringLiteralNode(key), key);
+        }
+        else if (suffix.LBRACK() != null)
+          expr = new MapAccessNode(expr, Visit<ExprNode>(suffix.expression()));
+        else
+        {
+          var entries = suffix.mapProjectionItem().Select(item =>
+          {
+            if (item.DOT() != null)
+              return new MapProjectionEntry(item.mapKey()?.GetText(), null, item.ASTERIX() != null, item.ASTERIX() == null);
+            if (item.expression() != null)
+              return new MapProjectionEntry(item.mapKey().GetText(), Visit<ExprNode>(item.expression()));
+            var variable = FindVariable(Visit<VariableNode>(item.variable()));
+            return new MapProjectionEntry(variable.Name, new VariableExprNode(variable), VariableSelector: true);
+          }).ToArray();
+          expr = new MapProjectionNode(expr, entries);
+        }
+        expr.SourceSpan = SpanOf(context);
+      }
+      return expr;
     }
 
 
