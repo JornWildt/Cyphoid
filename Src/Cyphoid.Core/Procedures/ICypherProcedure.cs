@@ -28,6 +28,6 @@ public interface ICypherProcedure
     IQueryContext context,
     IRow inputRow,
     IReadOnlyList<MixedValue> arguments,
-    IReadOnlyList<IRowColumn> outputColumns,
+    RowSchema outputColumns,
     CancellationToken ct);
 }

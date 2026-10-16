@@ -22,7 +22,7 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator Input,
     IReadOnlyList<GroupingEvaluator> Groupings,
     IReadOnlyList<IAggregationEvaluator> Aggregators,
-    IRowColumn[] OutputColumns) : IOperator
+    RowSchema OutputColumns) : IOperator
   {
     async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct)
     {

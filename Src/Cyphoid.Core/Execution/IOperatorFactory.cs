@@ -1,4 +1,4 @@
-﻿using Cyphoid.Core.Expressions;
+using Cyphoid.Core.Expressions;
 using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.Execution
@@ -37,7 +37,7 @@ namespace Cyphoid.Core.Execution
       string? label,
       PropertyFilter? propertyFilter,
       string? targetRelationshipLabel,
-      IRowColumn[] matchColumns);
+      RowSchema matchColumns);
 
     IOperator BuildExpandAll(
       IOperator input,
@@ -47,7 +47,7 @@ namespace Cyphoid.Core.Execution
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter,
-      IRowColumn[] matchColumns);
+      RowSchema matchColumns);
 
     IOperator BuildExpandInto(
       IOperator input,
@@ -82,7 +82,7 @@ namespace Cyphoid.Core.Execution
       IOperator input,
       List<GroupingEvaluator> groupings,
       List<IAggregationEvaluator> aggregators,
-      IRowColumn[] outputColumns);
+      RowSchema outputColumns);
 
     IOperator BuildOrderBy(
       IOperator input,

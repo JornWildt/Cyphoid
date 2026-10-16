@@ -7,7 +7,7 @@ using Cyphoid.Core.SyntaxTree;
 namespace Cyphoid.Core.Planning
 {
   public record OptionalMatchPlan(
-    PipelinePlan Input, PatternNode Pattern, ExprNode? Predicate, IRowColumn[] Columns) : PipelinePlan
+    PipelinePlan Input, PatternNode Pattern, ExprNode? Predicate, RowSchema Columns) : PipelinePlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {

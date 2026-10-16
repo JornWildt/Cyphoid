@@ -1,4 +1,4 @@
-﻿using Cyphoid.Core.Execution;
+using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.ReferenceBackend
@@ -7,11 +7,11 @@ namespace Cyphoid.Core.ReferenceBackend
   {
     #region IRow
 
-    IRowColumn[] IRow.Columns => Columns;
+    IReadOnlyList<IRowColumn> IRow.Columns => Schema.Columns;
 
     MixedValue?[] IRow.Values => Values;
 
-    IRow IRow.CopyAndExpand(IReadOnlyList<IRowColumn> outputColumns)
+    IRow IRow.CopyAndExpand(RowSchema outputColumns)
     {
       return CopyAndExpand(outputColumns);
     }
@@ -24,18 +24,20 @@ namespace Cyphoid.Core.ReferenceBackend
     #endregion
 
 
-    protected IRowColumn[] Columns { get; private init; }
+    public RowSchema Schema { get; }
+    protected IReadOnlyList<IRowColumn> Columns => Schema.Columns;
 
     protected MixedValue?[] Values { get; private init; }
 
-    public Row(IReadOnlyList<IRowColumn> columns)
+    public Row(RowSchema columns)
     {
-      Columns = columns.ToArray();
-      Values = new MixedValue?[Columns.Length];
+      ArgumentNullException.ThrowIfNull(columns);
+      Schema = columns;
+      Values = new MixedValue?[Schema.Count];
     }
 
 
-    protected virtual IRow CopyAndExpand(IReadOnlyList<IRowColumn> outputColumns)
+    protected virtual IRow CopyAndExpand(RowSchema outputColumns)
     {
       var clone = CreateEmptyRow(outputColumns);
       CopyMyContentToClone(clone);
@@ -45,13 +47,13 @@ namespace Cyphoid.Core.ReferenceBackend
 
     protected virtual IRow MergeWith(IRow other)
     {
-      var clone = CreateEmptyRow(other.Columns);
+      var clone = CreateEmptyRow(other.Schema);
       CopyMyContentToClone(clone);
       CopyOtherContentToClone(other, clone);
       return clone;
     }
 
-    protected virtual IRow CreateEmptyRow(IReadOnlyList<IRowColumn> outputColumns) => new Row(outputColumns);
+    protected virtual IRow CreateEmptyRow(RowSchema outputColumns) => new Row(outputColumns);
 
 
     protected virtual void CopyMyContentToClone(IRow clone)

@@ -4,7 +4,7 @@ using Cyphoid.Core.Execution;
 namespace Cyphoid.Core.ReferenceBackend
 {
   public record OptionalMatchReferenceOperator(
-    IOperator Input, Func<IRow, IOperator> BuildMatch, IRowColumn[] Columns) : IOperator
+    IOperator Input, Func<IRow, IOperator> BuildMatch, RowSchema Columns) : IOperator
   {
     public async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct = default)
     {

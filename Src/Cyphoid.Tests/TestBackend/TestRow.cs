@@ -1,4 +1,4 @@
-﻿using Cyphoid.Core.Execution;
+using Cyphoid.Core.Execution;
 using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Tests.TestBackend
@@ -8,14 +8,14 @@ namespace Cyphoid.Tests.TestBackend
     public ISet<string> NodeIdsForRow { get; private init; }
 
 
-    public TestRow(ISet<string> nodeIds, IReadOnlyList<IRowColumn> columns)
+    public TestRow(ISet<string> nodeIds, RowSchema columns)
       : base(columns)
     {
       NodeIdsForRow = new HashSet<string>(nodeIds);
     }
 
 
-    protected override Row CreateEmptyRow(IReadOnlyList<IRowColumn> outputColumns)
+    protected override Row CreateEmptyRow(RowSchema outputColumns)
     {
       return new TestRow(NodeIdsForRow, outputColumns);
     }

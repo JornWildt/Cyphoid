@@ -110,8 +110,8 @@ namespace Cyphoid.Core
         bindings.Add(new ProcedureYield(index, fieldName, variable));
       }
       var predicate = context.whereClause() == null ? null : Visit<WhereNode>(context.whereClause()).Expr;
-      var columns = VariableDefinitions.Values
-        .Select(v => (IRowColumn)new RowColumn(v.SlotIndex, v.Name, v.Type)).ToArray();
+      var columns = new RowSchema(VariableDefinitions.Values
+        .Select(v => new RowColumn(v.SlotIndex, v.Name, v.Type)));
       return new CallNode(procedure, arguments, bindings, columns, predicate);
     }
 
@@ -132,9 +132,8 @@ namespace Cyphoid.Core
       var match = Visit<MatchNode>(context.matchClause());
       var where = context.whereClause() != null ? Visit<WhereNode>(context.whereClause()) : null;
 
-      var declaredColumns = VariableDefinitions
-        .Select((v, i) => new RowColumn(i, v.Key, v.Value.Type))
-        .ToArray();
+      var declaredColumns = new RowSchema(VariableDefinitions
+        .Select((v, i) => new RowColumn(i, v.Key, v.Value.Type)));
 
       return new MatchWhereNode(match.Optional, match.Pattern, where?.Expr, declaredColumns);
     }

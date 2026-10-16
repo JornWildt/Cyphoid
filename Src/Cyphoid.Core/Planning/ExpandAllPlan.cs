@@ -1,4 +1,4 @@
-﻿using Cyphoid.Core.Execution;
+using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
 using System.Text;
 
@@ -11,7 +11,7 @@ namespace Cyphoid.Core.Planning
     VariableReference Destination,
     string? DestinationLabel,
     PropertyMapNode? DestinationPropertyMap,
-    IRowColumn[] MatchColumns) : PipelinePlan
+    RowSchema MatchColumns) : PipelinePlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {

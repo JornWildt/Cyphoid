@@ -193,7 +193,7 @@ internal class MapTests : TestHelper
     public IReadOnlyList<ProcedureField> Outputs => [new("settings", MixedValue.ValueType.Map), new("configuredLimit", MixedValue.ValueType.Int)];
     public IEnumerable<ICypherProcedure> GetProcedures() => [this];
     public async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, IRow inputRow,
-      IReadOnlyList<MixedValue> arguments, IReadOnlyList<IRowColumn> outputColumns,
+      IReadOnlyList<MixedValue> arguments, RowSchema outputColumns,
       [EnumeratorCancellation] CancellationToken ct)
     {
       await Task.Yield();

@@ -50,7 +50,7 @@ public sealed class NumbersProcedure : ICypherProcedure
     IQueryContext context,
     IRow inputRow,
     IReadOnlyList<MixedValue> arguments,
-    IReadOnlyList<IRowColumn> outputColumns,
+    RowSchema outputColumns,
     [EnumeratorCancellation] CancellationToken ct)
   {
     // Replace this with asynchronous repository access when appropriate.
@@ -135,6 +135,12 @@ local indexes starting at zero, even if YIELD selects only some fields. Cyphoid
 validates column names, indexes, types, width, values, and nullability. Procedure
 failures are reported with the qualified procedure name and original inner
 exception. Cancellation exceptions propagate unchanged.
+
+The `outputColumns` argument is an immutable `RowSchema`, shared across all
+invocations of that call operator. Pass it unchanged to the host row factory;
+do not construct a new schema for every result row. `IRow.Schema` retains the
+instance, and `IRow.Columns` exposes its read-only column definitions. Values
+and host metadata remain per-row.
 
 `RuntimeException` is public. Invalid result schemas use the `InvalidProcedureResult`
 code; plugin invocation/enumeration failures use `ProcedureFailed`. Cleanup failures

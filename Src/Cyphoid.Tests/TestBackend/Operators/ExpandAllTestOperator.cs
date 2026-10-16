@@ -15,7 +15,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     VariableDefinition DestinationVariable;
     string? DestinationLabel;
     PropertyFilter? DestinationPropertyFilter;
-    IRowColumn[] MatchColumns;
+    RowSchema MatchColumns;
 
 
     public ExpandAllTestOperator(
@@ -27,7 +27,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter,
-      IRowColumn[] matchColumns)
+      RowSchema matchColumns)
       : base(graph)
     {
       Input = input;

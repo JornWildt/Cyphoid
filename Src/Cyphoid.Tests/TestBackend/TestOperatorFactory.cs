@@ -1,4 +1,4 @@
-﻿using Cyphoid.Core;
+using Cyphoid.Core;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.ReferenceBackend;
 using Cyphoid.Tests.TestBackend.Operators;
@@ -21,7 +21,7 @@ namespace Cyphoid.Tests.TestBackend
       string? label, 
       PropertyFilter? propertyFilter,
       string? targetRelationshipLabel,
-      IRowColumn[] matchColumns)
+      RowSchema matchColumns)
     {
       return new NodeScanTestOperator(Graph, variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
     }
@@ -35,7 +35,7 @@ namespace Cyphoid.Tests.TestBackend
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter,
-      IRowColumn[] matchColumns)
+      RowSchema matchColumns)
     {
       return new ExpandAllTestOperator(
         Graph,

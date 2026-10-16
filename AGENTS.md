@@ -17,6 +17,7 @@ The Cypher engine is implemented as a pipeline of row-oriented physical operator
 - Pipeline is `IAsyncEnumerable` of rows; operators implement `IOperator.ExecuteAsync`.
 - `ExecuteAsync(IQueryContext context, CancellationToken ct = default)` propagates cancellation end to end. Async iterators use `[EnumeratorCancellation]`, pass `ct` upstream and to I/O, and check cancellation during CPU work. Name cancellation-token parameters `ct`.
 - Rows are positional; each variable binds to a fixed `SlotIndex` in `IRow.Values`.
+- `IRow.Schema` retains a shared immutable `RowSchema`; `IRow.Columns` is its read-only view. Pass schemas unchanged through row factories, copies, and procedure outputs. Create schemas once per stage, never per row. UNION normalizes branch rows through the host copy hook.
 - Expressions compile into evaluators, not runtime dictionary lookups.
 - Query errors use public `ParseException`/`RuntimeException` with `CypherErrorCode`, phase, and optional source spans. Planning and nested expressions use `CompileEvaluator` to locate runtime failures. Preserve cancellation and primary failures during cleanup; see `ERROR_HANDLING.md`.
 

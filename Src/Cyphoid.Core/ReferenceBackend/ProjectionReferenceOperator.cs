@@ -6,7 +6,7 @@ namespace Cyphoid.Core.ReferenceBackend
   public class ProjectionReferenceOperator(
     IOperator Input,
     IReadOnlyList<ProjectionEvaluator> Projections,
-    IRowColumn[] Columns) : IOperator
+    RowSchema Columns) : IOperator
   {
     public ProjectionReferenceOperator(
       IOperator input,
@@ -16,11 +16,10 @@ namespace Cyphoid.Core.ReferenceBackend
     }
 
 
-    private static IRowColumn[] MakeColumns(IReadOnlyList<ProjectionEvaluator> projections)
+    private static RowSchema MakeColumns(IReadOnlyList<ProjectionEvaluator> projections)
     {
-      return projections
-        .Select((p, i) => new RowColumn(i, p.OutputVariable.Name, p.OutputVariable.Type))
-        .ToArray();
+      return new RowSchema(projections
+        .Select((p, i) => new RowColumn(i, p.OutputVariable.Name, p.OutputVariable.Type)));
     }
 
 

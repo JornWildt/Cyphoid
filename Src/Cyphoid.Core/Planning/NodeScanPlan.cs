@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
 
@@ -9,7 +9,7 @@ namespace Cyphoid.Core.Planning
     string? Label,
     PropertyMapNode? PropertyMap,
     RelationshipPatternNode? RelationshipDetail,
-    IRowColumn[] MatchColumns) : PipelinePlan
+    RowSchema MatchColumns) : PipelinePlan
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {

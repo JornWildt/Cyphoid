@@ -148,7 +148,7 @@ internal class ErrorHandlingTests : TestHelper
     public bool SynchronousFailure { get; init; }
 
     public IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, IRow inputRow,
-      IReadOnlyList<MixedValue> arguments, IReadOnlyList<IRowColumn> outputColumns, CancellationToken ct)
+      IReadOnlyList<MixedValue> arguments, RowSchema outputColumns, CancellationToken ct)
     {
       if (SynchronousFailure) throw new InvalidOperationException("Invocation failed");
       var row = context.RowFactory.EmptyRow(inputRow, outputColumns);
@@ -248,10 +248,10 @@ internal class ErrorHandlingTests : TestHelper
   private sealed class FailingMergeContext(Exception failure) : IQueryContext, IQueryRowFactory
   {
     public IQueryRowFactory RowFactory => this;
-    public IRow EmptyRow(IReadOnlyList<IRowColumn> columns) => new FailingRow(columns, failure);
-    public IRow EmptyRow(IRow source, IReadOnlyList<IRowColumn> columns) => EmptyRow(columns);
+    public IRow EmptyRow(RowSchema columns) => new FailingRow(columns, failure);
+    public IRow EmptyRow(IRow source, RowSchema columns) => EmptyRow(columns);
 
-    private sealed class FailingRow(IReadOnlyList<IRowColumn> columns, Exception failure) : Row(columns)
+    private sealed class FailingRow(RowSchema columns, Exception failure) : Row(columns)
     {
       protected override IRow MergeWith(IRow other) => throw failure;
     }

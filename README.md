@@ -126,6 +126,10 @@ Cypher executable query plan
 
 Guidance for third-party backends is in `BACKEND_GUIDE.md`.
 
+Rows share immutable `RowSchema` instances; `IRow.Columns` exposes a read-only
+view without allocating column arrays per row. Backend and procedure migration
+guidance is included in the backend guide.
+
 Query exceptions, diagnostic codes, source locations, and cleanup failures are
 documented in [ERROR_HANDLING.md](ERROR_HANDLING.md).
 

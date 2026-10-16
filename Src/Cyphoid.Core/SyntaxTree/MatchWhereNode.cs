@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Planning;
 
@@ -8,7 +8,7 @@ namespace Cyphoid.Core.SyntaxTree
     bool Optional,
     PatternNode MatchPattern, 
     ExprNode? WhereExpr,
-    IRowColumn[] DeclaredColumns) : ClauseNode
+    RowSchema DeclaredColumns) : ClauseNode
   {
     public override PipelinePlan BuildQueryPlan(
       PipelinePlan? input)

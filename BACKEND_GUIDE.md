@@ -4,6 +4,7 @@ This document explains how to implement a backend for Cyphoid by providing an `I
 
 ## Key concepts
 - **Rows are positional**: each variable has a fixed `SlotIndex` (see `VariableDefinition`), and operators write values into `IRow.Values[slot]`.
+- **Schemas are shared**: `IRow.Schema` references an immutable `RowSchema`. `IRow.Columns` is a read-only view of that schema, shared by all rows in the stream rather than copied into every row.
 - **Values are `MixedValue`**: nodes and properties are transported through rows as `MixedValue` instances.
 - **Operators are async streams**: every `IOperator` exposes `IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, CancellationToken ct = default)`.
 
@@ -31,7 +32,7 @@ internal sealed class MyOperatorFactory : ReferenceOperatorFactory
     string? label,
     PropertyFilter? propertyFilter,
     string? targetRelationshipLabel,
-    IRowColumn[] matchColumns)
+    RowSchema matchColumns)
     => new MyNodeScanOperator(...);
 
   protected override IOperator BuildExpandAll(
@@ -42,7 +43,7 @@ internal sealed class MyOperatorFactory : ReferenceOperatorFactory
     VariableDefinition destinationVariable,
     string? destinationLabel,
     PropertyFilter? destinationPropertyFilter,
-    IRowColumn[] matchColumns)
+    RowSchema matchColumns)
     => new MyExpandAllOperator(...);
 }
 ```
@@ -51,8 +52,45 @@ internal sealed class MyOperatorFactory : ReferenceOperatorFactory
 
 ### Row creation
 - Supply an `IQueryRowFactory` through `IQueryContext.RowFactory`; row creation is separate from the operator factory.
-- Implement both `EmptyRow(IReadOnlyList<IRowColumn> columns)` and `EmptyRow(IRow source, IReadOnlyList<IRowColumn> columns)`. The second overload can preserve backend metadata from a source row.
+- Implement both `EmptyRow(RowSchema columns)` and `EmptyRow(IRow source, RowSchema columns)`. The second overload can preserve backend metadata from a source row.
 - Return an `IRow` with the supplied columns and enough values for every declared variable slot. The reference `Row` class is available if no custom row implementation is needed.
+- Retain the exact `RowSchema` supplied to your row factory. Do not reconstruct or copy schemas per row. Only the value array and host metadata belong to each row.
+
+### Immutable schemas and migration
+
+`RowSchema` snapshots column definitions once, including the fields of mutable
+host `IRowColumn` implementations. Its columns have sequential zero-based indexes,
+unique names, and immutable Index/Name/Type values. It exposes Count, an indexer,
+and read-only enumeration; `RowSchema.Empty` is shared for the initial empty row.
+
+```csharp
+var schema = new RowSchema(new IRowColumn[]
+{
+  new RowColumn(0, "name", MixedValue.ValueType.String)
+});
+IRow first = new Row(schema);
+IRow second = new Row(schema);
+// ReferenceEquals(first.Schema, second.Schema) is true.
+// Their Values arrays are separate.
+```
+
+This is a backend/procedure API change: replace column arrays and lists in row
+factory, operator factory, row copy, and procedure output-schema signatures with
+`RowSchema`. Custom rows implement `IRow.Schema`; `IRow.Columns` has a default
+read-only implementation forwarding to the schema. Use `Columns.Count` instead
+of `Columns.Length`. Overrides of `Row.CreateEmptyRow` and `CopyAndExpand` must
+also accept RowSchema and pass it unchanged to the new row.
+
+The reference backend creates schemas at parsing or operator construction time.
+Projection creates a schema for its new columns; expansion and optional fallback
+reuse their supplied match schema. Procedure local-output schemas are created
+once per call operator and reused across invocations. UNION normalizes branch
+rows to the first emitted schema through the host row-copy hook, preserving
+values and metadata. No global schema cache is needed.
+
+Column Type remains declared/inferred metadata; values may differ in kind,
+especially across UNION branches. Inspect `row.Values[i]?.Type` for the runtime
+value type. Maps with different keys do not require different row schemas.
 
 ### Node scan (BuildNodeScan)
 - Produce one row per matching node in your storage layer.

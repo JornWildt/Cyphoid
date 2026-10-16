@@ -4,6 +4,8 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- Rows now share immutable `RowSchema` instances instead of allocating column arrays per row. Schemas snapshot column definitions once; projection, aggregation, scans, expansions, and procedures reuse them. UNION normalizes output schemas while preserving host metadata.
+- Breaking schema API change: `IRow.Schema` replaces mutable column-array storage, with `IRow.Columns` exposing a read-only view. Row factories, operator factories, copies, and procedure output-schema arguments now use `RowSchema`. See BACKEND_GUIDE.md for migration steps.
 - Added immutable Map values to MixedValue, nested map literals, dot/bracket lookup, node/map projections, structural grouping and hashing, and map parameters/results for procedures. Host maps use `Map`, `AsMap`, and `TryGetMap`; object conversion supports nested string-keyed dictionaries. Missing/null lookups return null; invalid lookup types raise query errors.
 - Added public runtime errors with stable diagnostic codes, error phases, and source spans. Syntax errors retain individually accessible diagnostics. Scalar conversions retain inner exceptions and compiled query expressions report their failing location.
 - Built-in function signatures and unsupported aggregate placement are now validated during parsing. `type`/`labels` and aggregates reject missing or extra arguments; only `count(*)` accepts `*`. Oversized LIMIT values are rejected instead of truncated.

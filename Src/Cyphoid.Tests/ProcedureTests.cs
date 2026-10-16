@@ -43,7 +43,7 @@ public class ProcedureTests
 
     public async IAsyncEnumerable<IRow> ExecuteAsync(
       IQueryContext context, IRow inputRow, IReadOnlyList<MixedValue> arguments,
-      IReadOnlyList<IRowColumn> outputColumns,
+      RowSchema outputColumns,
       [EnumeratorCancellation] CancellationToken ct)
     {
       Calls++;
@@ -57,7 +57,7 @@ public class ProcedureTests
         if (Empty) yield break;
         for (var i = 0; i < 2; i++)
         {
-          var row = context.RowFactory.EmptyRow(inputRow, WrongWidth ? [] : outputColumns);
+          var row = context.RowFactory.EmptyRow(inputRow, WrongWidth ? RowSchema.Empty : outputColumns);
           ((TestRow)row).NodeIdsForRow.Add("procedure-metadata");
           if (!WrongWidth)
           {
@@ -268,7 +268,7 @@ public class ProcedureTests
     public IReadOnlyList<ProcedureField> Parameters => [new("input", MixedValue.ValueType.Node)];
     public IReadOnlyList<ProcedureField> Outputs => [new("node", MixedValue.ValueType.Node)];
     public async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, IRow inputRow,
-      IReadOnlyList<MixedValue> arguments, IReadOnlyList<IRowColumn> outputColumns,
+      IReadOnlyList<MixedValue> arguments, RowSchema outputColumns,
       [EnumeratorCancellation] CancellationToken ct)
     {
       await Task.Yield();

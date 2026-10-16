@@ -25,7 +25,7 @@ public class CancellationTests
     public bool Block { get; init; } = true;
 
     public async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, IRow inputRow,
-      IReadOnlyList<MixedValue> arguments, IReadOnlyList<IRowColumn> outputColumns,
+      IReadOnlyList<MixedValue> arguments, RowSchema outputColumns,
       [EnumeratorCancellation] CancellationToken ct)
     {
       ReceivedToken = ct;

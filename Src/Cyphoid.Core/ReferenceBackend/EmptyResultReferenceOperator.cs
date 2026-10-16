@@ -13,7 +13,7 @@ namespace Cyphoid.Core.ReferenceBackend
     protected virtual async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct = default)
     {
       ct.ThrowIfCancellationRequested();
-      yield return context.RowFactory.EmptyRow([]);
+      yield return context.RowFactory.EmptyRow(RowSchema.Empty);
     }
 
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

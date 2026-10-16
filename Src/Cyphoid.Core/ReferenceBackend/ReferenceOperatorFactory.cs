@@ -1,4 +1,4 @@
-﻿using Cyphoid.Core.Execution;
+using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
@@ -9,10 +9,10 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator IOperatorFactory.BuildEmptyResult()
       => BuildEmptyResult();
 
-    IOperator IOperatorFactory.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, IRowColumn[] matchColumns)
+    IOperator IOperatorFactory.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, RowSchema matchColumns)
       => BuildNodeScan(variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
 
-    IOperator IOperatorFactory.BuildExpandAll(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, IRowColumn[] matchColumns)
+    IOperator IOperatorFactory.BuildExpandAll(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, RowSchema matchColumns)
       => BuildExpandAll(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter, matchColumns);
 
     IOperator IOperatorFactory.BuildExpandInto(IOperator input, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
@@ -33,7 +33,7 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator IOperatorFactory.BuildDistinct(IOperator input, List<GroupingEvaluator> groupings)
       => BuildDistinct(input, groupings);
 
-    IOperator IOperatorFactory.BuildAggregationProjection(IOperator input, List<GroupingEvaluator> groupings, List<IAggregationEvaluator> aggregators, IRowColumn[] matchColumns)
+    IOperator IOperatorFactory.BuildAggregationProjection(IOperator input, List<GroupingEvaluator> groupings, List<IAggregationEvaluator> aggregators, RowSchema matchColumns)
       => BuildAggregateProjection(input, groupings, aggregators, matchColumns);
 
     IOperator IOperatorFactory.BuildOrderBy(IOperator input, IReadOnlyList<OrderByEvaluator> ordering)
@@ -70,7 +70,7 @@ namespace Cyphoid.Core.ReferenceBackend
       => new DistinctReferenceOperator(input, groupings);
 
 
-    protected virtual IOperator BuildAggregateProjection(IOperator input, List<GroupingEvaluator> groupings, List<IAggregationEvaluator> aggregators, IRowColumn[] outputColumns)
+    protected virtual IOperator BuildAggregateProjection(IOperator input, List<GroupingEvaluator> groupings, List<IAggregationEvaluator> aggregators, RowSchema outputColumns)
       => new AggregateReferenceOperator(input, groupings, aggregators, outputColumns);
 
 
@@ -82,9 +82,9 @@ namespace Cyphoid.Core.ReferenceBackend
 
     #region Backend implementation specific
 
-    protected abstract IOperator BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, IRowColumn[] matchColumns);
+    protected abstract IOperator BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, RowSchema matchColumns);
 
-    protected abstract IOperator BuildExpandAll(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, IRowColumn[] matchColumns);
+    protected abstract IOperator BuildExpandAll(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, RowSchema matchColumns);
 
 
     #endregion

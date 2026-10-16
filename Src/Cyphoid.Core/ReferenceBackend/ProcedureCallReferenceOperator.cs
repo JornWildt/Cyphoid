@@ -10,6 +10,9 @@ namespace Cyphoid.Core.ReferenceBackend;
 internal sealed record ProcedureCallReferenceOperator(
   IOperator Input, CallNode Call, IReadOnlyList<RowEvaluator> Arguments) : IOperator
 {
+  private readonly RowSchema procedureSchema = new(Call.Registration.Outputs
+    .Select((f, i) => new RowColumn(i, f.Name, f.Type)));
+
   public IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, CancellationToken ct = default) => Execute(context, ct);
 
   private async IAsyncEnumerable<IRow> Execute(
@@ -17,8 +20,7 @@ internal sealed record ProcedureCallReferenceOperator(
   {
     ct.ThrowIfCancellationRequested();
     var registration = Call.Registration;
-    var columns = Array.AsReadOnly(registration.Outputs
-      .Select((f, i) => (IRowColumn)new RowColumn(i, f.Name, f.Type)).ToArray());
+    var columns = procedureSchema;
     await foreach (var input in Input.ExecuteAsync(context, ct).WithCancellation(ct))
     {
       ct.ThrowIfCancellationRequested();
@@ -115,9 +117,9 @@ internal sealed record ProcedureCallReferenceOperator(
     return error;
   }
 
-  private void ValidateResult(IRow row, IReadOnlyList<IRowColumn> columns)
+  private void ValidateResult(IRow row, RowSchema columns)
   {
-    if (row == null || row.Values == null || row.Columns == null || row.Values.Length != columns.Count || row.Columns.Length != columns.Count)
+    if (row == null || row.Values == null || row.Columns == null || row.Values.Length != columns.Count || row.Columns.Count != columns.Count)
       throw new InvalidProcedureResultException("Result row does not match the declared output width.");
     for (var i = 0; i < columns.Count; i++)
     {

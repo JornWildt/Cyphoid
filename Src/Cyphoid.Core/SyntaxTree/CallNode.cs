@@ -11,7 +11,7 @@ public sealed record CallNode(
   ProcedureRegistration Registration,
   IReadOnlyList<ExprNode> Arguments,
   IReadOnlyList<ProcedureYield> Yields,
-  IRowColumn[] OutputColumns,
+  RowSchema OutputColumns,
   ExprNode? Predicate) : ClauseNode
 {
   public override PipelinePlan BuildQueryPlan(PipelinePlan? input)

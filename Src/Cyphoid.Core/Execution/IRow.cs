@@ -1,4 +1,4 @@
-﻿using Cyphoid.Core.Expressions;
+using Cyphoid.Core.Expressions;
 
 namespace Cyphoid.Core.Execution
 {
@@ -12,9 +12,10 @@ namespace Cyphoid.Core.Execution
 
   public interface IRow
   {
-    IRowColumn[] Columns { get; }
+    RowSchema Schema { get; }
+    IReadOnlyList<IRowColumn> Columns => Schema.Columns;
     MixedValue?[] Values { get; }
-    IRow CopyAndExpand(IReadOnlyList<IRowColumn> outputColumns);
+    IRow CopyAndExpand(RowSchema outputColumns);
     IRow MergeWith(IRow other);
   }
 }

@@ -29,9 +29,8 @@ namespace Cyphoid.Core.Planning
 
       if (aggregators.Count > 0)
       {
-        var outputColumns = Projections
-          .Select((p, i) => new RowColumn(i, p.Variable.Name, p.Variable.Type))
-          .ToArray();
+        var outputColumns = new RowSchema(Projections
+          .Select((p, i) => new RowColumn(i, p.Variable.Name, p.Variable.Type)));
 
         return factory.BuildAggregationProjection(
           Input.BuildExecutionPlan(factory),

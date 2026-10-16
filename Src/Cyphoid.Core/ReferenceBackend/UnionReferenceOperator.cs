@@ -12,13 +12,17 @@ namespace Cyphoid.Core.ReferenceBackend
     {
       ct.ThrowIfCancellationRequested();
       var seen = All ? null : new HashSet<MixedValue[]>(new RowValuesComparer());
+      RowSchema? schema = null;
       foreach (var branch in Branches)
         await foreach (var row in branch.ExecuteAsync(context, ct).WithCancellation(ct))
         {
           ct.ThrowIfCancellationRequested();
           if (seen != null && !seen.Add(row.Values.Select(v => v ?? MixedValue.Null()).ToArray()))
             continue;
-          yield return row;
+          schema ??= row.Schema;
+          // Each branch owns its schema. Rebind through the host copy hook so
+          // the result stream has one shared schema while retaining metadata.
+          yield return ReferenceEquals(row.Schema, schema) ? row : row.CopyAndExpand(schema);
         }
     }
 

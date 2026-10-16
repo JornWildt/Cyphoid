@@ -1,4 +1,4 @@
-﻿namespace Cyphoid.Core.Execution
+namespace Cyphoid.Core.Execution
 {
   public interface IQueryContext
   {
@@ -8,10 +8,10 @@
 
   public interface IQueryRowFactory
   {
-    // Create clean empty row.
-    IRow EmptyRow(IReadOnlyList<IRowColumn> columns);
+    // Create a clean row retaining this exact immutable schema instance.
+    IRow EmptyRow(RowSchema columns);
 
-    // Create empty row with optional implementation specific meta data from a source row.
-    IRow EmptyRow(IRow source, IReadOnlyList<IRowColumn> columns);
+    // Preserve host metadata from source and retain the supplied schema instance.
+    IRow EmptyRow(IRow source, RowSchema columns);
   }
 }

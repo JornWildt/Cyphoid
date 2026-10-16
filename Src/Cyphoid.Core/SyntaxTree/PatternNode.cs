@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Planning;
 
@@ -8,7 +8,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public PipelinePlan BuildPlan(
       PipelinePlan? input,
-      IRowColumn[] matchColumns)
+      RowSchema matchColumns)
     {
       foreach (var part in Parts)
         input = BuildPartPlan(part, input, matchColumns);
@@ -19,7 +19,7 @@ namespace Cyphoid.Core.SyntaxTree
     private static PipelinePlan BuildPartPlan(
       PatternPartNode part,
       PipelinePlan? input,
-      IRowColumn[] matchColumns)
+      RowSchema matchColumns)
     {
       // A two-node pattern can start at its bound right endpoint without scanning the left node.
       if (part.PatternChain.Count == 2 &&

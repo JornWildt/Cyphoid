@@ -12,7 +12,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     string? Label;
     PropertyFilter? PropertyFilter;
     string? TargetRelationshipLabel;
-    IRowColumn[] MatchColumns;
+    RowSchema MatchColumns;
 
     public NodeScanTestOperator(
       InMemoryGraph graph,
@@ -20,7 +20,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
       string? label,
       PropertyFilter? propertyFilter,
       string? targetRelationshipLabel,
-      IRowColumn[] matchColumns)
+      RowSchema matchColumns)
       : base(graph)
     {
       Variable = variable;
