@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.ReferenceBackend;
 
@@ -9,7 +9,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public override RowEvaluator BuildEvaluator()
     {
-      return Sub.BuildEvaluator();
+      return Sub.CompileEvaluator();
     }
 
 

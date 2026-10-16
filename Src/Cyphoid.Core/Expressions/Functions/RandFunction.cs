@@ -9,12 +9,17 @@ namespace Cyphoid.Core.Expressions.Functions
   {
     ValueKindType IFunctionDefinition.ValueKind => ValueKindType.Variable;
 
+    void IFunctionDefinition.ValidateArguments(int count)
+    {
+      if (count != 0)
+        throw new ParseException("rand() requires no arguments.", CypherErrorCode.InvalidArgumentCount);
+    }
+
 
     RowEvaluator IFunctionDefinition.GetRowEvaluator(
       IReadOnlyList<RowEvaluator> parameters)
     {
-      if (parameters.Count != 0)
-        throw new ParseException("rand() requires no arguments.");
+      ((IFunctionDefinition)this).ValidateArguments(parameters.Count);
 
       return (IRow row) => MixedValue.Double(Random.Shared.NextDouble());
     }

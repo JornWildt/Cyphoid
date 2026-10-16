@@ -10,10 +10,15 @@ namespace Cyphoid.Core.Expressions.Functions
   {
     public ValueKindType ValueKind => ValueKindType.Variable;
 
+    public void ValidateArguments(int count)
+    {
+      if (count < minimumArguments || count > maximumArguments)
+        throw new ParseException($"{name}() requires {minimumArguments} to {maximumArguments} arguments.", CypherErrorCode.InvalidArgumentCount);
+    }
+
     public RowEvaluator GetRowEvaluator(IReadOnlyList<RowEvaluator> parameters)
     {
-      if (parameters.Count < minimumArguments || parameters.Count > maximumArguments)
-        throw new ParseException($"{name}() requires {minimumArguments} to {maximumArguments} arguments.");
+      ValidateArguments(parameters.Count);
 
       return row =>
       {
@@ -26,7 +31,13 @@ namespace Cyphoid.Core.Expressions.Functions
         }
         catch (Exception exception) when (exception is ArgumentException or FormatException or OverflowException or InvalidCastException)
         {
-          throw new RuntimeException($"{name}(): {exception.Message}");
+          var code = exception is OverflowException ? CypherErrorCode.NumericOverflow
+            : exception is InvalidCastException ? CypherErrorCode.TypeMismatch : CypherErrorCode.InvalidArgumentValue;
+          throw new RuntimeException($"{name}(): {exception.Message}", exception, code);
+        }
+        catch (RuntimeException exception)
+        {
+          throw new RuntimeException($"{name}(): {exception.Message}", exception, exception.Code);
         }
       };
     }
@@ -39,10 +50,15 @@ namespace Cyphoid.Core.Expressions.Functions
   {
     public ValueKindType ValueKind => ValueKindType.Variable;
 
+    public void ValidateArguments(int count)
+    {
+      if (count == 0)
+        throw new ParseException("coalesce() requires at least one argument.", CypherErrorCode.InvalidArgumentCount);
+    }
+
     public RowEvaluator GetRowEvaluator(IReadOnlyList<RowEvaluator> parameters)
     {
-      if (parameters.Count == 0)
-        throw new ParseException("coalesce() requires at least one argument.");
+      ValidateArguments(parameters.Count);
       return row =>
       {
         foreach (var parameter in parameters)

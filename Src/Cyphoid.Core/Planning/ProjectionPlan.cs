@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.ReferenceBackend;
 using Cyphoid.Core.SyntaxTree;
@@ -18,7 +18,7 @@ namespace Cyphoid.Core.Planning
 
       foreach (var p in Projections)
       {
-        var evaluator = p.Expr.BuildEvaluator();
+        var evaluator = p.Expr.CompileEvaluator();
         projections.Add(new ProjectionEvaluator(evaluator, p.Variable));
 
         if (p.Expr.ValueKind == ValueKindType.Aggregate)

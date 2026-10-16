@@ -32,7 +32,7 @@ namespace Cyphoid.Core.Expressions.Functions
         return definition;
       }
 
-      throw new ParseException($"Unknown function '{name}'.");
+      throw new ParseException($"Unknown function '{name}'.", CypherErrorCode.UnknownFunction);
     }
   }
 }

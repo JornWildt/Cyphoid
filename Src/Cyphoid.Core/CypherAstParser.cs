@@ -20,7 +20,9 @@ namespace Cyphoid.Core
 
       // Discover and validate everything before publishing any registration.
       var additions = new Dictionary<string, ProcedureRegistration>(StringComparer.Ordinal);
-      foreach (var procedure in plugin.GetProcedures())
+      var discovered = plugin.GetProcedures()
+        ?? throw new ArgumentException($"Plugin '{ns}' returned a null procedure collection.", nameof(plugin));
+      foreach (var procedure in discovered)
       {
         if (procedure == null || !ProcedureRegistration.IsIdentifier(procedure.Name))
           throw new ArgumentException("A procedure must have a valid name.", nameof(plugin));
@@ -43,6 +45,7 @@ namespace Cyphoid.Core
 
     QueryNode ICypherParser.ParseQuery(string query)
     {
+      ArgumentNullException.ThrowIfNull(query);
       AntlrInputStream inputStream = new AntlrInputStream(query);
       CypherLexer lexer = new CypherLexer(inputStream);
       CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -61,8 +64,9 @@ namespace Cyphoid.Core
 
       if (lexerErrors.Errors.Count > 0 || parserErrors.Errors.Count > 0)
       {
-        var allErrors = lexerErrors.Errors.Concat(parserErrors.Errors);
-        throw new ParseException(string.Join(Environment.NewLine, allErrors));
+        var allErrors = lexerErrors.Diagnostics.Concat(parserErrors.Diagnostics)
+          .OrderBy(d => d.SourceSpan?.Start).ToArray();
+        throw new ParseException(allErrors);
       }
 
       Dictionary<string, ProcedureRegistration> catalog;

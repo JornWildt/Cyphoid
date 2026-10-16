@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.Execution;
@@ -289,6 +289,18 @@ namespace Cyphoid.Core.Expressions
     }
 
 
+    private static MixedValue IntegerOperation(Func<long> calculate)
+    {
+      try { return Int(calculate()); }
+      catch (DivideByZeroException error)
+      {
+        throw new RuntimeException("Integer division or remainder by zero.", error, CypherErrorCode.DivisionByZero);
+      }
+      catch (OverflowException error)
+      {
+        throw new RuntimeException("Integer arithmetic overflow.", error, CypherErrorCode.NumericOverflow);
+      }
+    }
     public static MixedValue operator +(MixedValue right)
     {
       if (right.IsNull())
@@ -310,7 +322,7 @@ namespace Cyphoid.Core.Expressions
 
       if (right.TryGetInt(out var ri))
       {
-        return MixedValue.Int(-ri);
+        return IntegerOperation(() => checked(-ri));
       }
       else if (right.TryGetDouble(out var rd))
       {
@@ -330,7 +342,7 @@ namespace Cyphoid.Core.Expressions
       {
         if (right.TryGetInt(out var ri))
         {
-          return MixedValue.Int(li + ri);
+          return IntegerOperation(() => checked(li + ri));
         }
         else if (right.TryGetDouble(out var rd))
         {
@@ -362,7 +374,7 @@ namespace Cyphoid.Core.Expressions
       {
         if (right.TryGetInt(out var ri))
         {
-          return MixedValue.Int(li - ri);
+          return IntegerOperation(() => checked(li - ri));
         }
         else if (right.TryGetDouble(out var rd))
         {
@@ -394,7 +406,7 @@ namespace Cyphoid.Core.Expressions
       {
         if (right.TryGetInt(out var ri))
         {
-          return MixedValue.Int(li * ri);
+          return IntegerOperation(() => checked(li * ri));
         }
         else if (right.TryGetDouble(out var rd))
         {
@@ -426,7 +438,7 @@ namespace Cyphoid.Core.Expressions
       {
         if (right.TryGetInt(out var ri))
         {
-          return MixedValue.Int(li / ri);
+          return IntegerOperation(() => checked(li / ri));
         }
         else if (right.TryGetDouble(out var rd))
         {
@@ -458,7 +470,7 @@ namespace Cyphoid.Core.Expressions
       {
         if (right.TryGetInt(out var ri))
         {
-          return MixedValue.Int(li % ri);
+          return IntegerOperation(() => checked(li % ri));
         }
         else if (right.TryGetDouble(out var rd))
         {

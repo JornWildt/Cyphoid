@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
 
@@ -14,7 +14,7 @@ namespace Cyphoid.Core.Planning
 
       foreach (var o in Ordering)
       {
-        var evaluator = o.Expression.BuildEvaluator();
+        var evaluator = o.Expression.CompileEvaluator();
         var direction = o.Direction == OrderByDirectionType.Descending ? SortDirection.Descending : SortDirection.Ascending;
         ordering.Add(new OrderByEvaluator(evaluator, direction));
       }

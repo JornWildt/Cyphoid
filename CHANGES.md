@@ -4,6 +4,10 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- Added public runtime errors with stable diagnostic codes, error phases, and source spans. Syntax errors retain individually accessible diagnostics. Scalar conversions retain inner exceptions and compiled query expressions report their failing location.
+- Built-in function signatures and unsupported aggregate placement are now validated during parsing. `type`/`labels` and aggregates reject missing or extra arguments; only `count(*)` accepts `*`. Oversized LIMIT values are rejected instead of truncated.
+- Integer arithmetic now reports overflow and division/remainder by zero as runtime query errors. Double arithmetic retains .NET IEEE semantics.
+- Procedure cleanup failures no longer replace an existing enumeration, result-validation, host row-composition, or cancellation failure. Secondary failures are available through `CypherExceptionDiagnostics.GetCleanupExceptions`.
 - Added end-to-end query cancellation through reference operators, backend operators, and procedure invocations, supporting both `ExecuteAsync(context, ct)` and `.WithCancellation(ct)`. Cancellation propagates unchanged and disposes active enumerators.
 - Breaking backend API change: `IOperator.ExecuteAsync` now takes `CancellationToken ct = default`. Implementations must accept and forward the token; async iterator implementations should mark it with `[EnumeratorCancellation]`. Existing calls without a token remain valid.
 

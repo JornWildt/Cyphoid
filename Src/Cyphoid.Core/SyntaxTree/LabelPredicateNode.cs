@@ -8,7 +8,7 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public override RowEvaluator BuildEvaluator()
     {
-      var evaluator = new VariableExprNode(Variable).BuildEvaluator();
+      var evaluator = new VariableExprNode(Variable).CompileEvaluator();
       return (IRow row) =>
       {
         var value = evaluator(row);

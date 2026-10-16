@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
@@ -36,7 +36,7 @@ namespace Cyphoid.Core.SyntaxTree
         {
           ValueKindType.Const => ValueKindType.Const,
           ValueKindType.Variable => ValueKindType.Variable,
-          ValueKindType.Aggregate => throw new RuntimeException("Cannot use aggregate functions in expressions.")
+          ValueKindType.Aggregate => throw new ParseException("Cannot use aggregate functions in expressions.", CypherErrorCode.InvalidAggregateUsage)
         };
       }
       else if (left.ValueKind == ValueKindType.Variable)
@@ -45,12 +45,12 @@ namespace Cyphoid.Core.SyntaxTree
         {
           ValueKindType.Const => ValueKindType.Variable,
           ValueKindType.Variable => ValueKindType.Variable,
-          ValueKindType.Aggregate => throw new RuntimeException("Cannot use aggregate functions in expressions.")
+          ValueKindType.Aggregate => throw new ParseException("Cannot use aggregate functions in expressions.", CypherErrorCode.InvalidAggregateUsage)
         };
       }
       else
       {
-        throw new RuntimeException("Cannot use aggregate functions in expressions.");
+        throw new ParseException("Cannot use aggregate functions in expressions.", CypherErrorCode.InvalidAggregateUsage);
       }
 #pragma warning restore CS8524
     }
@@ -58,8 +58,8 @@ namespace Cyphoid.Core.SyntaxTree
 
     public override RowEvaluator BuildEvaluator()
     {
-      var leftEvaluator = Left.BuildEvaluator();
-      var rightEvaluator = Right.BuildEvaluator();
+      var leftEvaluator = Left.CompileEvaluator();
+      var rightEvaluator = Right.CompileEvaluator();
 
 #pragma warning disable CS8524 // unnamed enum values
       return Operator switch
@@ -116,7 +116,7 @@ namespace Cyphoid.Core.SyntaxTree
 
     public override RowEvaluator BuildEvaluator()
     {
-      var exprEvaluator = Expr.BuildEvaluator();
+      var exprEvaluator = Expr.CompileEvaluator();
 
 #pragma warning disable CS8524 // unnamed enum values
       return Operator switch
@@ -142,8 +142,8 @@ namespace Cyphoid.Core.SyntaxTree
   {
     public override RowEvaluator BuildEvaluator()
     {
-      var exprEvaluator = Expr.BuildEvaluator();
-      var itemEvaluators = Items.Select(i => i.BuildEvaluator());
+      var exprEvaluator = Expr.CompileEvaluator();
+      var itemEvaluators = Items.Select(i => i.CompileEvaluator());
       return (IRow r) =>
       {
         var exprValue = exprEvaluator(r);

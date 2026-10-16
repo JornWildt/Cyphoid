@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+using Antlr4.Runtime;
 using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.Expressions;
 using Cyphoid.Core.Expressions.Functions;
@@ -79,19 +80,19 @@ namespace Cyphoid.Core
         return Visit<MatchWhereNode>(context.matchWhereClause());
       }
       else
-        throw new ParseException("Unhandled repeatable clause state.");
+        throw new InvalidOperationException("Unhandled repeatable clause state.");
     }
 
     public override AstNode VisitCallClause([NotNull] CypherParser.CallClauseContext context)
     {
       var name = context.procedureName().GetText();
       if (!procedures.TryGetValue(name, out var procedure))
-        throw new ParseException($"Unknown procedure '{name}'.");
+        throw new ParseException($"Unknown procedure '{name}'.", CypherErrorCode.UnknownProcedure);
       if (context.expression().Any(ContainsAggregateCall))
-        throw new ParseException("Project aggregate arguments in WITH before calling a procedure.");
+        throw new ParseException("Project aggregate arguments in WITH before calling a procedure.", CypherErrorCode.InvalidAggregateUsage);
       var arguments = context.expression().Select(e => Visit<ExprNode>(e)).ToArray();
       if (arguments.Length != procedure.Parameters.Count)
-        throw new ParseException($"Procedure '{name}' requires {procedure.Parameters.Count} arguments.");
+        throw new ParseException($"Procedure '{name}' requires {procedure.Parameters.Count} arguments.", CypherErrorCode.InvalidArgumentCount);
 
       var bindings = new List<ProcedureYield>();
       foreach (var item in context.yieldItem())
@@ -100,10 +101,10 @@ namespace Cyphoid.Core
         var index = Enumerable.Range(0, procedure.Outputs.Count)
           .FirstOrDefault(i => procedure.Outputs[i].Name == fieldName, -1);
         if (index < 0)
-          throw new ParseException($"Procedure '{name}' has no output '{fieldName}'.");
+          throw new ParseException($"Procedure '{name}' has no output '{fieldName}'.", CypherErrorCode.InvalidYield);
         var alias = item.identifier().Last().GetText();
         if (VariableDefinitions.ContainsKey(alias))
-          throw new ParseException($"Variable '{alias}' is already bound; use a different YIELD alias.");
+          throw new ParseException($"Variable '{alias}' is already bound; use a different YIELD alias.", CypherErrorCode.InvalidYield);
         var variable = new VariableDefinition(false, alias, procedure.Outputs[index].Type, VariableDefinitions.Count);
         VariableDefinitions.Add(alias, variable);
         bindings.Add(new ProcedureYield(index, fieldName, variable));
@@ -149,6 +150,7 @@ namespace Cyphoid.Core
     
     public override AstNode VisitWhereClause([NotNull] CypherParser.WhereClauseContext context)
     {
+      RejectAggregateCalls(context.expression());
       var expr = Visit<ExprNode>(context.expression());
       return new WhereNode(expr);
     }
@@ -230,6 +232,7 @@ namespace Cyphoid.Core
 
     public override AstNode VisitOrderByItem([NotNull] CypherParser.OrderByItemContext context)
     {
+      RejectAggregateCalls(context.expression());
       var expression = Visit<ExprNode>(context.expression());
       var dir = 
         context.ASC() != null ? OrderByDirectionType.Ascending
@@ -241,7 +244,9 @@ namespace Cyphoid.Core
 
     public override AstNode VisitLimitClause([NotNull] global::CypherParser.LimitClauseContext context)
     {
-      var value = (IntLiteralNode)Visit(context.integerLiteral());
+      var value = Visit<IntLiteralNode>(context.integerLiteral());
+      if (value.Value > int.MaxValue)
+        throw new ParseException($"LIMIT must be between 0 and {int.MaxValue}.", CypherErrorCode.InvalidArgumentValue);
       return new LimitNode((int)value.Value);
     }
 
@@ -424,6 +429,7 @@ namespace Cyphoid.Core
     {
       if (context.notExpression() != null)
       {
+        RejectAggregateCalls(context.notExpression());
         var expr = Visit<ExprNode>(context.notExpression());
         return new UnaryOperatorNode(UnaryOperatorType.Not, expr);
       }
@@ -457,7 +463,7 @@ namespace Cyphoid.Core
         "CONTAINS" => BinaryOperatorType.CONTAINS,
         "STARTSWITH" => BinaryOperatorType.STARTS_WITH,
         "ENDSWITH" => BinaryOperatorType.ENDS_WITH,
-        _ => throw new ParseException($"Unhandled operator '{operatorText}'.")
+        _ => throw new InvalidOperationException($"Unhandled operator '{operatorText}'.")
       };
 
       return new BinaryOperatorNode(left, right, op);
@@ -499,13 +505,14 @@ namespace Cyphoid.Core
       if (context.inExpression() != null)
         return Visit<ExprNode>(context.inExpression());
 
+      RejectAggregateCalls(context.unaryExpression());
       var sub = Visit<ExprNode>(context.unaryExpression());
       if (context.PLUS() != null)
         return new UnaryOperatorNode(UnaryOperatorType.Plus, sub);
       else if (context.DASH() != null)
         return new UnaryOperatorNode(UnaryOperatorType.Minus, sub);
       else
-        throw new ParseException($"Unhandled unary expression state.");
+        throw new InvalidOperationException("Unhandled unary expression state.");
     }
 
 
@@ -515,6 +522,7 @@ namespace Cyphoid.Core
       if (context.IN() == null || context.expressionList() == null)
         return expr;
 
+      RejectAggregateCalls(context);
       var list = new List<ExprNode>();
       foreach (var e in context.expressionList().expression())
       {
@@ -554,7 +562,7 @@ namespace Cyphoid.Core
         return Visit<FunctionCallNode>(context.functionCall());
       }
       else
-        throw new ParseException($"Unhandled primary expression state.");
+        throw new InvalidOperationException("Unhandled primary expression state.");
     }
 
 
@@ -581,15 +589,22 @@ namespace Cyphoid.Core
     public override AstNode VisitFunctionCall([NotNull] CypherParser.FunctionCallContext context)
     {
       if (context.identifier() != null && context.ASTERIX() != null)
+      {
+        if (!context.identifier().GetText().Equals("count", StringComparison.OrdinalIgnoreCase))
+          throw new ParseException("Only count(*) accepts '*'.", CypherErrorCode.InvalidArgumentCount);
         return new FunctionCallNode(context.identifier().GetText(), FunctionRegistry.GetFunctionDefinition("CountAll"), []);
+      }
 
       var name = context.identifier().GetText();
+      var definition = FunctionRegistry.GetFunctionDefinition(name);
+      definition.ValidateArguments(context.expression().Length);
+      foreach (var argument in context.expression()) RejectAggregateCalls(argument);
 
       var parameters = context.expression()
         .Select(e => Visit<ExprNode>(e))
         .ToArray();
 
-      return new FunctionCallNode(name, FunctionRegistry.GetFunctionDefinition(name), parameters);
+      return new FunctionCallNode(name, definition, parameters);
     }
 
     
@@ -632,7 +647,7 @@ namespace Cyphoid.Core
         return new NullLiteralNode();
       }
       else
-        throw new ParseException($"Unhandled literal state.");
+        throw new InvalidOperationException("Unhandled literal state.");
     }
 
 
@@ -677,10 +692,34 @@ namespace Cyphoid.Core
 
     public T Visit<T>(IParseTree tree) where T : AstNode
     {
-      var result = base.Visit(tree);
-      if (result is not T)
-        throw new ParseException($"Unexpected parse tree type '{result?.GetType()}' - expected '{typeof(T)}'.");
-      return (T)result;
+      var span = SpanOf(tree);
+      try
+      {
+        var result = base.Visit(tree);
+        if (result is not T typed)
+          throw new InvalidOperationException($"Unexpected parse tree type '{result?.GetType()}' - expected '{typeof(T)}'.");
+        typed.SourceSpan ??= span;
+        return typed;
+      }
+      catch (CypherException error)
+      {
+        error.Locate(span);
+        throw;
+      }
+    }
+
+    private static SourceSpan? SpanOf(IParseTree tree) => tree is ParserRuleContext rule
+      ? new SourceSpan(rule.Start.StartIndex, Math.Max(0, (rule.Stop?.StopIndex ?? rule.Start.StopIndex) - rule.Start.StartIndex + 1),
+        rule.Start.Line, rule.Start.Column) : null;
+
+    private static void RejectAggregateCalls(IParseTree tree)
+    {
+      if (ContainsAggregateCall(tree))
+      {
+        var error = new ParseException("Project aggregate results in WITH before using them in this expression.", CypherErrorCode.InvalidAggregateUsage);
+        error.Locate(SpanOf(tree));
+        throw error;
+      }
     }
 
 
@@ -733,7 +772,7 @@ namespace Cyphoid.Core
       if (!VariableDefinitions.TryGetValue(variableName, out var variableDefinition))
       {
         if (OrderingInputVariables == null || !OrderingInputVariables.TryGetValue(variableName, out var inputVariable))
-          throw new ParseException($"Undefined variable '{variableName}'.");
+          throw new ParseException($"Undefined variable '{variableName}'.", CypherErrorCode.UnknownVariable);
 
         // Preserve only input variables referenced by ORDER BY, after the visible output slots.
         variableDefinition = inputVariable with { SlotIndex = VariableDefinitions.Count };

@@ -9,7 +9,7 @@ public sealed record ProcedureCallPlan(PipelinePlan Input, CallNode Call) : Pipe
 {
   public override IOperator BuildExecutionPlan(IOperatorFactory factory) =>
     new ProcedureCallReferenceOperator(Input.BuildExecutionPlan(factory), Call,
-      Call.Arguments.Select(a => a.BuildEvaluator()).ToArray());
+      Call.Arguments.Select(a => a.CompileEvaluator()).ToArray());
 
   public override void PrettyPrint(StringBuilder sb)
   {

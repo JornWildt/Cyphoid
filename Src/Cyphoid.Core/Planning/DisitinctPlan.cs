@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.ReferenceBackend;
 using Cyphoid.Core.SyntaxTree;
@@ -15,7 +15,7 @@ namespace Cyphoid.Core.Planning
       foreach (var p in Projections)
       {
         var varExpr = new VariableExprNode(p.Variable);
-        var evaluator = varExpr.BuildEvaluator();
+        var evaluator = varExpr.CompileEvaluator();
         groupings.Add(new GroupingEvaluator(evaluator, p.Variable.SlotIndex));
       }
 

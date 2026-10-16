@@ -1,6 +1,7 @@
 ﻿using Cyphoid.Core.Execution;
 using Cyphoid.Core.ReferenceBackend;
 using Cyphoid.Core.SyntaxTree;
+using Cyphoid.Core.Exceptions;
 
 namespace Cyphoid.Core.Expressions.Functions
 {
@@ -8,10 +9,17 @@ namespace Cyphoid.Core.Expressions.Functions
   {
     ValueKindType IFunctionDefinition.ValueKind => ValueKindType.Variable;
 
+    void IFunctionDefinition.ValidateArguments(int count)
+    {
+      if (count != 1)
+        throw new ParseException("type()/labels() requires exactly one argument.", CypherErrorCode.InvalidArgumentCount);
+    }
+
 
     RowEvaluator IFunctionDefinition.GetRowEvaluator(
       IReadOnlyList<RowEvaluator> parameters)
     {
+      ((IFunctionDefinition)this).ValidateArguments(parameters.Count);
       return (IRow row) =>
       {
         var value = parameters[0](row);

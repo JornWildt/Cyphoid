@@ -9,10 +9,15 @@ namespace Cyphoid.Core.Expressions.Functions
   {
     ValueKindType IFunctionDefinition.ValueKind => ValueKindType.Variable;
 
+    void IFunctionDefinition.ValidateArguments(int count)
+    {
+      if (count != 1)
+        throw new ParseException("id() requires exactly one argument.", CypherErrorCode.InvalidArgumentCount);
+    }
+
     RowEvaluator IFunctionDefinition.GetRowEvaluator(IReadOnlyList<RowEvaluator> parameters)
     {
-      if (parameters.Count != 1)
-        throw new ParseException("id() requires exactly one argument.");
+      ((IFunctionDefinition)this).ValidateArguments(parameters.Count);
 
       return (IRow row) =>
       {

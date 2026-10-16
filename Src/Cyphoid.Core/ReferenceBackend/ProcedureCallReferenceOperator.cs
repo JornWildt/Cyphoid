@@ -25,10 +25,15 @@ internal sealed record ProcedureCallReferenceOperator(
       var arguments = Arguments.Select(a => a(input)).ToArray();
       for (var i = 0; i < arguments.Length; i++)
         if (!ProcedureRegistration.Accepts(registration.Parameters[i], arguments[i]))
-          throw new RuntimeException($"Procedure '{registration.QualifiedName}' argument '{registration.Parameters[i].Name}' requires {registration.Parameters[i].Type} (nullable: {registration.Parameters[i].Nullable}); got {arguments[i].Type}.");
+        {
+          var error = new RuntimeException($"Procedure '{registration.QualifiedName}' argument '{registration.Parameters[i].Name}' requires {registration.Parameters[i].Type} (nullable: {registration.Parameters[i].Nullable}); got {arguments[i].Type}.");
+          error.Locate(Call.Arguments[i].SourceSpan ?? Call.SourceSpan);
+          throw error;
+        }
 
       // Wrap both synchronous invocation errors and deferred enumeration errors.
       IAsyncEnumerator<IRow> results;
+      Exception? primary = null;
       try
       {
         results = registration.Procedure.ExecuteAsync(context, input, Array.AsReadOnly(arguments),
@@ -49,45 +54,79 @@ internal sealed record ProcedureCallReferenceOperator(
             if (!await results.MoveNextAsync()) break;
             ct.ThrowIfCancellationRequested();
             result = results.Current;
-            ValidateResult(result, columns);
           }
-          catch (Exception exception) when (exception is not OperationCanceledException)
+          catch (Exception exception)
           {
-            throw Failure(exception);
+            primary = exception;
+            if (exception is OperationCanceledException) throw;
+            primary = Failure(exception);
+            throw primary;
+          }
+
+          try { ValidateResult(result, columns); }
+          catch (InvalidProcedureResultException exception)
+          {
+            primary = Failure(exception, CypherErrorCode.InvalidProcedureResult);
+            throw primary;
+          }
+          catch (Exception exception)
+          {
+            primary = exception;
+            throw;
           }
 
           // MergeWith uses shared query slots, not concatenation. Leave input
           // slots unset in the right row so the host merge preserves their values.
-          var yielded = context.RowFactory.EmptyRow(result, Call.OutputColumns);
-          foreach (var binding in Call.Yields)
-            yielded.Values[binding.Variable.SlotIndex] = result.Values[binding.OutputIndex] ?? MixedValue.Null();
-          yield return input.MergeWith(yielded);
+          IRow combined;
+          try
+          {
+            var yielded = context.RowFactory.EmptyRow(result, Call.OutputColumns);
+            foreach (var binding in Call.Yields)
+              yielded.Values[binding.Variable.SlotIndex] = result.Values[binding.OutputIndex] ?? MixedValue.Null();
+            combined = input.MergeWith(yielded);
+          }
+          catch (Exception exception)
+          {
+            primary = exception; // Preserve host failures without relabeling them as plugin errors.
+            throw;
+          }
+          yield return combined;
         }
       }
       finally
       {
         try { await results.DisposeAsync(); }
-        catch (Exception exception) when (exception is not OperationCanceledException)
+        catch (Exception exception)
         {
-          throw Failure(exception);
+          if (primary != null)
+            CypherExceptionDiagnostics.AddCleanupException(primary, exception);
+          else if (exception is OperationCanceledException) throw;
+          else
+            throw Failure(exception);
         }
       }
     }
   }
 
-  private RuntimeException Failure(Exception exception) =>
-    new($"Procedure '{Call.Registration.QualifiedName}' failed: {exception.Message}", exception);
+  private RuntimeException Failure(Exception exception, CypherErrorCode code = CypherErrorCode.ProcedureFailed)
+  {
+    var error = new RuntimeException($"Procedure '{Call.Registration.QualifiedName}' failed: {exception.Message}", exception, code);
+    error.Locate(Call.SourceSpan);
+    return error;
+  }
 
   private void ValidateResult(IRow row, IReadOnlyList<IRowColumn> columns)
   {
-    if (row == null || row.Values.Length != columns.Count || row.Columns.Length != columns.Count)
-      throw new InvalidOperationException("Result row does not match the declared output width.");
+    if (row == null || row.Values == null || row.Columns == null || row.Values.Length != columns.Count || row.Columns.Length != columns.Count)
+      throw new InvalidProcedureResultException("Result row does not match the declared output width.");
     for (var i = 0; i < columns.Count; i++)
     {
-      if (row.Columns[i].Index != i || row.Columns[i].Name != columns[i].Name || row.Columns[i].Type != columns[i].Type)
-        throw new InvalidOperationException($"Result column {i} does not match the declared output schema.");
+      if (row.Columns[i] == null || row.Columns[i].Index != i || row.Columns[i].Name != columns[i].Name || row.Columns[i].Type != columns[i].Type)
+        throw new InvalidProcedureResultException($"Result column {i} does not match the declared output schema.");
       if (!ProcedureRegistration.Accepts(Call.Registration.Outputs[i], row.Values[i] ?? MixedValue.Null()))
-        throw new InvalidOperationException($"Result column '{columns[i].Name}' has an invalid type or null value.");
+        throw new InvalidProcedureResultException($"Result column '{columns[i].Name}' has an invalid type or null value.");
     }
   }
+
+  private sealed class InvalidProcedureResultException(string message) : Exception(message);
 }

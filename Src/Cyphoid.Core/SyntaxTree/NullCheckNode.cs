@@ -7,12 +7,12 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record NullCheckNode(ExprNode Expr, bool Negated)
     : ExprNode(Expr.ValueKind == ValueKindType.Aggregate
-      ? throw new RuntimeException("Cannot use aggregate functions in expressions.")
+      ? throw new ParseException("Cannot use aggregate functions in expressions.", CypherErrorCode.InvalidAggregateUsage)
       : Expr.ValueKind)
   {
     public override RowEvaluator BuildEvaluator()
     {
-      var evaluator = Expr.BuildEvaluator();
+      var evaluator = Expr.CompileEvaluator();
       return (IRow row) => MixedValue.Bool(evaluator(row).IsNull() != Negated);
     }
 

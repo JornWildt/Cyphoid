@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
 
@@ -10,7 +10,7 @@ namespace Cyphoid.Core.Planning
   {
     public override IOperator BuildExecutionPlan(IOperatorFactory factory)
     {
-      var evaluator = Predicate.BuildEvaluator();
+      var evaluator = Predicate.CompileEvaluator();
       return factory.BuildFilter(
         Input.BuildExecutionPlan(factory),
         evaluator);

@@ -119,6 +119,9 @@ Cypher executable query plan
 
 Guidance for third-party backends is in `BACKEND_GUIDE.md`.
 
+Query exceptions, diagnostic codes, source locations, and cleanup failures are
+documented in [ERROR_HANDLING.md](ERROR_HANDLING.md).
+
 ### Procedure plugins
 
 Install third-party procedures with `ICypherParser.InstallPlugin(plugin)`, then

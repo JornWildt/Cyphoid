@@ -134,6 +134,12 @@ validates column names, indexes, types, width, values, and nullability. Procedur
 failures are reported with the qualified procedure name and original inner
 exception. Cancellation exceptions propagate unchanged.
 
+`RuntimeException` is public. Invalid result schemas use the `InvalidProcedureResult`
+code; plugin invocation/enumeration failures use `ProcedureFailed`. Cleanup failures
+do not replace an existing procedure error or cancellation. See
+[ERROR_HANDLING.md](ERROR_HANDLING.md) for structured diagnostics and access to
+secondary cleanup exceptions.
+
 ## Host metadata
 
 The input row is borrowed and must not be mutated. Create each output through
