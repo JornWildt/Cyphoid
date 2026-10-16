@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Antlr4.Runtime;
+﻿using Antlr4.Runtime;
 using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.SyntaxTree;
 
@@ -11,7 +6,7 @@ namespace Cyphoid.Core
 {
   public class CypherAstParser : ICypherParser
   {
-    QueryNode ICypherParser.ParseQuery(string query) 
+    QueryNode ICypherParser.ParseQuery(string query)
     {
       AntlrInputStream inputStream = new AntlrInputStream(query);
       CypherLexer lexer = new CypherLexer(inputStream);

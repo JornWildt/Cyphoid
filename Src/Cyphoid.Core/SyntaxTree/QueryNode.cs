@@ -6,7 +6,9 @@ namespace Cyphoid.Core.SyntaxTree
 {
   public record QueryNode(
     IReadOnlyList<ClauseNode> Clauses,
-    ReturnLimitNode ReturnLimit) : AstNode
+    ReturnLimitNode ReturnLimit,
+    IReadOnlyList<QueryNode>? UnionBranches = null,
+    bool UnionAll = false) : AstNode
   {
     public PipelinePlan BuildQueryPlan()
     {
@@ -19,6 +21,8 @@ namespace Cyphoid.Core.SyntaxTree
       plan = plan ?? new EmptyPlan();
 
       var projectionPlan = ReturnLimit.BuildProjectionPlan(plan);
+      if (UnionBranches is { Count: > 0 })
+        return new UnionPlan(new[] { projectionPlan }.Concat(UnionBranches.Select(b => b.BuildQueryPlan())).ToArray(), UnionAll);
       return projectionPlan;
     }
 
@@ -38,6 +42,12 @@ namespace Cyphoid.Core.SyntaxTree
         sb.Append(" ");
 
       ReturnLimit.PrettyPrint(sb);
+      if (UnionBranches != null)
+        foreach (var branch in UnionBranches)
+        {
+          sb.Append(UnionAll ? " UNION ALL " : " UNION ");
+          branch.PrettyPrint(sb);
+        }
     }
   }
 }

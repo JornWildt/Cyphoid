@@ -48,6 +48,30 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitQuery([NotNull] CypherParser.QueryContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.singleQuery"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSingleQuery([NotNull] CypherParser.SingleQueryContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.singleQuery"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSingleQuery([NotNull] CypherParser.SingleQueryContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.unionClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterUnionClause([NotNull] CypherParser.UnionClauseContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.unionClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitUnionClause([NotNull] CypherParser.UnionClauseContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.repeatableClause"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

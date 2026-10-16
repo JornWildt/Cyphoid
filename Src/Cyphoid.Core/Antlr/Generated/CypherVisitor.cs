@@ -38,6 +38,18 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitQuery([NotNull] CypherParser.QueryContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.singleQuery"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSingleQuery([NotNull] CypherParser.SingleQueryContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.unionClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitUnionClause([NotNull] CypherParser.UnionClauseContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.repeatableClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

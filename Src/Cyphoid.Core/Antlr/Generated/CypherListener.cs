@@ -41,6 +41,26 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitQuery([NotNull] CypherParser.QueryContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.singleQuery"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSingleQuery([NotNull] CypherParser.SingleQueryContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.singleQuery"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSingleQuery([NotNull] CypherParser.SingleQueryContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.unionClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterUnionClause([NotNull] CypherParser.UnionClauseContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.unionClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitUnionClause([NotNull] CypherParser.UnionClauseContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.repeatableClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

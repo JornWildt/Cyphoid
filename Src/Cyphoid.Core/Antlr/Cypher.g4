@@ -1,7 +1,15 @@
 grammar Cypher;
 
 query
-  : repeatableClause* returnLimitClause EOF
+  : singleQuery (unionClause singleQuery)* EOF
+  ;
+
+singleQuery
+  : repeatableClause* returnLimitClause
+  ;
+
+unionClause
+  : UNION (ALL | DISTINCT)?
   ;
 
 repeatableClause
@@ -242,6 +250,8 @@ stringLiteral
 // =========================
 
 MATCH      : [Mm][Aa][Tt][Cc][Hh];
+UNION      : [Uu][Nn][Ii][Oo][Nn];
+ALL        : [Aa][Ll][Ll];
 OPTIONAL   : [Oo][Pp][Tt][Ii][Oo][Nn][Aa][Ll];
 WHERE      : [Ww][Hh][Ee][Rr][Ee];
 RETURN     : [Rr][Ee][Tt][Uu][Rr][Nn];

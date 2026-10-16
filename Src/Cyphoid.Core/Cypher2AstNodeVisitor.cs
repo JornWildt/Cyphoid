@@ -30,6 +30,20 @@ namespace Cyphoid.Core
 
     public override AstNode VisitQuery([NotNull] global::CypherParser.QueryContext context)
     {
+      var branches = context.singleQuery()
+        .Select(q => new Cypher2AstNodeVisitor().Visit<QueryNode>(q)).ToArray();
+      var unions = context.unionClause();
+      var all = unions.Length > 0 && unions[0].ALL() != null;
+      if (unions.Any(u => (u.ALL() != null) != all))
+        throw new ParseException("Cannot mix UNION and UNION ALL in one query.");
+      var columns = branches[0].ReturnLimit.Projections.Select(p => p.Variable.Name).ToArray();
+      if (branches.Skip(1).Any(b => !columns.SequenceEqual(b.ReturnLimit.Projections.Select(p => p.Variable.Name))))
+        throw new ParseException("UNION branches must return the same column names in the same order.");
+      return branches[0] with { UnionBranches = branches.Skip(1).ToArray(), UnionAll = all };
+    }
+
+    public override AstNode VisitSingleQuery([NotNull] CypherParser.SingleQueryContext context)
+    {
       var clauses = new List<ClauseNode>();
       foreach (var clauseCtx in context.repeatableClause())
       {

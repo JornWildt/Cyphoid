@@ -2,6 +2,10 @@
 
 Changes are listed by version, newest first. Historical dates follow version updates in Git, rather than verified package publication dates. Version 0.10.0 appears in package release notes but has no separate version commit.
 
+## Unreleased
+
+- Added `UNION` / `UNION DISTINCT` and `UNION ALL` with independent branch scopes and validation of output column names and order. UNION removes duplicate complete rows, including matching node identities and nulls; UNION ALL preserves duplicates. Mixing distinct and ALL forms in a single chain is rejected.
+
 ## 0.15.0 — 2026-10-15
 
 - Added `n:label` predicates for checking a node's single type in WHERE and projected expressions. Predicates support boolean combinations, use ordinal case-sensitive comparison, and return null for null nodes.

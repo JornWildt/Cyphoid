@@ -16,6 +16,19 @@ See the [changelog](https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md)
 
 ## Example usage
 
+### Combining queries
+
+Use `UNION` to combine independent query results and remove duplicate rows, or `UNION ALL` to retain duplicates:
+
+```cypher
+MATCH (n:pressure) RETURN n
+UNION
+MATCH (n:impact) RETURN n
+```
+
+Branches must return the same column names in the same order and have independent variable scopes. ORDER BY and LIMIT apply to their individual branch. `UNION DISTINCT` is accepted as an alias for UNION and is pretty-printed as UNION. Mixed UNION / UNION ALL chains and post-union subquery processing are not supported.
+
+
 ### Scalar functions
 
 Supported scalar functions include `coalesce`, `toLower`, `toUpper`, `trim`, `ltrim`, `rtrim`, `toString`, `toInteger`, `toFloat`, `toBoolean`, `size`, `substring`, `replace`, `left`, `right`, `abs`, `round`, `floor`, and `ceil`. Names are case-insensitive.
