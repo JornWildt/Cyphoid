@@ -51,14 +51,14 @@ public sealed class NumbersProcedure : ICypherProcedure
     IRow inputRow,
     IReadOnlyList<MixedValue> arguments,
     IReadOnlyList<IRowColumn> outputColumns,
-    [EnumeratorCancellation] CancellationToken cancellationToken)
+    [EnumeratorCancellation] CancellationToken ct)
   {
     // Replace this with asynchronous repository access when appropriate.
     await Task.Yield();
     var start = arguments[0].AsInt();
     for (var i = 0; i < 3; i++)
     {
-      cancellationToken.ThrowIfCancellationRequested();
+      ct.ThrowIfCancellationRequested();
       var output = context.RowFactory.EmptyRow(inputRow, outputColumns);
       output.Values[0] = MixedValue.Int(start + i);
       yield return output;
@@ -165,7 +165,14 @@ Put resource cleanup in `finally` or `using` blocks. Do not assume that every
 result row will be requested, or that ordinary code after the last `yield return`
 will execute.
 
-The procedure operator forwards an enumeration cancellation token when supplied
-to it. Existing operators do not consistently forward enumeration cancellation,
-so this feature does not establish end-to-end query cancellation. Host-specific
-contexts can carry a query cancellation token where needed.
+Pass a cancellation token to `execution.ExecuteAsync(context, ct)` or enumerate
+`execution.ExecuteAsync(context).WithCancellation(ct)`. All reference operators
+forward cancellation through the pipeline to backend operators and procedures.
+If both forms supply different tokens, cancellation of either stops execution.
+
+Procedure implementations must observe their `ct` parameter: pass it to
+asynchronous repository calls and check `ct.ThrowIfCancellationRequested()`
+periodically during CPU work. Cancellation is cooperative; Cyphoid cannot
+interrupt plugin or backend code that ignores the token. Result enumerators are
+disposed when cancellation unwinds the pipeline, and cancellation exceptions
+propagate unchanged.

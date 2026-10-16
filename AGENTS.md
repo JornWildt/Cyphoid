@@ -14,6 +14,7 @@ The Cypher engine is implemented as a pipeline of row-oriented physical operator
 ## Execution model
 
 - Pipeline is `IAsyncEnumerable` of rows; operators implement `IOperator.ExecuteAsync`.
+- `ExecuteAsync(IQueryContext context, CancellationToken ct = default)` propagates cancellation end to end. Async iterators use `[EnumeratorCancellation]`, pass `ct` upstream and to I/O, and check cancellation during CPU work. Name cancellation-token parameters `ct`.
 - Rows are positional; each variable binds to a fixed `SlotIndex` in `IRow.Values`.
 - Expressions compile into evaluators, not runtime dictionary lookups.
 

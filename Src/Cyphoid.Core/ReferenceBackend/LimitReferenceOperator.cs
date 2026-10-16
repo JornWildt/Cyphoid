@@ -1,4 +1,5 @@
-﻿using Cyphoid.Core.Execution;
+using System.Runtime.CompilerServices;
+using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
@@ -6,9 +7,14 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator Input,
     int Limit) : IOperator
   {
-    IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct)
     {
-      return Input.ExecuteAsync(context).Take(Limit);
+      ct.ThrowIfCancellationRequested();
+      await foreach (var row in Input.ExecuteAsync(context, ct).Take(Limit).WithCancellation(ct))
+      {
+        ct.ThrowIfCancellationRequested();
+        yield return row;
+      }
     }
   }
 }

@@ -1,4 +1,5 @@
-﻿using Cyphoid.Core.Execution;
+using System.Runtime.CompilerServices;
+using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
@@ -23,10 +24,12 @@ namespace Cyphoid.Core.ReferenceBackend
     }
 
 
-    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct)
     {
-      await foreach (var row in Input.ExecuteAsync(context))
+      ct.ThrowIfCancellationRequested();
+      await foreach (var row in Input.ExecuteAsync(context, ct).WithCancellation(ct))
       {
+        ct.ThrowIfCancellationRequested();
         IRow newRow = context.RowFactory.EmptyRow(row, Columns);
 
         foreach (var p in Projections)

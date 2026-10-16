@@ -4,6 +4,9 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- Added end-to-end query cancellation through reference operators, backend operators, and procedure invocations, supporting both `ExecuteAsync(context, ct)` and `.WithCancellation(ct)`. Cancellation propagates unchanged and disposes active enumerators.
+- Breaking backend API change: `IOperator.ExecuteAsync` now takes `CancellationToken ct = default`. Implementations must accept and forward the token; async iterator implementations should mark it with `[EnumeratorCancellation]`. Existing calls without a token remain valid.
+
 - Added `UNION` / `UNION DISTINCT` and `UNION ALL` with independent branch scopes and validation of output column names and order. UNION removes duplicate complete rows, including matching node identities and nulls; UNION ALL preserves duplicates. Mixing distinct and ALL forms in a single chain is rejected.
 
 ## 0.15.0 — 2026-10-15

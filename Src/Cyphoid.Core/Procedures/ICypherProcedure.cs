@@ -29,5 +29,5 @@ public interface ICypherProcedure
     IRow inputRow,
     IReadOnlyList<MixedValue> arguments,
     IReadOnlyList<IRowColumn> outputColumns,
-    CancellationToken cancellationToken);
+    CancellationToken ct);
 }

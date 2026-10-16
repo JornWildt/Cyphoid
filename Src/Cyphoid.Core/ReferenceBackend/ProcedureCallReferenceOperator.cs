@@ -10,16 +10,18 @@ namespace Cyphoid.Core.ReferenceBackend;
 internal sealed record ProcedureCallReferenceOperator(
   IOperator Input, CallNode Call, IReadOnlyList<RowEvaluator> Arguments) : IOperator
 {
-  public IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context) => Execute(context);
+  public IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, CancellationToken ct = default) => Execute(context, ct);
 
   private async IAsyncEnumerable<IRow> Execute(
-    IQueryContext context, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    IQueryContext context, [EnumeratorCancellation] CancellationToken ct = default)
   {
+    ct.ThrowIfCancellationRequested();
     var registration = Call.Registration;
     var columns = Array.AsReadOnly(registration.Outputs
       .Select((f, i) => (IRowColumn)new RowColumn(i, f.Name, f.Type)).ToArray());
-    await foreach (var input in Input.ExecuteAsync(context).WithCancellation(cancellationToken))
+    await foreach (var input in Input.ExecuteAsync(context, ct).WithCancellation(ct))
     {
+      ct.ThrowIfCancellationRequested();
       var arguments = Arguments.Select(a => a(input)).ToArray();
       for (var i = 0; i < arguments.Length; i++)
         if (!ProcedureRegistration.Accepts(registration.Parameters[i], arguments[i]))
@@ -30,7 +32,7 @@ internal sealed record ProcedureCallReferenceOperator(
       try
       {
         results = registration.Procedure.ExecuteAsync(context, input, Array.AsReadOnly(arguments),
-          columns, cancellationToken).GetAsyncEnumerator(cancellationToken);
+          columns, ct).GetAsyncEnumerator(ct);
       }
       catch (Exception exception) when (exception is not OperationCanceledException)
       {
@@ -43,7 +45,9 @@ internal sealed record ProcedureCallReferenceOperator(
           IRow result;
           try
           {
+            ct.ThrowIfCancellationRequested();
             if (!await results.MoveNextAsync()) break;
+            ct.ThrowIfCancellationRequested();
             result = results.Current;
             ValidateResult(result, columns);
           }

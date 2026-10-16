@@ -1,4 +1,5 @@
-﻿using Cyphoid.Core;
+using System.Runtime.CompilerServices;
+using Cyphoid.Core;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
 using Cyphoid.Core.ReferenceBackend;
@@ -30,13 +31,15 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct)
     {
+      ct.ThrowIfCancellationRequested();
       // Just to satisfy "await"
       await Task.Yield();
 
       foreach (var node in Graph.Nodes)
       {
+        ct.ThrowIfCancellationRequested();
         var hasExpectedRelationship = TargetRelationshipLabel != null
           ? node.Value.Outgoing.Any(o => o.Type == TargetRelationshipLabel)
           : true;

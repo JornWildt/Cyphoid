@@ -5,7 +5,7 @@ This document explains how to implement a backend for Cyphoid by providing an `I
 ## Key concepts
 - **Rows are positional**: each variable has a fixed `SlotIndex` (see `VariableDefinition`), and operators write values into `IRow.Values[slot]`.
 - **Values are `MixedValue`**: nodes and properties are transported through rows as `MixedValue` instances.
-- **Operators are async streams**: every `IOperator` exposes `IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context)`.
+- **Operators are async streams**: every `IOperator` exposes `IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, CancellationToken ct = default)`.
 
 ## Recommended approach
 As of 0.13.0, `BuildExpandAll` and `BuildExpandInto` have no `optional` parameter. Expansion operators must emit only matches. The enclosing clause-level optional-match operator preserves an incoming row with null new bindings when the whole pattern and WHERE have no matches; backend expansion operators must not supply their own fallback rows.
@@ -81,6 +81,10 @@ internal sealed class MyOperatorFactory : ReferenceOperatorFactory
 If you override, preserve semantics and output row shapes exactly.
 
 ## Async behavior and correctness
+- Backend operator implementations must accept the new `CancellationToken ct` parameter. Existing callers can continue calling `ExecuteAsync(context)`.
+- Mark async iterator token parameters with `[EnumeratorCancellation]` (from `System.Runtime.CompilerServices`) so `.WithCancellation(ct)` works as well as direct token arguments.
+- Pass `ct` to upstream `ExecuteAsync(context, ct)` calls and asynchronous storage operations. Enumerate upstream streams with `.WithCancellation(ct)`. Check `ct.ThrowIfCancellationRequested()` before work and periodically inside CPU loops, including loops that discard rows.
+- Cancellation must propagate as `OperationCanceledException`; do not wrap it as a backend error. Dispose enumerators and release resources through `await using` or iterator `finally` blocks.
 - `ExecuteAsync` should be a true async stream. If you have no async work, a single `await Task.Yield()` keeps the method async.
 - Do not block on I/O; use async DB drivers where possible.
 - Ensure your operators are deterministic for the same input rows.

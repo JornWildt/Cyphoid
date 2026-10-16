@@ -1,4 +1,5 @@
-﻿using Cyphoid.Core.Execution;
+using System.Runtime.CompilerServices;
+using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
@@ -23,15 +24,21 @@ namespace Cyphoid.Core.ReferenceBackend
     IReadOnlyList<IAggregationEvaluator> Aggregators,
     IRowColumn[] OutputColumns) : IOperator
   {
-    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct)
     {
-      var result = Input.ExecuteAsync(context);
+      ct.ThrowIfCancellationRequested();
+      var result = Input.ExecuteAsync(context, ct);
 
-      var groups = result.GroupBy(r => new GroupKey(r, Groupings));
+      var groups = result.GroupBy(r =>
+      {
+        ct.ThrowIfCancellationRequested();
+        return new GroupKey(r, Groupings);
+      });
       var hasGroups = false;
 
-      await foreach (var group in groups)
+      await foreach (var group in groups.WithCancellation(ct))
       {
+        ct.ThrowIfCancellationRequested();
         hasGroups = true;
         foreach (var a in Aggregators)
         {
@@ -40,6 +47,7 @@ namespace Cyphoid.Core.ReferenceBackend
 
         foreach (var row in group)
         {
+          ct.ThrowIfCancellationRequested();
           foreach (var a in Aggregators)
           {
             a.Accumulate(row);
@@ -58,6 +66,7 @@ namespace Cyphoid.Core.ReferenceBackend
       }
 
       // A global aggregate has one group even when its input is empty.
+      ct.ThrowIfCancellationRequested();
       if (!hasGroups && Groupings.Count == 0)
       {
         var groupRow = context.RowFactory.EmptyRow(OutputColumns);

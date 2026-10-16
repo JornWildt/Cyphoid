@@ -1,4 +1,5 @@
-﻿using Cyphoid.Core.Execution;
+using System.Runtime.CompilerServices;
+using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
@@ -6,10 +7,19 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator Input,
     IReadOnlyList<GroupingEvaluator> Groupings) : IOperator
   {
-    IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct)
     {
-      return Input.ExecuteAsync(context)
-        .DistinctBy(r => new GroupKey(r, Groupings));
+      ct.ThrowIfCancellationRequested();
+      var rows = Input.ExecuteAsync(context, ct).DistinctBy(r =>
+      {
+        ct.ThrowIfCancellationRequested();
+        return new GroupKey(r, Groupings);
+      });
+      await foreach (var row in rows.WithCancellation(ct))
+      {
+        ct.ThrowIfCancellationRequested();
+        yield return row;
+      }
     }
   }
 }

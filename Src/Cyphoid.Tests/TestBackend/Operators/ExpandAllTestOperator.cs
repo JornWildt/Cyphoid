@@ -1,4 +1,5 @@
-﻿using Cyphoid.Core;
+using System.Runtime.CompilerServices;
+using Cyphoid.Core;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
 using Cyphoid.Core.ReferenceBackend;
@@ -40,23 +41,26 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
+    IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context, CancellationToken ct)
     {
+      ct.ThrowIfCancellationRequested();
       if (Direction == ExpandDirectionType.Outgoing)
-        return OutgoingAsync(context);
+        return OutgoingAsync(context, ct);
       else if (Direction == ExpandDirectionType.Incoming)
-        return IncomingAsync(context);
+        return IncomingAsync(context, ct);
       else if (Direction == ExpandDirectionType.Unidirectional)
-        return OutgoingAsync(context).Concat(IncomingAsync(context));
+        return OutgoingAsync(context, ct).Concat(IncomingAsync(context, ct));
       else
         throw new NotImplementedException();
     }
 
 
-    async IAsyncEnumerable<IRow> OutgoingAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> OutgoingAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct)
     {
-      await foreach (var row in Input.ExecuteAsync(context))
+      ct.ThrowIfCancellationRequested();
+      await foreach (var row in Input.ExecuteAsync(context, ct).WithCancellation(ct))
       {
+        ct.ThrowIfCancellationRequested();
         var sourceVariable = row.Values[SourceVariable.SlotIndex];
         if (sourceVariable != null)
         {
@@ -72,6 +76,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
 
           foreach (var targetId in targetIds)
           {
+            ct.ThrowIfCancellationRequested();
             if (Graph.TryGetNode(targetId, out var targetNode))
             {
               if ((DestinationLabel == null || targetNode.Labels.Contains(DestinationLabel)) &&
@@ -93,10 +98,12 @@ namespace Cyphoid.Tests.TestBackend.Operators
     }
 
 
-    async IAsyncEnumerable<IRow> IncomingAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IncomingAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct)
     {
-      await foreach (var row in Input.ExecuteAsync(context))
+      ct.ThrowIfCancellationRequested();
+      await foreach (var row in Input.ExecuteAsync(context, ct).WithCancellation(ct))
       {
+        ct.ThrowIfCancellationRequested();
         // Note that "incoming" goes to the source in the relationship
         // FIXME: maybe call them left/right instead?
 
@@ -118,6 +125,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
 
           foreach (var targetId in targetIds)
           {
+            ct.ThrowIfCancellationRequested();
             if (Graph.TryGetNode(targetId, out var targetNode))
             {
               if ((DestinationLabel == null || targetNode.Labels.Contains(DestinationLabel)) &&

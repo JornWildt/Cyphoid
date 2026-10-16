@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.Expressions;
 
@@ -7,12 +8,14 @@ namespace Cyphoid.Core.ReferenceBackend
     IReadOnlyList<IOperator> Branches, 
     bool All) : IOperator
   {
-    public async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context)
+    public async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct = default)
     {
+      ct.ThrowIfCancellationRequested();
       var seen = All ? null : new HashSet<MixedValue[]>(new RowValuesComparer());
       foreach (var branch in Branches)
-        await foreach (var row in branch.ExecuteAsync(context))
+        await foreach (var row in branch.ExecuteAsync(context, ct).WithCancellation(ct))
         {
+          ct.ThrowIfCancellationRequested();
           if (seen != null && !seen.Add(row.Values.Select(v => v ?? MixedValue.Null()).ToArray()))
             continue;
           yield return row;

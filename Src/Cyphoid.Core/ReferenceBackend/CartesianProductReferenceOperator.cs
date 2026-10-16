@@ -1,4 +1,5 @@
-﻿using Cyphoid.Core.Execution;
+using System.Runtime.CompilerServices;
+using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core.ReferenceBackend
 {
@@ -6,12 +7,15 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator Left,
     IOperator Right) : IOperator
   {
-    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context)
+    async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct)
     {
-      await foreach (var row1 in Left.ExecuteAsync(context))
+      ct.ThrowIfCancellationRequested();
+      await foreach (var row1 in Left.ExecuteAsync(context, ct).WithCancellation(ct))
       {
-        await foreach (var row2 in Right.ExecuteAsync(context))
+        ct.ThrowIfCancellationRequested();
+        await foreach (var row2 in Right.ExecuteAsync(context, ct).WithCancellation(ct))
         {
+          ct.ThrowIfCancellationRequested();
           var output = row1.MergeWith(row2);
           yield return output;
         }

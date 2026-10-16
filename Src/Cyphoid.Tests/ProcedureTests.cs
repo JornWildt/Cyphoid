@@ -44,15 +44,15 @@ public class ProcedureTests
     public async IAsyncEnumerable<IRow> ExecuteAsync(
       IQueryContext context, IRow inputRow, IReadOnlyList<MixedValue> arguments,
       IReadOnlyList<IRowColumn> outputColumns,
-      [EnumeratorCancellation] CancellationToken cancellationToken)
+      [EnumeratorCancellation] CancellationToken ct)
     {
       Calls++;
-      ReceivedCancellation = cancellationToken.CanBeCanceled;
+      ReceivedCancellation = ct.CanBeCanceled;
       try
       {
         await Task.Yield();
-        cancellationToken.ThrowIfCancellationRequested();
-        if (Cancel) throw new OperationCanceledException(cancellationToken);
+        ct.ThrowIfCancellationRequested();
+        if (Cancel) throw new OperationCanceledException(ct);
         if (Throw) throw new InvalidOperationException("Plugin failure");
         if (Empty) yield break;
         for (var i = 0; i < 2; i++)
@@ -197,7 +197,7 @@ public class ProcedureTests
   {
     var procedure = new Procedure();
     var ast = Parser(procedure).ParseQuery("CALL example.numbers(1) YIELD value RETURN value");
-    var plan = ast.Clauses[0].BuildQueryPlan(null)
+    var plan = ast.BuildQueryPlan()
       .BuildExecutionPlan(new TestOperatorFactory(new InMemoryGraph()));
     using var cancellation = new CancellationTokenSource();
     await foreach (var row in plan.ExecuteAsync(new TestQueryContext()).WithCancellation(cancellation.Token))
@@ -269,10 +269,10 @@ public class ProcedureTests
     public IReadOnlyList<ProcedureField> Outputs => [new("node", MixedValue.ValueType.Node)];
     public async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, IRow inputRow,
       IReadOnlyList<MixedValue> arguments, IReadOnlyList<IRowColumn> outputColumns,
-      [EnumeratorCancellation] CancellationToken cancellationToken)
+      [EnumeratorCancellation] CancellationToken ct)
     {
       await Task.Yield();
-      cancellationToken.ThrowIfCancellationRequested();
+      ct.ThrowIfCancellationRequested();
       var row = context.RowFactory.EmptyRow(inputRow, outputColumns);
       row.Values[0] = arguments[0];
       yield return row;

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.ReferenceBackend;
@@ -41,8 +42,9 @@ namespace Cyphoid.Core.Planning
 
     private record InputRowOperator(IRow Row) : IOperator
     {
-      public async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context)
+      public async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct = default)
       {
+        ct.ThrowIfCancellationRequested();
         await Task.CompletedTask;
         yield return Row;
       }
