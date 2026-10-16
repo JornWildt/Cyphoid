@@ -119,6 +119,14 @@ Cypher executable query plan
 
 Guidance for third-party backends is in `BACKEND_GUIDE.md`.
 
+### Procedure plugins
+
+Install third-party procedures with `ICypherParser.InstallPlugin(plugin)`, then
+invoke them using `CALL namespace.procedure(...) YIELD field AS alias RETURN alias`.
+Procedures consume and emit host rows, preserving metadata through the row factory
+and `IRow.MergeWith`. See [PROCEDURES.md](PROCEDURES.md) for contracts, examples,
+validation rules, and supported CALL/YIELD syntax.
+
 
 # Developer instructions
 

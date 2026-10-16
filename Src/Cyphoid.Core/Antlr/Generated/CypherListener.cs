@@ -71,6 +71,36 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.callClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterCallClause([NotNull] CypherParser.CallClauseContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.callClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitCallClause([NotNull] CypherParser.CallClauseContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.procedureName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterProcedureName([NotNull] CypherParser.ProcedureNameContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.procedureName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitProcedureName([NotNull] CypherParser.ProcedureNameContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.yieldItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterYieldItem([NotNull] CypherParser.YieldItemContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.yieldItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitYieldItem([NotNull] CypherParser.YieldItemContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

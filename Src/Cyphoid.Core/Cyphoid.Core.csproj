@@ -33,6 +33,7 @@ Full changelog: https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md</Pac
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
     <None Include="../../CHANGES.md" Pack="true" PackagePath="/" />
+    <None Include="../../PROCEDURES.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   
   <ItemGroup>

@@ -15,6 +15,20 @@ unionClause
 repeatableClause
   : matchWhereClause
   | withLimitClause
+  | callClause
+  ;
+
+callClause
+  : CALL procedureName LPAREN (expression (COMMA expression)*)? RPAREN
+    YIELD yieldItem (COMMA yieldItem)* whereClause?
+  ;
+
+procedureName
+  : identifier (DOT identifier)+
+  ;
+
+yieldItem
+  : identifier (AS identifier)?
   ;
 
 matchWhereClause
@@ -250,6 +264,8 @@ stringLiteral
 // =========================
 
 MATCH      : [Mm][Aa][Tt][Cc][Hh];
+CALL       : [Cc][Aa][Ll][Ll];
+YIELD      : [Yy][Ii][Ee][Ll][Dd];
 UNION      : [Uu][Nn][Ii][Oo][Nn];
 ALL        : [Aa][Ll][Ll];
 OPTIONAL   : [Oo][Pp][Tt][Ii][Oo][Nn][Aa][Ll];

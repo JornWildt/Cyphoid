@@ -6,6 +6,8 @@ using Cyphoid.Core.Expressions;
 using Cyphoid.Core.Expressions.Functions;
 using Cyphoid.Core.ReferenceBackend;
 using Cyphoid.Core.SyntaxTree;
+using Cyphoid.Core.Procedures;
+using Cyphoid.Core.Execution;
 
 namespace Cyphoid.Core
 {
@@ -18,6 +20,13 @@ namespace Cyphoid.Core
 
   internal class Cypher2AstNodeVisitor : CypherBaseVisitor<AstNode>
   {
+    private readonly IReadOnlyDictionary<string, ProcedureRegistration> procedures;
+
+    public Cypher2AstNodeVisitor(IReadOnlyDictionary<string, ProcedureRegistration> procedures)
+    {
+      this.procedures = procedures;
+    }
+
     int AnonymousVariableCounter = 1;
 
     Dictionary<string, VariableDefinition> VariableDefinitions = new Dictionary<string, VariableDefinition>();
@@ -31,7 +40,7 @@ namespace Cyphoid.Core
     public override AstNode VisitQuery([NotNull] global::CypherParser.QueryContext context)
     {
       var branches = context.singleQuery()
-        .Select(q => new Cypher2AstNodeVisitor().Visit<QueryNode>(q)).ToArray();
+        .Select(q => new Cypher2AstNodeVisitor(procedures).Visit<QueryNode>(q)).ToArray();
       var unions = context.unionClause();
       var all = unions.Length > 0 && unions[0].ALL() != null;
       if (unions.Any(u => (u.ALL() != null) != all))
@@ -59,6 +68,8 @@ namespace Cyphoid.Core
 
     public override AstNode VisitRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context)
     {
+      if (context.callClause() != null)
+        return Visit<CallNode>(context.callClause());
       if (context.withLimitClause() != null)
       {
         return Visit<WithLimitNode>(context.withLimitClause());
@@ -69,6 +80,49 @@ namespace Cyphoid.Core
       }
       else
         throw new ParseException("Unhandled repeatable clause state.");
+    }
+
+    public override AstNode VisitCallClause([NotNull] CypherParser.CallClauseContext context)
+    {
+      var name = context.procedureName().GetText();
+      if (!procedures.TryGetValue(name, out var procedure))
+        throw new ParseException($"Unknown procedure '{name}'.");
+      if (context.expression().Any(ContainsAggregateCall))
+        throw new ParseException("Project aggregate arguments in WITH before calling a procedure.");
+      var arguments = context.expression().Select(e => Visit<ExprNode>(e)).ToArray();
+      if (arguments.Length != procedure.Parameters.Count)
+        throw new ParseException($"Procedure '{name}' requires {procedure.Parameters.Count} arguments.");
+
+      var bindings = new List<ProcedureYield>();
+      foreach (var item in context.yieldItem())
+      {
+        var fieldName = item.identifier(0).GetText();
+        var index = Enumerable.Range(0, procedure.Outputs.Count)
+          .FirstOrDefault(i => procedure.Outputs[i].Name == fieldName, -1);
+        if (index < 0)
+          throw new ParseException($"Procedure '{name}' has no output '{fieldName}'.");
+        var alias = item.identifier().Last().GetText();
+        if (VariableDefinitions.ContainsKey(alias))
+          throw new ParseException($"Variable '{alias}' is already bound; use a different YIELD alias.");
+        var variable = new VariableDefinition(false, alias, procedure.Outputs[index].Type, VariableDefinitions.Count);
+        VariableDefinitions.Add(alias, variable);
+        bindings.Add(new ProcedureYield(index, fieldName, variable));
+      }
+      var predicate = context.whereClause() == null ? null : Visit<WhereNode>(context.whereClause()).Expr;
+      var columns = VariableDefinitions.Values
+        .Select(v => (IRowColumn)new RowColumn(v.SlotIndex, v.Name, v.Type)).ToArray();
+      return new CallNode(procedure, arguments, bindings, columns, predicate);
+    }
+
+    private static bool ContainsAggregateCall(IParseTree tree)
+    {
+      if (tree is CypherParser.FunctionCallContext function &&
+          FunctionRegistry.GetFunctionDefinition(function.ASTERIX() != null ? "CountAll" : function.identifier().GetText())
+            .ValueKind == ValueKindType.Aggregate)
+        return true;
+      for (var i = 0; i < tree.ChildCount; i++)
+        if (ContainsAggregateCall(tree.GetChild(i))) return true;
+      return false;
     }
 
     

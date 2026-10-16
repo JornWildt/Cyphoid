@@ -9,6 +9,8 @@ namespace Cyphoid.Core
 {
   public interface ICypherParser
   {
+    void InstallPlugin(Procedures.ICypherProcedurePlugin plugin);
+
     QueryNode ParseQuery(string query);
   }
 }

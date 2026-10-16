@@ -56,6 +56,24 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.callClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitCallClause([NotNull] CypherParser.CallClauseContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.procedureName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitProcedureName([NotNull] CypherParser.ProcedureNameContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.yieldItem"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitYieldItem([NotNull] CypherParser.YieldItemContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

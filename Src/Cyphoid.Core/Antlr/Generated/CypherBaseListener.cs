@@ -84,6 +84,42 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitRepeatableClause([NotNull] CypherParser.RepeatableClauseContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.callClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterCallClause([NotNull] CypherParser.CallClauseContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.callClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitCallClause([NotNull] CypherParser.CallClauseContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.procedureName"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterProcedureName([NotNull] CypherParser.ProcedureNameContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.procedureName"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitProcedureName([NotNull] CypherParser.ProcedureNameContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.yieldItem"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterYieldItem([NotNull] CypherParser.YieldItemContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.yieldItem"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitYieldItem([NotNull] CypherParser.YieldItemContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.matchWhereClause"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
