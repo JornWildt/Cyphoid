@@ -18,6 +18,7 @@ namespace Cyphoid.Core.ReferenceBackend
 
     private static RowSchema MakeColumns(IReadOnlyList<ProjectionEvaluator> projections)
     {
+      if (projections is ProjectionBindings bindings) return bindings.Schema;
       return new RowSchema(projections
         .Select((p, i) => new RowColumn(i, p.OutputVariable.Name, p.OutputVariable.Type)));
     }

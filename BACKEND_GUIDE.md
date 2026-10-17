@@ -119,6 +119,8 @@ value type. Maps with different keys do not require different row schemas.
 If you override, preserve semantics and output row shapes exactly.
 
 ## Async behavior and correctness
+- `BuildExecutionPlan` compiles a reusable template. Backend factory hooks are invoked when execution binds parameter values, not necessarily while the template is built. Each execution receives fresh mutable engine operators/aggregate states and shared schemas. Scan/expansion property filters and limits are already concrete values when passed to backend hooks.
+- Projection hooks may receive `ProjectionBindings`, whose `Schema` retains the template's immutable output schema. Reuse it in custom projection operators rather than reconstructing schemas per execution.
 - Backend operator implementations must accept the new `CancellationToken ct` parameter. Existing callers can continue calling `ExecuteAsync(context)`.
 - Mark async iterator token parameters with `[EnumeratorCancellation]` (from `System.Runtime.CompilerServices`) so `.WithCancellation(ct)` works as well as direct token arguments.
 - Pass `ct` to upstream `ExecuteAsync(context, ct)` calls and asynchronous storage operations. Enumerate upstream streams with `.WithCancellation(ct)`. Check `ct.ThrowIfCancellationRequested()` before work and periodically inside CPU loops, including loops that discard rows.

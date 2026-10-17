@@ -1,6 +1,6 @@
 ﻿namespace Cyphoid.Core.SyntaxTree
 {
-  public record LimitNode(int Limit) : AstNode
+  public record LimitNode(ExprNode Limit) : AstNode
   {
   }
 }

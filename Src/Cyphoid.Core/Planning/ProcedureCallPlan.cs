@@ -7,9 +7,13 @@ namespace Cyphoid.Core.Planning;
 
 public sealed record ProcedureCallPlan(PipelinePlan Input, CallNode Call) : PipelinePlan
 {
-  public override IOperator BuildExecutionPlan(IOperatorFactory factory) =>
-    new ProcedureCallReferenceOperator(Input.BuildExecutionPlan(factory), Call,
-      Call.Arguments.Select(a => a.CompileEvaluator()).ToArray());
+  public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
+  {
+    var input = Input.Compile(factory);
+    var schema = new RowSchema(Call.Registration.Outputs.Select((f, i) => new RowColumn(i, f.Name, f.Type)));
+    return parameters => new ProcedureCallReferenceOperator(input(parameters), Call,
+      Call.Arguments.Select(a => a.Bind(parameters).CompileEvaluator()).ToArray(), schema);
+  }
 
   public override void PrettyPrint(StringBuilder sb)
   {

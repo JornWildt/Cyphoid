@@ -11,17 +11,15 @@ namespace Cyphoid.Core.Planning
     RelationshipPatternNode? RelationshipDetail,
     RowSchema MatchColumns) : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
-      // FIXME: No need to calculate this all the time
-      var filter = BuildPropertyFilter(PropertyMap);
-
       // Use optional immediate -[:label]-> if there is such a label, to filter the scanned nodes
       var targetRelationshipLabel = RelationshipDetail?.RelationshipDirection == RelationshipDirectionType.Right
         ? RelationshipDetail?.RelationshipDetail?.RelationshipType
         : null;
 
-      return factory.BuildNodeScan(Variable.Definition, Label, filter, targetRelationshipLabel, MatchColumns);
+      return parameters => factory.BuildNodeScan(Variable.Definition, Label,
+        BuildPropertyFilter(PropertyMap, parameters), targetRelationshipLabel, MatchColumns);
     }
     
     

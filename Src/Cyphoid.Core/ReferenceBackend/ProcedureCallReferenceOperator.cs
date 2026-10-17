@@ -8,10 +8,8 @@ using Cyphoid.Core.SyntaxTree;
 namespace Cyphoid.Core.ReferenceBackend;
 
 internal sealed record ProcedureCallReferenceOperator(
-  IOperator Input, CallNode Call, IReadOnlyList<RowEvaluator> Arguments) : IOperator
+  IOperator Input, CallNode Call, IReadOnlyList<RowEvaluator> Arguments, RowSchema OutputSchema) : IOperator
 {
-  private readonly RowSchema procedureSchema = new(Call.Registration.Outputs
-    .Select((f, i) => new RowColumn(i, f.Name, f.Type)));
 
   public IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, CancellationToken ct = default) => Execute(context, ct);
 
@@ -20,7 +18,7 @@ internal sealed record ProcedureCallReferenceOperator(
   {
     ct.ThrowIfCancellationRequested();
     var registration = Call.Registration;
-    var columns = procedureSchema;
+    var columns = OutputSchema;
     await foreach (var input in Input.ExecuteAsync(context, ct).WithCancellation(ct))
     {
       ct.ThrowIfCancellationRequested();

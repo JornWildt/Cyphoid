@@ -16,11 +16,11 @@ namespace Cyphoid.Core.Planning
     public abstract void PrettyPrint(StringBuilder sb);
 
 
-    protected PropertyFilter? BuildPropertyFilter(PropertyMapNode? propertyMap)
+    protected PropertyFilter? BuildPropertyFilter(PropertyMapNode? propertyMap, QueryParameters parameters)
     {
       var conditions = propertyMap?
         .Properties?
-        .Select(p => new PropertyFilterCondition(p.Identifier, p.Value.ToConstantValue()))
+        .Select(p => new PropertyFilterCondition(p.Identifier, ((LiteralValueNode)p.Value.Bind(parameters)).ToConstantValue()))
         .ToList()
         .AsReadOnly();
 

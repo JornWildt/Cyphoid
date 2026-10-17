@@ -20,7 +20,7 @@ namespace Cyphoid.Core.SyntaxTree
   }
 
 
-  public record PropertyEntryNode(string Identifier, LiteralValueNode Value) : AstNode
+  public record PropertyEntryNode(string Identifier, ExprNode Value) : AstNode
   {
     public override void PrettyPrint(StringBuilder sb)
     {

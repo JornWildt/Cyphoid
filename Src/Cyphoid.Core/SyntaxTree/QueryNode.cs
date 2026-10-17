@@ -10,6 +10,8 @@ namespace Cyphoid.Core.SyntaxTree
     IReadOnlyList<QueryNode>? UnionBranches = null,
     bool UnionAll = false) : AstNode
   {
+    public IReadOnlyList<ParameterNode> ParameterReferences { get; init; } = [];
+    public IReadOnlyList<string> RequiredParameters => Array.AsReadOnly(ParameterReferences.Select(p => p.Name).ToArray());
     public PipelinePlan BuildQueryPlan()
     {
       PipelinePlan? plan = null;
@@ -22,8 +24,9 @@ namespace Cyphoid.Core.SyntaxTree
 
       var projectionPlan = ReturnLimit.BuildProjectionPlan(plan);
       if (UnionBranches is { Count: > 0 })
-        return new UnionPlan(new[] { projectionPlan }.Concat(UnionBranches.Select(b => b.BuildQueryPlan())).ToArray(), UnionAll);
-      return projectionPlan;
+        return new UnionPlan(new[] { projectionPlan }.Concat(UnionBranches.Select(b => b.BuildQueryPlan())).ToArray(), UnionAll)
+          { ParameterReferences = ParameterReferences };
+      return projectionPlan with { ParameterReferences = ParameterReferences };
     }
 
 

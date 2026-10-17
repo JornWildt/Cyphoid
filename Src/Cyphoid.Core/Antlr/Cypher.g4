@@ -71,7 +71,7 @@ orderByItem
   ;
 
 limitClause
-  : LIMIT integerLiteral
+  : LIMIT (integerLiteral | parameter)
   ;
 
 projectionList
@@ -126,7 +126,7 @@ propertyMap
   ;
 
 propertyEntry
-  : identifier COLON literal
+  : identifier COLON (literal | parameter)
   ;
 
 // -------------------------
@@ -232,12 +232,17 @@ mapKey
 
 primaryExpression
   : literal
+  | parameter
   | mapLiteral
   | labelPredicate
   | propertyAccess
   | functionCall
   | variable
   | LPAREN expression RPAREN
+  ;
+
+parameter
+  : PARAMETER
   ;
 
 labelPredicate
@@ -295,6 +300,7 @@ stringLiteral
 // Lexer rules
 // =========================
 
+PARAMETER  : '$' LETTER (LETTER | DIGIT | '_')*;
 MATCH      : [Mm][Aa][Tt][Cc][Hh];
 CALL       : [Cc][Aa][Ll][Ll];
 YIELD      : [Yy][Ii][Ee][Ll][Dd];

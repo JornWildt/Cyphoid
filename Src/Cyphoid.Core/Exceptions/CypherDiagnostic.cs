@@ -5,7 +5,7 @@ public enum CypherErrorCode
   SyntaxError, InvalidQuery, UnknownVariable, UnknownFunction, UnknownProcedure,
   InvalidArgumentCount, InvalidAggregateUsage, InvalidYield, TypeMismatch,
   InvalidArgumentValue, DivisionByZero, NumericOverflow, InvalidProcedureResult,
-  ProcedureFailed, EvaluationFailed
+  ProcedureFailed, EvaluationFailed, MissingParameter
 }
 
 public enum CypherErrorPhase { Parsing, Execution }

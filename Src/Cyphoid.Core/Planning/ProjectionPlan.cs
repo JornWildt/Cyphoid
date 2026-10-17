@@ -9,41 +9,44 @@ namespace Cyphoid.Core.Planning
     PipelinePlan Input,
     IReadOnlyList<ProjectionNode> Projections) : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
-      var projections = new List<ProjectionEvaluator>();
-
-      var groupings = new List<GroupingEvaluator>();
-      var aggregators = new List<IAggregationEvaluator>();
-
-      foreach (var p in Projections)
+      var input = Input.Compile(factory);
+      var outputColumns = new RowSchema(Projections.Select((p, i) => new RowColumn(i, p.Variable.Name, p.Variable.Type)));
+      return parameters =>
       {
-        var evaluator = p.Expr.CompileEvaluator();
-        projections.Add(new ProjectionEvaluator(evaluator, p.Variable));
+        var projections = new List<ProjectionEvaluator>();
 
-        if (p.Expr.ValueKind == ValueKindType.Aggregate)
-          aggregators.Add(p.Expr.GetAggregationEvaluator(evaluator, p.Variable.SlotIndex));
+        var groupings = new List<GroupingEvaluator>();
+        var aggregators = new List<IAggregationEvaluator>();
+
+        foreach (var p in Projections)
+        {
+          var expression = p.Expr.Bind(parameters);
+          var evaluator = expression.CompileEvaluator();
+          projections.Add(new ProjectionEvaluator(evaluator, p.Variable));
+
+          if (p.Expr.ValueKind == ValueKindType.Aggregate)
+            aggregators.Add(expression.GetAggregationEvaluator(evaluator, p.Variable.SlotIndex));
+          else
+            groupings.Add(new GroupingEvaluator(evaluator, p.Variable.SlotIndex));
+        }
+
+        if (aggregators.Count > 0)
+        {
+          return factory.BuildAggregationProjection(
+            input(parameters),
+            groupings,
+            aggregators,
+            outputColumns);
+        }
         else
-          groupings.Add(new GroupingEvaluator(evaluator, p.Variable.SlotIndex));
-      }
-
-      if (aggregators.Count > 0)
-      {
-        var outputColumns = new RowSchema(Projections
-          .Select((p, i) => new RowColumn(i, p.Variable.Name, p.Variable.Type)));
-
-        return factory.BuildAggregationProjection(
-          Input.BuildExecutionPlan(factory),
-          groupings,
-          aggregators,
-          outputColumns);
-      }
-      else
-      {
-        return factory.BuildProjection(
-          Input.BuildExecutionPlan(factory),
-          projections);
-      }
+        {
+          return factory.BuildProjection(
+            input(parameters),
+            new ProjectionBindings(projections, outputColumns));
+        }
+      };
     }
 
     

@@ -4,6 +4,8 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- Added `$name` query parameters supplied through `IQueryContext.Parameters`, immutable QueryParameters snapshots, required-name discovery, and located MissingParameter errors before backend binding. Parameters work in expressions, map-based procedure arguments, node property filters, and WITH/RETURN LIMIT.
+- Execution plans now compile reusable binding templates with execution-local parameter values and aggregation state, retaining shared schemas. Backend factory hooks run during execution binding; custom logical plans implement Compile to return a parameter-binding factory. See PARAMETERS.md.
 - Rows now share immutable `RowSchema` instances instead of allocating column arrays per row. Schemas snapshot column definitions once; projection, aggregation, scans, expansions, and procedures reuse them. UNION normalizes output schemas while preserving host metadata.
 - Breaking schema API change: `IRow.Schema` replaces mutable column-array storage, with `IRow.Columns` exposing a read-only view. Row factories, operator factories, copies, and procedure output-schema arguments now use `RowSchema`. See BACKEND_GUIDE.md for migration steps.
 - Added immutable Map values to MixedValue, nested map literals, dot/bracket lookup, node/map projections, structural grouping and hashing, and map parameters/results for procedures. Host maps use `Map`, `AsMap`, and `TryGetMap`; object conversion supports nested string-keyed dictionaries. Missing/null lookups return null; invalid lookup types raise query errors.

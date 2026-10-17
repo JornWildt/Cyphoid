@@ -12,10 +12,9 @@ namespace Cyphoid.Core.Planning
     string? DestinationLabel,
     PropertyMapNode? DestinationPropertyMap) : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
-      // FIXME: No need to calculate this all the time
-      var destinationFilter = BuildPropertyFilter(DestinationPropertyMap);
+      var input = Input.Compile(factory);
 
 #pragma warning disable CS8524 // unnamed enum values
       ExpandDirectionType? direction = Relationship?.RelationshipDirection switch
@@ -27,14 +26,14 @@ namespace Cyphoid.Core.Planning
       };
 #pragma warning restore CS8524
 
-      return factory.BuildExpandInto(
-        Input.BuildExecutionPlan(factory),
+      return parameters => factory.BuildExpandInto(
+        input(parameters),
         Source?.Definition,
         direction,
         Relationship?.RelationshipDetail?.RelationshipType,
         Destination.Definition,
         DestinationLabel,
-        destinationFilter);
+        BuildPropertyFilter(DestinationPropertyMap, parameters));
     }
 
     public override void PrettyPrint(StringBuilder sb)

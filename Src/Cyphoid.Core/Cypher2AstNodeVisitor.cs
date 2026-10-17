@@ -29,6 +29,7 @@ namespace Cyphoid.Core
     }
 
     int AnonymousVariableCounter = 1;
+    private readonly Dictionary<string, ParameterNode> parameterReferences = new(StringComparer.Ordinal);
 
     Dictionary<string, VariableDefinition> VariableDefinitions = new Dictionary<string, VariableDefinition>();
     Dictionary<string, VariableDefinition> OutputVariableDefinitions = new Dictionary<string, VariableDefinition>();
@@ -49,7 +50,8 @@ namespace Cyphoid.Core
       var columns = branches[0].ReturnLimit.Projections.Select(p => p.Variable.Name).ToArray();
       if (branches.Skip(1).Any(b => !columns.SequenceEqual(b.ReturnLimit.Projections.Select(p => p.Variable.Name))))
         throw new ParseException("UNION branches must return the same column names in the same order.");
-      return branches[0] with { UnionBranches = branches.Skip(1).ToArray(), UnionAll = all };
+      return branches[0] with { UnionBranches = branches.Skip(1).ToArray(), UnionAll = all,
+        ParameterReferences = Array.AsReadOnly(branches.SelectMany(b => b.ParameterReferences).DistinctBy(p => p.Name).ToArray()) };
     }
 
     public override AstNode VisitSingleQuery([NotNull] CypherParser.SingleQueryContext context)
@@ -63,7 +65,7 @@ namespace Cyphoid.Core
       
       var returnLimit = Visit<ReturnLimitNode>(context.returnLimitClause());
 
-      return new QueryNode(clauses, returnLimit);
+      return new QueryNode(clauses, returnLimit) { ParameterReferences = Array.AsReadOnly(parameterReferences.Values.ToArray()) };
     }
 
 
@@ -243,10 +245,11 @@ namespace Cyphoid.Core
 
     public override AstNode VisitLimitClause([NotNull] global::CypherParser.LimitClauseContext context)
     {
+      if (context.parameter() != null) return new LimitNode(Visit<ParameterNode>(context.parameter()));
       var value = Visit<IntLiteralNode>(context.integerLiteral());
       if (value.Value > int.MaxValue)
         throw new ParseException($"LIMIT must be between 0 and {int.MaxValue}.", CypherErrorCode.InvalidArgumentValue);
-      return new LimitNode((int)value.Value);
+      return new LimitNode(value);
     }
 
 
@@ -384,7 +387,7 @@ namespace Cyphoid.Core
     public override AstNode VisitPropertyEntry([NotNull] CypherParser.PropertyEntryContext context)
     {
       var id = Visit<IdentifierNode>(context.identifier());
-      var literalValue = Visit<LiteralValueNode>(context.literal());
+      var literalValue = context.parameter() != null ? Visit<ExprNode>(context.parameter()) : Visit<ExprNode>(context.literal());
       return new PropertyEntryNode(id.Name, literalValue);
     }
 
@@ -537,6 +540,7 @@ namespace Cyphoid.Core
 
     public override AstNode VisitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context)
     {
+      if (context.parameter() != null) return Visit<ParameterNode>(context.parameter());
       if (context.mapLiteral() != null) return Visit<MapLiteralNode>(context.mapLiteral());
       if (context.labelPredicate() != null)
         return Visit<LabelPredicateNode>(context.labelPredicate());
@@ -566,6 +570,13 @@ namespace Cyphoid.Core
       }
       else
         throw new InvalidOperationException("Unhandled primary expression state.");
+    }
+
+    public override AstNode VisitParameter([NotNull] CypherParser.ParameterContext context)
+    {
+      var node = new ParameterNode(context.GetText()[1..]) { SourceSpan = SpanOf(context) };
+      parameterReferences.TryAdd(node.Name, node);
+      return node;
     }
 
 

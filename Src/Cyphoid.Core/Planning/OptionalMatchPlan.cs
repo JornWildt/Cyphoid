@@ -9,16 +9,22 @@ namespace Cyphoid.Core.Planning
   public record OptionalMatchPlan(
     PipelinePlan Input, PatternNode Pattern, ExprNode? Predicate, RowSchema Columns) : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
-      return new OptionalMatchReferenceOperator(Input.BuildExecutionPlan(factory), row =>
+      var input = Input.Compile(factory);
+      return parameters =>
       {
-        // Match the whole clause normally; only the enclosing operator supplies null fallback rows.
-        var plan = Pattern.BuildPlan(new InputRowPlan(row), Columns);
-        if (Predicate != null)
-          plan = new FilterPlan(plan, Predicate);
-        return plan.BuildExecutionPlan(factory);
-      }, Columns);
+        var pattern = Pattern.Bind(parameters);
+        var predicate = Predicate?.Bind(parameters);
+        return new OptionalMatchReferenceOperator(input(parameters), row =>
+        {
+          // Match the whole clause normally; only the enclosing operator supplies null fallback rows.
+          var plan = pattern.BuildPlan(new InputRowPlan(row), Columns);
+          if (predicate != null)
+            plan = new FilterPlan(plan, predicate);
+          return plan.Compile(factory)(parameters);
+        }, Columns);
+      };
     }
 
     public override void PrettyPrint(StringBuilder sb)
@@ -36,7 +42,7 @@ namespace Cyphoid.Core.Planning
 
     private record InputRowPlan(IRow Row) : PipelinePlan
     {
-      public override IOperator BuildExecutionPlan(IOperatorFactory factory) => new InputRowOperator(Row);
+      public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory) => _ => new InputRowOperator(Row);
       public override void PrettyPrint(StringBuilder sb) => sb.AppendLine("Input row");
     }
 

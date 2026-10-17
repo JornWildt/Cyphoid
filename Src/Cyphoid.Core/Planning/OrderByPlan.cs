@@ -8,18 +8,22 @@ namespace Cyphoid.Core.Planning
     PipelinePlan Input,
     IReadOnlyList<OrderByItemNode> Ordering) : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
-      var ordering = new List<OrderByEvaluator>();
-
-      foreach (var o in Ordering)
+      var input = Input.Compile(factory);
+      return parameters =>
       {
-        var evaluator = o.Expression.CompileEvaluator();
-        var direction = o.Direction == OrderByDirectionType.Descending ? SortDirection.Descending : SortDirection.Ascending;
-        ordering.Add(new OrderByEvaluator(evaluator, direction));
-      }
+        var ordering = new List<OrderByEvaluator>();
 
-      return factory.BuildOrderBy(Input.BuildExecutionPlan(factory), ordering);
+        foreach (var o in Ordering)
+        {
+          var evaluator = o.Expression.Bind(parameters).CompileEvaluator();
+          var direction = o.Direction == OrderByDirectionType.Descending ? SortDirection.Descending : SortDirection.Ascending;
+          ordering.Add(new OrderByEvaluator(evaluator, direction));
+        }
+
+        return factory.BuildOrderBy(input(parameters), ordering);
+      };
     }
 
     

@@ -7,11 +7,11 @@ namespace Cyphoid.Core.Planning
     PipelinePlan Left,
     PipelinePlan Right) : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
-      return factory.BuildCartesianProduct(
-        Left.BuildExecutionPlan(factory),
-        Right.BuildExecutionPlan(factory));
+      var left = Left.Compile(factory);
+      var right = Right.Compile(factory);
+      return parameters => factory.BuildCartesianProduct(left(parameters), right(parameters));
     }
 
 

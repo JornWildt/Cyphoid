@@ -600,6 +600,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.parameter"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterParameter([NotNull] CypherParser.ParameterContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.parameter"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitParameter([NotNull] CypherParser.ParameterContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.labelPredicate"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

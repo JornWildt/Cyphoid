@@ -131,3 +131,7 @@ map access, schema validation, cancellation, and host metadata merging work as
 for other procedure values. The procedure validates required keys, defaults,
 and individual configuration value types; Cyphoid validates the outer Map type
 and declared nullability.
+
+Maps can also be passed from the host as `$config` query parameters. Supply
+`MixedValue.Map(...)` through `IQueryContext.Parameters`; see
+[PARAMETERS.md](PARAMETERS.md) for an execution example.

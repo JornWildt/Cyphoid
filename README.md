@@ -16,6 +16,13 @@ See the [changelog](https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md)
 
 ## Example usage
 
+### Parameters
+
+Supply execution values through `IQueryContext.Parameters`, preferably using
+immutable `QueryParameters`. Queries can use `$name` in expressions, pattern
+property values, procedure arguments, and LIMIT. See [PARAMETERS.md](PARAMETERS.md)
+for host setup, map-based procedure configuration, and execution-plan reuse.
+
 ### Combining queries
 
 Use `UNION` to combine independent query results and remove duplicate rows, or `UNION ALL` to retain duplicates:

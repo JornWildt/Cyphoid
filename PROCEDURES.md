@@ -124,6 +124,12 @@ through variables, and read using `arguments[i].AsMap()`. See [MAPS.md](MAPS.md)
 for query syntax and a procedure configuration example. List and path values
 remain unsupported; represent those collections as multiple rows.
 
+Map configurations may also be supplied as query parameters:
+`CALL analytics.pageRank($config) YIELD node, score RETURN node, score`.
+Supply a `"config"` map entry in the host context's parameter collection;
+see [PARAMETERS.md](PARAMETERS.md). Parsing and plugin
+installation remain independent of execution values.
+
 Signatures are fixed and ordered. Argument counts, names, variable bindings, and
 YIELD fields are checked while parsing. Runtime types must match exactly, with no
 implicit conversions. A null argument/output is accepted only when its field is

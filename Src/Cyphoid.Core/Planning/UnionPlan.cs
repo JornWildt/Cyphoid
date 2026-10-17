@@ -6,8 +6,11 @@ namespace Cyphoid.Core.Planning
 {
   public record UnionPlan(IReadOnlyList<PipelinePlan> Branches, bool All) : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
-      => new UnionReferenceOperator(Branches.Select(b => b.BuildExecutionPlan(factory)).ToArray(), All);
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
+    {
+      var branches = Branches.Select(b => b.Compile(factory)).ToArray();
+      return parameters => new UnionReferenceOperator(branches.Select(b => b(parameters)).ToArray(), All);
+    }
 
     public override void PrettyPrint(StringBuilder sb)
     {

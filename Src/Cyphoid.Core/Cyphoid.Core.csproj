@@ -36,6 +36,7 @@ Full changelog: https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md</Pac
     <None Include="../../PROCEDURES.md" Pack="true" PackagePath="/" />
     <None Include="../../ERROR_HANDLING.md" Pack="true" PackagePath="/" />
     <None Include="../../MAPS.md" Pack="true" PackagePath="/" />
+    <None Include="../../PARAMETERS.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   
   <ItemGroup>

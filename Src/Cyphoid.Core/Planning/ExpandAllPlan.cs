@@ -13,9 +13,9 @@ namespace Cyphoid.Core.Planning
     PropertyMapNode? DestinationPropertyMap,
     RowSchema MatchColumns) : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
-      var destinationFilter = BuildPropertyFilter(DestinationPropertyMap);
+      var input = Input.Compile(factory);
 
 #pragma warning disable CS8524 // unnamed enum values
       var direction = Relationship.RelationshipDirection switch
@@ -26,14 +26,14 @@ namespace Cyphoid.Core.Planning
       };
 #pragma warning restore CS8524
 
-      return factory.BuildExpandAll(
-        Input.BuildExecutionPlan(factory),
+      return parameters => factory.BuildExpandAll(
+        input(parameters),
         Source.Definition,
         direction,
         Relationship.RelationshipDetail?.RelationshipType,
         Destination.Definition,
         DestinationLabel,
-        destinationFilter,
+        BuildPropertyFilter(DestinationPropertyMap, parameters),
         MatchColumns);
     }
 

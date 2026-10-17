@@ -314,6 +314,12 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.parameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitParameter([NotNull] CypherParser.ParameterContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.labelPredicate"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

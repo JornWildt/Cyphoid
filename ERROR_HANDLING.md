@@ -47,6 +47,10 @@ are not blanket-wrapped as invalid queries.
 
 ## Codes and source locations
 
+Missing execution parameters use `MissingParameter`, with the location of the
+first reference. Parsed queries validate all required names before invoking backend
+factory hooks, including references in UNION branches or queries with no results.
+
 `CypherErrorCode` includes syntax, name-resolution, signature, type, argument-value,
 arithmetic, and procedure errors. `InvalidQuery` is the fallback for other semantic
 query errors. A `CypherDiagnostic` contains a code, message, phase, and optional

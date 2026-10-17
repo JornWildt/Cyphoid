@@ -12,7 +12,7 @@ namespace Cyphoid.Core.Execution
         if (!node.Attributes.TryGetValue(p.PropertyName, out var propertyValue))
           return false;
 
-        if (!p.Value.Equals(propertyValue))
+        if (p.Value.IsNull() || propertyValue == null || !p.Value.Equals(MixedValue.FromObject(propertyValue)))
           return false;
       }
 

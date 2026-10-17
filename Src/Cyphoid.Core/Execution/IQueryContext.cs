@@ -3,6 +3,7 @@ namespace Cyphoid.Core.Execution
   public interface IQueryContext
   {
     IQueryRowFactory RowFactory { get; }
+    IReadOnlyDictionary<string, Expressions.MixedValue> Parameters => QueryParameters.Empty;
   }
 
 

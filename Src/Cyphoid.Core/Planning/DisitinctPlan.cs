@@ -9,8 +9,9 @@ namespace Cyphoid.Core.Planning
     PipelinePlan Input,
     IReadOnlyList<ProjectionNode> Projections) : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
+      var input = Input.Compile(factory);
       var groupings = new List<GroupingEvaluator>();
       foreach (var p in Projections)
       {
@@ -19,8 +20,8 @@ namespace Cyphoid.Core.Planning
         groupings.Add(new GroupingEvaluator(evaluator, p.Variable.SlotIndex));
       }
 
-      return factory.BuildDistinct(
-        Input.BuildExecutionPlan(factory),
+      return parameters => factory.BuildDistinct(
+        input(parameters),
         groupings);
     }
 

@@ -8,12 +8,10 @@ namespace Cyphoid.Core.Planning
     PipelinePlan Input,
     ExprNode Predicate) : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
-      var evaluator = Predicate.CompileEvaluator();
-      return factory.BuildFilter(
-        Input.BuildExecutionPlan(factory),
-        evaluator);
+      var input = Input.Compile(factory);
+      return parameters => factory.BuildFilter(input(parameters), Predicate.Bind(parameters).CompileEvaluator());
     }
 
     public override void PrettyPrint(StringBuilder sb)

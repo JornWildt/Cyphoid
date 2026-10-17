@@ -5,9 +5,9 @@ namespace Cyphoid.Core.Planning
 {
   public record EmptyPlan() : PipelinePlan
   {
-    public override IOperator BuildExecutionPlan(IOperatorFactory factory)
+    public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
-      return factory.BuildEmptyResult();
+      return _ => factory.BuildEmptyResult();
     }
 
 
