@@ -33,7 +33,7 @@ namespace Cyphoid.Core.SyntaxTree
     {
       sb.Append("WITH ");
       bool first = true;
-      foreach (var i in Projections)
+      foreach (var i in Projections.Where(p => !p.IsImplicit))
       {
         if (!first)
           sb.Append(", ");

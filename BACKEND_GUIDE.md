@@ -119,6 +119,7 @@ value type. Maps with different keys do not require different row schemas.
 If you override, preserve semantics and output row shapes exactly.
 
 ## Async behavior and correctness
+- EXISTS uses normal backend scan/expansion operators and stops enumeration at the first result. Backends must dispose resources on early exit and treat null bound source nodes as having no expansions. Async subquery predicates use a reference async filter; projection, grouping, and sorting can receive rows with internal materialized expression slots before projecting the public result schema.
 - `BuildExecutionPlan` compiles a reusable template. Backend factory hooks are invoked when execution binds parameter values, not necessarily while the template is built. Each execution receives fresh mutable engine operators/aggregate states and shared schemas. Scan/expansion property filters and limits are already concrete values when passed to backend hooks.
 - Projection hooks may receive `ProjectionBindings`, whose `Schema` retains the template's immutable output schema. Reuse it in custom projection operators rather than reconstructing schemas per execution.
 - Backend operator implementations must accept the new `CancellationToken ct` parameter. Existing callers can continue calling `ExecuteAsync(context)`.

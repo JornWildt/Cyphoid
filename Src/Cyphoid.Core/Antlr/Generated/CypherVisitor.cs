@@ -320,6 +320,18 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitParameter([NotNull] CypherParser.ParameterContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.existsSubquery"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitExistsSubquery([NotNull] CypherParser.ExistsSubqueryContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.existsBranch"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitExistsBranch([NotNull] CypherParser.ExistsBranchContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.labelPredicate"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

@@ -511,6 +511,26 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitParameter([NotNull] CypherParser.ParameterContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.existsSubquery"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterExistsSubquery([NotNull] CypherParser.ExistsSubqueryContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.existsSubquery"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitExistsSubquery([NotNull] CypherParser.ExistsSubqueryContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.existsBranch"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterExistsBranch([NotNull] CypherParser.ExistsBranchContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.existsBranch"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitExistsBranch([NotNull] CypherParser.ExistsBranchContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.labelPredicate"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

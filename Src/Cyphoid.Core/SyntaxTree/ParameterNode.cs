@@ -24,6 +24,8 @@ internal static class ParameterBinding
     ExprNode result = expression switch
     {
       ParameterNode p => new BoundValueNode(parameters.Require(p)),
+      ImportedValueNode n => new BoundValueNode((parameters.CorrelatedRow
+        ?? throw new InvalidOperationException("Missing correlated row.")).Values[n.Variable.SlotIndex] ?? MixedValue.Null()),
       BinaryOperatorNode n => n with { Left = n.Left.Bind(parameters), Right = n.Right.Bind(parameters) },
       UnaryOperatorNode n => n with { Expr = n.Expr.Bind(parameters) },
       InOperatorNode n => n with { Expr = n.Expr.Bind(parameters), Items = n.Items.Select(e => e.Bind(parameters)).ToArray() },

@@ -9,6 +9,13 @@ namespace Cyphoid.Core.Execution;
 public sealed class QueryParameters : IReadOnlyDictionary<string, MixedValue>
 {
   private readonly Dictionary<string, MixedValue> values;
+  internal IRow? CorrelatedRow { get; }
+  private QueryParameters(Dictionary<string, MixedValue> values, IRow row)
+  {
+    this.values = values;
+    CorrelatedRow = row;
+  }
+  internal QueryParameters Correlate(IRow row) => new(values, row);
   public static QueryParameters Empty { get; } = new(Array.Empty<KeyValuePair<string, MixedValue>>());
   public QueryParameters(IEnumerable<KeyValuePair<string, MixedValue>> values)
   {

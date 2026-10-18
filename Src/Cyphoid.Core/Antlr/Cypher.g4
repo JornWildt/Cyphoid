@@ -225,13 +225,14 @@ mapKey
   : identifier
   | MATCH | CALL | YIELD | UNION | ALL | OPTIONAL | WHERE | RETURN | LIMIT
   | AS | AND | OR | NOT | IS | CONTAINS | STARTS | ENDS | IN | WITH
-  | TRUE | FALSE | NULL | ASC | DESC | DISTINCT
+  | TRUE | FALSE | NULL | ASC | DESC | DISTINCT | EXISTS
   ;
 
 // (all operators not here yet)
 
 primaryExpression
   : literal
+  | existsSubquery
   | parameter
   | mapLiteral
   | labelPredicate
@@ -243,6 +244,16 @@ primaryExpression
 
 parameter
   : PARAMETER
+  ;
+
+existsSubquery
+  : EXISTS LBRACE existsBranch (unionClause existsBranch)* RBRACE
+  ;
+
+existsBranch
+  : repeatableClause+ returnLimitClause?
+  | pattern whereClause? returnLimitClause?
+  | returnLimitClause
   ;
 
 labelPredicate
@@ -301,6 +312,7 @@ stringLiteral
 // =========================
 
 PARAMETER  : '$' LETTER (LETTER | DIGIT | '_')*;
+EXISTS     : [Ee][Xx][Ii][Ss][Tt][Ss];
 MATCH      : [Mm][Aa][Tt][Cc][Hh];
 CALL       : [Cc][Aa][Ll][Ll];
 YIELD      : [Yy][Ii][Ee][Ll][Dd];

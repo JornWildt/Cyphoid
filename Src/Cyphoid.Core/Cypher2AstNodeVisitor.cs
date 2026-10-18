@@ -35,6 +35,7 @@ namespace Cyphoid.Core
     Dictionary<string, VariableDefinition> OutputVariableDefinitions = new Dictionary<string, VariableDefinition>();
     Dictionary<string, VariableDefinition>? OrderingInputVariables;
     List<ProjectionNode>? OrderingProjections;
+    Dictionary<string, VariableDefinition>? importedVariables;
 
 
     #region Visitors
@@ -119,6 +120,7 @@ namespace Cyphoid.Core
 
     private static bool ContainsAggregateCall(IParseTree tree)
     {
+      if (tree is CypherParser.ExistsSubqueryContext) return false;
       if (tree is CypherParser.FunctionCallContext function &&
           FunctionRegistry.GetFunctionDefinition(function.ASTERIX() != null ? "CountAll" : function.identifier().GetText())
             .ValueKind == ValueKindType.Aggregate)
@@ -173,6 +175,26 @@ namespace Cyphoid.Core
     {
       // Projections dependents on current variable declarations and generates a new set of output variables
       var projections = Visit<ProjectionsNode>(context.projectionList());
+      if (importedVariables != null)
+      {
+        var carried = projections.Projections.ToList();
+        foreach (var imported in importedVariables.Values)
+        {
+          var index = carried.FindIndex(p => p.Variable.Name == imported.Name);
+          if (index >= 0)
+          {
+            if (carried[index].Expr is not VariableExprNode variable || variable.Variable.Name != imported.Name)
+              throw new ParseException($"Cannot shadow outer variable '{imported.Name}' inside EXISTS.");
+            carried[index] = carried[index] with { Expr = new ImportedValueNode(imported), IsImported = true };
+          }
+          else
+          {
+            var output = RegisterOutputVariable(false, imported.Name, imported.Type);
+            carried.Add(new ProjectionNode(new ImportedValueNode(imported), output) { IsImplicit = true, IsImported = true });
+          }
+        }
+        projections = projections with { Projections = carried };
+      }
 
       // Once the projections have been setup, the output variables becomes the new current variables.
       TransferOutputVariablesToCurrentVariables();
@@ -280,7 +302,8 @@ namespace Cyphoid.Core
         : (expr is MapAccessNode access && access.Property != null) ? access.Property
         : $"p{AnonymousProjectionCounter++}");
 
-      var type = expr is MapLiteralNode or MapProjectionNode ? MixedValue.ValueType.Map
+      var type = expr is ExistsSubqueryNode ? MixedValue.ValueType.Bool
+        : expr is MapLiteralNode or MapProjectionNode ? MixedValue.ValueType.Map
         : expr is VariableExprNode reference ? reference.Variable.Type : MixedValue.ValueType.String;
       var variable = RegisterOutputVariable(id == null, variableName, type);
 
@@ -540,6 +563,7 @@ namespace Cyphoid.Core
 
     public override AstNode VisitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context)
     {
+      if (context.existsSubquery() != null) return Visit<ExistsSubqueryNode>(context.existsSubquery());
       if (context.parameter() != null) return Visit<ParameterNode>(context.parameter());
       if (context.mapLiteral() != null) return Visit<MapLiteralNode>(context.mapLiteral());
       if (context.labelPredicate() != null)
@@ -577,6 +601,43 @@ namespace Cyphoid.Core
       var node = new ParameterNode(context.GetText()[1..]) { SourceSpan = SpanOf(context) };
       parameterReferences.TryAdd(node.Name, node);
       return node;
+    }
+
+    public override AstNode VisitExistsSubquery([NotNull] CypherParser.ExistsSubqueryContext context)
+    {
+      // ORDER BY can reference input variables not included in RETURN. Preserve
+      // them in hidden projection slots before establishing the correlated scope.
+      if (OrderingInputVariables != null)
+        foreach (var name in OrderingInputVariables.Keys.ToArray())
+          if (!VariableDefinitions.ContainsKey(name)) FindVariable(new VariableNode(name));
+      var branches = new List<ExistsBranchNode>();
+      foreach (var branch in context.existsBranch())
+      {
+        var child = new Cypher2AstNodeVisitor(procedures)
+        {
+          VariableDefinitions = new Dictionary<string, VariableDefinition>(VariableDefinitions),
+          importedVariables = new Dictionary<string, VariableDefinition>(VariableDefinitions),
+          AnonymousVariableCounter = AnonymousVariableCounter
+        };
+        var matches = branch.repeatableClause().Select(m => child.Visit<ClauseNode>(m)).ToList();
+        if (branch.pattern() != null)
+        {
+          var pattern = child.Visit<PatternNode>(branch.pattern());
+          var predicate = branch.whereClause() == null ? null : child.Visit<WhereNode>(branch.whereClause()).Expr;
+          var schema = new RowSchema(child.VariableDefinitions.Values.Select(v => new RowColumn(v.SlotIndex, v.Name, v.Type)));
+          matches.Add(new MatchWhereNode(false, pattern, predicate, schema));
+        }
+        var result = branch.returnLimitClause() == null ? null : child.Visit<ReturnLimitNode>(branch.returnLimitClause());
+        branches.Add(new ExistsBranchNode(matches, result));
+        foreach (var pair in child.parameterReferences) parameterReferences.TryAdd(pair.Key, pair.Value);
+      }
+      if (branches.Any(b => b.Return != null) && branches.Any(b => b.Return == null))
+        throw new ParseException("EXISTS UNION branches must either all use RETURN or all omit it.");
+      var unions = context.unionClause();
+      var all = unions.Length > 0 && unions[0].ALL() != null;
+      if (unions.Any(u => (u.ALL() != null) != all))
+        throw new ParseException("Cannot mix UNION and UNION ALL in EXISTS.");
+      return new ExistsSubqueryNode(branches, all);
     }
 
 
@@ -838,7 +899,9 @@ namespace Cyphoid.Core
 
     private string NewAnonymousVariableName()
     {
-      string name = "anon_" + AnonymousVariableCounter++;
+      string name;
+      do { name = "anon_" + AnonymousVariableCounter++; }
+      while (VariableDefinitions.ContainsKey(name) || OutputVariableDefinitions.ContainsKey(name));
       return name;
     }
 

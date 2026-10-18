@@ -22,7 +22,7 @@ namespace Cyphoid.Core.ReferenceBackend
       {
         ct.ThrowIfCancellationRequested();
         var destinationVariable = row.Values[DestinationVariable.SlotIndex];
-        if (destinationVariable != null)
+        if (destinationVariable != null && !destinationVariable.Value.IsNull())
         {
           var destinationNode = destinationVariable.Value.AsGraphNode();
 
@@ -31,7 +31,7 @@ namespace Cyphoid.Core.ReferenceBackend
           if (SourceVariable != null)
           {
             var sourceVariable = row.Values[SourceVariable.SlotIndex];
-            if (sourceVariable != null)
+            if (sourceVariable != null && !sourceVariable.Value.IsNull())
             {
               var sourceNode = sourceVariable.Value.AsGraphNode();
               if (Direction == ExpandDirectionType.Outgoing)

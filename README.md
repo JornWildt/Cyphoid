@@ -16,6 +16,13 @@ See the [changelog](https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md)
 
 ## Example usage
 
+### EXISTS subqueries
+
+Use `WHERE EXISTS { MATCH (n)-[:RELATED_TO]->(other) }` to filter by whether a
+correlated match exists, or `NOT EXISTS` to select rows without matches. EXISTS
+also works in projections, supports nesting, and stops at the first result.
+See [EXISTS.md](EXISTS.md) for scope, supported clauses, and examples.
+
 ### Parameters
 
 Supply execution values through `IQueryContext.Parameters`, preferably using

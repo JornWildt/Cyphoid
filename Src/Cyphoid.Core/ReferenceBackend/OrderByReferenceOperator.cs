@@ -8,6 +8,9 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator Input,
     IReadOnlyList<OrderByEvaluator> Ordering) : IOperator
   {
+    private static readonly IComparer<MixedValue> BooleanOrdering = Comparer<MixedValue>.Create((left, right) =>
+      left.TryGetBool(out var a) && right.TryGetBool(out var b) ? a.CompareTo(b)
+        : Comparer<MixedValue>.Default.Compare(left, right));
     async IAsyncEnumerable<IRow> IOperator.ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct)
     {
       ct.ThrowIfCancellationRequested();
@@ -25,14 +28,14 @@ namespace Cyphoid.Core.ReferenceBackend
         if (ordered is null)
         {
           ordered = orderBy.Direction == SortDirection.Ascending
-              ? result.OrderBy(Evaluate)
-              : result.OrderByDescending(Evaluate);
+              ? result.OrderBy(Evaluate, BooleanOrdering)
+              : result.OrderByDescending(Evaluate, BooleanOrdering);
         }
         else
         {
           ordered = orderBy.Direction == SortDirection.Ascending
-              ? ordered.ThenBy(Evaluate)
-              : ordered.ThenByDescending(Evaluate);
+              ? ordered.ThenBy(Evaluate, BooleanOrdering)
+              : ordered.ThenByDescending(Evaluate, BooleanOrdering);
         }
       }
 

@@ -62,7 +62,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
       {
         ct.ThrowIfCancellationRequested();
         var sourceVariable = row.Values[SourceVariable.SlotIndex];
-        if (sourceVariable != null)
+        if (sourceVariable != null && !sourceVariable.Value.IsNull())
         {
           var sourceNode = sourceVariable.Value.AsGraphNode();
           var matchingEdges = sourceNode.Edges
@@ -109,7 +109,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
 
         var sourceVariable = row.Values[SourceVariable.SlotIndex];
 
-        if (sourceVariable != null)
+        if (sourceVariable != null && !sourceVariable.Value.IsNull())
         {
           var sourceNode = (GraphNode<string>)sourceVariable.Value.AsGraphNode();
           var sourceId = sourceNode.Id;

@@ -612,6 +612,30 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitParameter([NotNull] CypherParser.ParameterContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.existsSubquery"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterExistsSubquery([NotNull] CypherParser.ExistsSubqueryContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.existsSubquery"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitExistsSubquery([NotNull] CypherParser.ExistsSubqueryContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.existsBranch"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterExistsBranch([NotNull] CypherParser.ExistsBranchContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.existsBranch"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitExistsBranch([NotNull] CypherParser.ExistsBranchContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.labelPredicate"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

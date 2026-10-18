@@ -10,6 +10,8 @@ namespace Cyphoid.Core.SyntaxTree
 
   public record ProjectionNode(ExprNode Expr, VariableDefinition Variable) : AstNode
   {
+    public bool IsImplicit { get; init; }
+    public bool IsImported { get; init; }
     public override void PrettyPrint(StringBuilder sb)
     {
       Expr.PrettyPrint(sb);
