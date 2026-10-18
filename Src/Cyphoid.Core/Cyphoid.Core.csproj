@@ -9,7 +9,7 @@
 
     <!-- NuGet package metadata -->
     <PackageId>Cyphoid</PackageId>
-    <Version>0.15.0</Version>
+    <Version>1.0.0</Version>
     <Authors>Jørn Wildt</Authors>
     <Description>A parser for the Cypher graph query language. It includes a simple implementation of the query language.</Description>
     <PackageTags>parser cypher query language</PackageTags>
@@ -25,8 +25,8 @@
 
   <PropertyGroup>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>0.15.0: Added coalesce(), toLower(), toUpper(), trim(), ltrim(), rtrim(), toString(), toInteger(), toFloat(), toBoolean(), string size(), substring(), replace(), left(), right(), abs(), round(), floor(), and ceil(). Functions use .NET semantics, with lazy coalescing, null propagation, argument validation, invariant casing and conversions, UTF-16 string indexing, and .NET midpoint rounding modes.
-Added n:label predicates for checking a node's single type, including boolean combinations in WHERE and projected expressions. Label comparisons are ordinal and case-sensitive; null nodes produce null.
+    <PackageReleaseNotes>1.0.0: Added procedure plugins with CALL/YIELD, immutable map values, execution-time query parameters, correlated EXISTS subqueries, shared immutable row schemas, and conservative MATCH predicate pushdown for equality and range comparisons.
+Includes end-to-end cancellation and structured query diagnostics. Breaking backend API changes include shared RowSchema arguments, cancellation-token propagation, execution-local plan binding, and explicit property comparison/matching semantics. See BACKEND_GUIDE.md and DATABASE_BACKEND.md for implementation and migration guidance.
 Full changelog: https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md</PackageReleaseNotes>
   </PropertyGroup>
 
@@ -38,6 +38,8 @@ Full changelog: https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md</Pac
     <None Include="../../MAPS.md" Pack="true" PackagePath="/" />
     <None Include="../../PARAMETERS.md" Pack="true" PackagePath="/" />
     <None Include="../../EXISTS.md" Pack="true" PackagePath="/" />
+    <None Include="../../BACKEND_GUIDE.md" Pack="true" PackagePath="/" />
+    <None Include="../../DATABASE_BACKEND.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   
   <ItemGroup>

@@ -2,7 +2,7 @@
 
 Changes are listed by version, newest first. Historical dates follow version updates in Git, rather than verified package publication dates. Version 0.10.0 appears in package release notes but has no separate version commit.
 
-## Unreleased
+## 1.0.0 ? 2026-10-18
 
 - Added `<`, `<=`, `>`, and `>=` MATCH predicate pushdown with explicit PropertyComparison values, reversed-operand normalization, and residual preservation of range type errors.
 
