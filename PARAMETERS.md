@@ -45,7 +45,7 @@ Existing contexts need no changes: `IQueryContext.Parameters` defaults to
 
 ## Names, scope, and values
 
-- Dictionary names omit `$`. Names are ordinal and case-sensitive.
+- Names are ordinal and case-sensitive.
 - This subset accepts a letter or underscore followed by letters, digits, or underscores.
   Parameter names can be keywords, such as `$limit`. Numeric-only and escaped
   parameter names are not supported.
