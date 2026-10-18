@@ -56,8 +56,8 @@ internal class PredicatePushdownTests
     var rows = await Plan("MATCH (a:person {age: 20})-[:LINK]->(b) WHERE a.age = 20 AND 30 = b.age RETURN b.age AS age", factory)
       .ExecuteAsync(new TestQueryContext()).ToListAsync();
     Assert.That(rows.Single().Values[0], Is.EqualTo(MixedValue.Int(30)));
-    Assert.That(factory.Scans.Single().Filter!.Conditions.Select(c => c.Equality),
-      Is.EqualTo(new[] { PropertyEquality.Pattern, PropertyEquality.Query }));
+    Assert.That(factory.Scans.Single().Filter!.Conditions.Select(c => c.Semantics),
+      Is.EqualTo(new[] { PropertyMatchSemantics.Pattern, PropertyMatchSemantics.Query }));
     var constraint = factory.Expansions.Single().Filter!.Conditions.Single();
     Assert.That(constraint.PropertyName, Is.EqualTo("age"));
     Assert.That(constraint.Value, Is.EqualTo(MixedValue.Int(30)));
@@ -80,12 +80,65 @@ internal class PredicatePushdownTests
   [TestCase("rand() < 0.5 AND a.age = 20")]
   [TestCase("a.age = 20 OR a.age = 30")]
   [TestCase("EXISTS { MATCH (a)-->(b) } AND a.age = 20")]
-  [TestCase("a.age > 10 AND a.age = 20")]
   public async Task UnsupportedLeadingTermsAreOptimizationBarriers(string predicate)
   {
     var factory = new RecordingFactory(Graph());
     await Plan($"MATCH (a) WHERE {predicate} RETURN a", factory).ExecuteAsync(new TestQueryContext()).ToListAsync();
     Assert.That(factory.Scans.All(s => s.Filter == null), Is.True);
+  }
+
+  [TestCase("a.age < 30", PropertyComparison.LessThan, 1)]
+  [TestCase("a.age <= 30", PropertyComparison.LessThanOrEqual, 2)]
+  [TestCase("a.age > 20", PropertyComparison.GreaterThan, 1)]
+  [TestCase("a.age >= 20", PropertyComparison.GreaterThanOrEqual, 2)]
+  [TestCase("30 > a.age", PropertyComparison.LessThan, 1)]
+  [TestCase("30 >= a.age", PropertyComparison.LessThanOrEqual, 2)]
+  [TestCase("20 < a.age", PropertyComparison.GreaterThan, 1)]
+  [TestCase("20 <= a.age", PropertyComparison.GreaterThanOrEqual, 2)]
+  public async Task RangeConstraintsReachScans(string predicate, PropertyComparison comparison, int count)
+  {
+    var factory = new RecordingFactory(Graph());
+    var rows = await Plan($"MATCH (a) WHERE {predicate} RETURN a", factory)
+      .ExecuteAsync(new TestQueryContext()).ToListAsync();
+    Assert.That(rows, Has.Count.EqualTo(count));
+    Assert.That(factory.Scans.Single().Filter!.Conditions.Single().Comparison, Is.EqualTo(comparison));
+  }
+
+  [Test]
+  public async Task ExpansionReceivesBoundRange()
+  {
+    var factory = new RecordingFactory(Graph());
+    var plan = Plan("MATCH (a)-[:LINK]->(b) WHERE b.age >= $age RETURN b", factory);
+    var rows = await plan.ExecuteAsync(new Context(new QueryParameters(
+      new Dictionary<string, MixedValue> { ["age"] = MixedValue.Int(30) }))).ToListAsync();
+    Assert.That(rows, Has.Count.EqualTo(1));
+    var constraint = factory.Expansions.Single().Filter!.Conditions.Single();
+    Assert.That(constraint.Comparison, Is.EqualTo(PropertyComparison.GreaterThanOrEqual));
+    Assert.That(constraint.Value, Is.EqualTo(MixedValue.Int(30)));
+  }
+
+  [Test]
+  public void RangeTypeErrorsAreNotHiddenByLaterConstraints()
+  {
+    var graph = Graph();
+    graph.SetNodeProperty("a", "age", "unknown");
+    var factory = new RecordingFactory(graph);
+    var plan = Plan("MATCH (a) WHERE a.age > 18 AND a.age = 999 RETURN a", factory);
+    var error = Assert.ThrowsAsync<RuntimeException>(async () =>
+      await plan.ExecuteAsync(new TestQueryContext()).ToListAsync());
+    Assert.That(error, Is.Not.Null);
+    Assert.That(factory.Scans.Single().Filter!.Conditions, Has.Count.EqualTo(1));
+  }
+
+  [TestCase(PropertyComparison.LessThan, true)]
+  [TestCase(PropertyComparison.LessThanOrEqual, true)]
+  [TestCase(PropertyComparison.GreaterThan, false)]
+  [TestCase(PropertyComparison.GreaterThanOrEqual, false)]
+  public void MissingPropertiesUseExistingRuntimeOrdering(PropertyComparison comparison, bool expected)
+  {
+    var condition = new PropertyFilterCondition("missing", MixedValue.Int(20), comparison, PropertyMatchSemantics.Query);
+    Assert.That(condition.IsMatch(false, MixedValue.Null()), Is.EqualTo(expected));
+    Assert.That(condition.IsMatch(true, MixedValue.String("wrong type")), Is.True);
   }
 
   [Test]

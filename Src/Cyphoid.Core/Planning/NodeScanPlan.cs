@@ -11,8 +11,8 @@ namespace Cyphoid.Core.Planning
     RelationshipPatternNode? RelationshipDetail,
     RowSchema MatchColumns) : PipelinePlan
   {
-    /// <summary>Safe WHERE equalities on this operator's candidate node.</summary>
-    public IReadOnlyList<PropertyEntryNode> WhereConstraints { get; init; } = [];
+    /// <summary>Safe WHERE comparisons on this operator's candidate node.</summary>
+    public IReadOnlyList<PropertyConstraintNode> WhereConstraints { get; init; } = [];
 
     public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {

@@ -4,6 +4,8 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- Added `<`, `<=`, `>`, and `>=` MATCH predicate pushdown with explicit PropertyComparison values, reversed-operand normalization, and residual preservation of range type errors.
+
 - Added conservative MATCH-local WHERE equality pushdown into node scan and expansion property constraints, including independent pattern parts and OPTIONAL MATCH branches. Constraints carry explicit query/pattern equality semantics and execution-bound values; residual predicates preserve runtime behavior. Backend property filtering must honor PropertyFilterCondition.IsMatch.
 
 - Added correlated EXISTS subqueries in expressions, including NOT EXISTS, nested queries, WITH scope preservation, procedure calls, optional RETURN, pattern shorthand, and UNION. Evaluation is asynchronous, short-circuits at the first row, preserves outer metadata, and propagates parameters/cancellation. ORDER BY now supports boolean results.

@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Cyphoid.Core.Execution;
 using Cyphoid.Core.SyntaxTree;
 
@@ -20,13 +20,13 @@ namespace Cyphoid.Core.Planning
     // and nested-map equality rules differ. Values are bound once per execution,
     // never evaluated against an incomplete scan row.
     protected PropertyFilter? BuildPropertyFilter(PropertyMapNode? map, QueryParameters parameters,
-      IReadOnlyList<PropertyEntryNode> constraints)
+      IReadOnlyList<PropertyConstraintNode> constraints)
     {
       var pattern = BuildPropertyFilter(map, parameters);
       if (constraints.Count == 0) return pattern;
       return new PropertyFilter((pattern?.Conditions ?? []).Concat(constraints.Select(c =>
         new PropertyFilterCondition(c.Identifier, ((LiteralValueNode)c.Value.Bind(parameters)).ToConstantValue(),
-          PropertyEquality.Query))).ToArray());
+          c.Comparison, PropertyMatchSemantics.Query))).ToArray());
     }
 
     protected PropertyFilter? BuildPropertyFilter(PropertyMapNode? propertyMap, QueryParameters parameters)

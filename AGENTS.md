@@ -20,7 +20,7 @@ The Cypher engine is implemented as a pipeline of row-oriented physical operator
 - Rows are positional; each variable binds to a fixed `SlotIndex` in `IRow.Values`.
 - `IRow.Schema` retains a shared immutable `RowSchema`; `IRow.Columns` is its read-only view. Pass schemas unchanged through row factories, copies, and procedure outputs. Create schemas once per stage, never per row. UNION normalizes branch rows through the host copy hook.
 - Expressions compile into evaluators, not runtime dictionary lookups.
-- MATCH-local WHERE pushdown extracts a safe leading equality prefix into scan/expand PropertyFilter constraints. Backends must honor PropertyEquality via condition.IsMatch; keep query and pattern equality distinct. Residual WHERE and OPTIONAL fallback remain intact. See BACKEND_GUIDE.md.
+- MATCH-local WHERE pushdown extracts a safe leading comparison prefix into scan/expand PropertyFilter constraints. Backends must honor PropertyMatchSemantics via condition.IsMatch; keep query and pattern equality distinct. Residual WHERE and OPTIONAL fallback remain intact. See BACKEND_GUIDE.md.
 - `$name` parameters come from `IQueryContext.Parameters`. Execution templates validate required names, snapshot parameters, and bind evaluators once per execution. Aggregate state is execution-local; schemas remain shared. Parameters do not occupy row slots. See `PARAMETERS.md`.
 - Query errors use public `ParseException`/`RuntimeException` with `CypherErrorCode`, phase, and optional source spans. Planning and nested expressions use `CompileEvaluator` to locate runtime failures. Preserve cancellation and primary failures during cleanup; see `ERROR_HANDLING.md`.
 

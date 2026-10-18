@@ -142,7 +142,7 @@ The test backend shows a complete minimal implementation:
 
 ## WHERE constraints in MATCH operators
 
-The planner can pass leading property equalities from a MATCH's WHERE into
+The planner can pass leading property comparisons from a MATCH's WHERE into
 `BuildNodeScan`, `BuildExpandAll`, and `BuildExpandInto`. These arrive in the
 existing `PropertyFilter`, alongside constraints from pattern property maps.
 Each condition names its property and carries a `MixedValue` bound for this
@@ -161,7 +161,7 @@ its destination node. Filtering scan candidates before constructing rows avoids
 expanding rejected people. Filtering destination candidates avoids emitting
 rejected neighbors. The original WHERE remains as a residual filter.
 
-**Backend implementations must respect `PropertyFilterCondition.Equality`.**
+**Backend implementations must respect `PropertyFilterCondition.Semantics`.**
 `Pattern` retains pattern-map matching; `Query` uses the runtime's query equality.
 Use `condition.IsMatch(propertyExists, propertyValue)` for each condition, or
 `filter.IsMatch(graphNode)` when working with `IGraphNode`. Supply
@@ -172,15 +172,26 @@ Query constraints retain unknown map comparisons so the residual evaluator can
 preserve existing diagnostics. An index may implement the constraint only if it
 retains all these candidates; otherwise apply `IsMatch` to a broader candidate set.
 
+For equality, Pattern rejects missing/null properties and null bound values;
+Query compares missing properties as null and preserves runtime query equality,
+including unknown map comparisons. Cyphoid currently considers scalar null equal
+to null, unlike standard Cypher null propagation. For range comparisons both modes
+use the same runtime ordering, retaining incompatible values for residual errors.
+See [Exactly what Pattern and Query change](DATABASE_BACKEND.md#exactly-what-pattern-and-query-change)
+for the behavior table, examples, and database translation requirements.
+
 Pushdown stays within one MATCH, including OPTIONAL MATCH's candidate branch;
 null fallback occurs after the branch and its WHERE. The planner uses actual node
 bindings rather than assuming every schema slot is populated. Independent pattern
 parts receive their own constraints before their Cartesian product.
 
 The initial optimization deliberately handles only a leading sequence of
-single-property equalities against scalar literals or parameters, accepting either
-operand order and parentheses. It stops at the first unsupported term, and after
-a parameter or null equality (which could produce an unknown map comparison). OR, ranges, functions,
+single-property comparisons (`=`, `<`, `<=`, `>`, `>=`) against scalar literals or
+parameters, accepting either operand order and parentheses. `Comparison` identifies
+the operation; equality is the default for existing callers. It stops at the first
+unsupported term, after a range, and after a parameter or null equality. Range
+matching retains incompatible values for the source-located residual error; later
+constraints cannot be pushed ahead of that possible error. OR, functions,
 EXISTS, nested property lookups, and comparisons between variables remain residual.
 This prevents moving a later condition ahead of a possible error or changing how
 often a volatile expression runs. It also avoids introducing new range/null/type

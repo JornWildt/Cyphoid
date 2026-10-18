@@ -57,7 +57,7 @@ RETURN a
 
 `BuildNodeScan` receives label `Person` and a `PropertyFilter` with two conditions:
 
-| PropertyName | Value | Equality |
+| PropertyName | Value | Semantics |
 | --- | --- | --- |
 | country | `MixedValue.String("DK")` | Query |
 | active | `MixedValue.Bool(true)` | Query |
@@ -81,8 +81,9 @@ to hydrate nodes, even when the Cypher RETURN asks for only one property.
 Each `PropertyFilterCondition` contains:
 
 - `PropertyName`: the property being tested.
+- `Comparison`: Equal, LessThan, LessThanOrEqual, GreaterThan, or GreaterThanOrEqual.
 - `Value`: its bound `MixedValue` for this execution.
-- `Equality`: `Pattern` for a pattern property map, or `Query` for a pushed WHERE.
+- `Semantics`: `Pattern` for a pattern property map, or `Query` for a pushed WHERE.
 
 All conditions in a filter are combined with AND. A backend can translate a subset
 into database predicates and apply the complete filter locally afterward.
@@ -97,13 +98,23 @@ foreach (var condition in propertyFilter?.Conditions ?? [])
     if (!propertyMappings.TryGetValue(condition.PropertyName, out var column))
         continue;
 
-    // This check depends on the column type, equality mode, database collation,
+    // This check depends on the column type, match semantics, database collation,
     // missing/null representation, and the MixedValue type of the bound value.
     if (!column.CanTranslateExactly(condition))
         continue;
 
     var name = AddDatabaseParameter(command, condition.Value);
-    predicates.Add($"{column.TrustedSqlIdentifier} = {name}");
+    // Map the enum to a fixed SQL token; never accept an arbitrary operator string.
+    var op = condition.Comparison switch
+    {
+        PropertyComparison.Equal => "=",
+        PropertyComparison.LessThan => "<",
+        PropertyComparison.LessThanOrEqual => "<=",
+        PropertyComparison.GreaterThan => ">",
+        PropertyComparison.GreaterThanOrEqual => ">=",
+        _ => throw new ArgumentOutOfRangeException()
+    };
+    predicates.Add($"{column.TrustedSqlIdentifier} {op} {name}");
 }
 ```
 
@@ -121,8 +132,9 @@ Examples of differences to account for:
 | --- | --- |
 | Strings | Ensure case, whitespace, and collation rules match the engine. |
 | Numeric values | Do not assume SQL coercion matches MixedValue equality. |
-| Missing/null properties | Follow the selected equality mode; do not translate every null equality as `= NULL`. |
+| Missing/null properties | Follow the selected match semantics; do not translate every null equality as `= NULL`. |
 | Maps | Do not assume database JSON equality reproduces query map equality. |
+| Incompatible range types | Retain candidates that would raise runtime errors; translate only when storage types guarantee compatibility. |
 | Unknown comparisons | Preserve candidates retained by `IsMatch`, allowing the residual WHERE to evaluate them. |
 
 Use the public matching helpers as the semantic authority:
@@ -140,9 +152,63 @@ Supply `false` and `MixedValue.Null()` for an absent property. Convert database
 Use `Pattern` matching for pattern-map conditions and `Query` matching for WHERE
 conditions; replacing both with `object.Equals` changes behavior.
 
+### Exactly what Pattern and Query change
+
+`Comparison` selects the operator; `Semantics` selects the matching rules for
+**equality**. These are separate choices. The planner supplies them; operators
+should preserve them rather than choose a mode based on the property or value.
+
+| Candidate or bound value | Pattern + Equal | Query + Equal |
+| --- | --- | --- |
+| Property is absent | Reject the candidate. | Compare a null value with the bound value using runtime query equality. |
+| Property or bound value is null | Reject the candidate. | Use runtime query equality; do not automatically reject it. |
+| Non-null scalar values | Use MixedValue structural equality. | Use runtime query equality. |
+| Map values | Use structural equality, including structural equality of null entries. | Use query map equality; retain an unknown result for the residual WHERE. |
+
+For example, with a node that has no `missing` property:
+
+```cypher
+MATCH (n {missing: null}) RETURN n
+```
+
+The pattern condition rejects that node. In contrast:
+
+```cypher
+MATCH (n) WHERE n.missing = null RETURN n
+```
+
+Cyphoid's **current scalar query equality treats null as equal to null**, so the
+WHERE condition accepts it. This differs from standard Cypher null propagation;
+pushdown preserves the current runtime rather than changing its language behavior.
+For a SQL mapping that represents absence as SQL NULL, translating the latter as
+`column = @null` would incorrectly exclude the node. Even `IS NULL` is safe only
+when the mapping preserves every relevant distinction between missing and null.
+
+Maps need a similar distinction: structurally equal maps containing null entries
+can match a pattern equality, while query map equality can return unknown. The
+candidate filter retains unknown results, leaving the original WHERE to accept,
+reject, or diagnose them according to the surrounding expression. A pushed
+constraint is therefore a candidate restriction, not a replacement for WHERE.
+
+For `<`, `<=`, `>`, and `>=`, both semantics modes currently use the **same runtime
+ordering rules**. Pattern maps generate only Equal constraints. Range matching
+retains candidates whose comparison raises a RuntimeException, so the original
+WHERE can report that error at its source location. A backend must not silently
+remove incompatible values by applying a stricter SQL type filter or conversion.
+
+An operator applying constraints locally needs no manual mode switch: call
+`condition.IsMatch(exists, value)` or `filter.IsMatch(node)` as shown above.
+A database translator must check both `Comparison` and `Semantics`, along with
+its storage types and collation. If it cannot reproduce the required candidate
+set, leave that condition out of SQL and use the local helper after retrieval.
+
 The current planner extracts only a safe leading sequence of single-property
-equalities against scalar literals or parameters. It stops at unsupported terms
-and after parameter/null equalities. Ranges, OR, functions, EXISTS, and comparisons
+comparisons (`=`, `<`, `<=`, `>`, `>=`) against scalar literals or parameters.
+`PropertyFilterCondition.Comparison` identifies the operation and defaults to
+`Equal`. Reverse the database comparison only when required by your own storage
+mapping; the planner has already normalized reversed Cypher operands.
+It stops at unsupported terms, after a range, and after parameter/null equalities.
+OR, functions, EXISTS, and comparisons
 between variables remain in the residual WHERE. The residual also remains for
 pushed equalities. A backend must still enforce pattern-map conditions itself.
 

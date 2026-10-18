@@ -3,37 +3,63 @@ using Cyphoid.Core.SyntaxTree;
 
 namespace Cyphoid.Core.Planning;
 
-/// <summary>Conservative, clause-local extraction of indexable WHERE equalities.</summary>
+/// <summary>Conservative, clause-local extraction of indexable WHERE comparisons.</summary>
+public sealed record PropertyConstraintNode(string Identifier, ExprNode Value, PropertyComparison Comparison);
+
 internal static class MatchPredicatePushdown
 {
   public static PipelinePlan Apply(PipelinePlan plan, PipelinePlan? input, ExprNode? predicate)
   {
     if (predicate == null) return plan;
-    var constraints = new List<(VariableDefinition Variable, PropertyEntryNode Entry)>();
+    var constraints = new List<(VariableDefinition Variable, PropertyConstraintNode Entry)>();
     foreach (var term in Conjuncts(predicate))
     {
-      // Only move a leading sequence of total, deterministic equalities. Moving
-      // a later equality before rand(), EXISTS, or a potentially failing expression
+      // Only move a leading sequence of deterministic comparisons. Moving
+      // a later comparison before rand(), EXISTS, or a potentially failing expression
       // can change evaluation counts or suppress an error. OR is never split.
-      if (Unwrap(term) is not BinaryOperatorNode { Operator: BinaryOperatorType.EQ } equality)
-        break;
+      if (Unwrap(term) is not BinaryOperatorNode equality) break;
+      var comparison = equality.Operator switch
+      {
+        BinaryOperatorType.EQ => PropertyComparison.Equal,
+        BinaryOperatorType.LT => PropertyComparison.LessThan,
+        BinaryOperatorType.LTE => PropertyComparison.LessThanOrEqual,
+        BinaryOperatorType.GT => PropertyComparison.GreaterThan,
+        BinaryOperatorType.GTE => PropertyComparison.GreaterThanOrEqual,
+        _ => (PropertyComparison?)null
+      };
+      if (comparison == null) break;
       var left = Unwrap(equality.Left);
       var right = Unwrap(equality.Right);
-      if (left is LiteralValueNode or ParameterNode) (left, right) = (right, left);
+      if (left is LiteralValueNode or ParameterNode)
+      {
+        (left, right) = (right, left);
+        comparison = comparison switch
+        {
+          PropertyComparison.LessThan => PropertyComparison.GreaterThan,
+          PropertyComparison.LessThanOrEqual => PropertyComparison.GreaterThanOrEqual,
+          PropertyComparison.GreaterThan => PropertyComparison.LessThan,
+          PropertyComparison.GreaterThanOrEqual => PropertyComparison.LessThanOrEqual,
+          _ => comparison
+        };
+      }
       if (left is not PropertyAccessNode { Properties.Count: 1 } property ||
           right is not (LiteralValueNode or ParameterNode)) break;
       // Bound map values can produce unknown equality, which the existing AND
       // evaluator may diagnose. Do not move later terms ahead of that evaluation.
       if (right is LiteralValueNode literal && literal.ToConstantValue().Type == Cyphoid.Core.Expressions.MixedValue.ValueType.Map)
         break;
-      constraints.Add((property.Variable, new PropertyEntryNode(property.Properties[0], right)));
+      constraints.Add((property.Variable, new PropertyConstraintNode(property.Properties[0], right, comparison.Value)));
+      // A range may fail on a different property type. Do not push later terms
+      // ahead of its residual evaluation: they could hide that failure. The
+      // candidate matcher retains incompatible values instead of throwing.
+      if (comparison != PropertyComparison.Equal) break;
       // A parameter may be a map at execution time, and comparing a map property
       // with null also produces unknown. Neither may have later conditions moved
       // ahead of it; IsMatch retains unknown candidates for the residual evaluator.
       if (right is ParameterNode || right is LiteralValueNode value && value.ToConstantValue().IsNull()) break;
     }
 
-    IReadOnlyList<PropertyEntryNode> For(VariableDefinition variable) => constraints
+    IReadOnlyList<PropertyConstraintNode> For(VariableDefinition variable) => constraints
       .Where(c => c.Variable == variable).Select(c => c.Entry).ToArray();
 
     PipelinePlan Visit(PipelinePlan stage)

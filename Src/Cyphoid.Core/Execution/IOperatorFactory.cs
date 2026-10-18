@@ -1,4 +1,5 @@
 using Cyphoid.Core.Expressions;
+using Cyphoid.Core.Exceptions;
 using Cyphoid.Core.ReferenceBackend;
 
 namespace Cyphoid.Core.Execution
@@ -19,21 +20,45 @@ namespace Cyphoid.Core.Execution
 
   }
 
-  /// <summary>Identifies the semantics a backend must use for a property equality.</summary>
-  public enum PropertyEquality { Pattern, Query }
+  /// <summary>Identifies pattern-map or query matching semantics; comparison selects the operator.</summary>
+  public enum PropertyMatchSemantics { Pattern, Query }
+
+  // Pattern maps produce Equal constraints. WHERE may produce any comparison;
+  // its equality behavior is selected independently through Semantics.
+
+  public enum PropertyComparison { Equal, LessThan, LessThanOrEqual, GreaterThan, GreaterThanOrEqual }
 
   /// <summary>
-  /// A bound, row-independent property equality. Query constraints come from WHERE;
+  /// A bound, row-independent property comparison. Query constraints come from WHERE;
   /// use IsMatch rather than object.Equals so missing properties and maps retain
   /// the engine's query semantics. Backends may index these constraints only when
   /// their index implements the same semantics (including numeric and null values).
   /// </summary>
   public record PropertyFilterCondition(string PropertyName, MixedValue Value,
-    PropertyEquality Equality = PropertyEquality.Pattern)
+    PropertyComparison Comparison = PropertyComparison.Equal,
+    PropertyMatchSemantics Semantics = PropertyMatchSemantics.Pattern)
   {
     public bool IsMatch(bool exists, MixedValue propertyValue)
     {
-      if (Equality == PropertyEquality.Pattern)
+      if (Comparison != PropertyComparison.Equal)
+      {
+        // A candidate comparison must not raise an unlocated error, or discard
+        // a row whose original WHERE would raise one. Let the residual do that.
+        try
+        {
+          var value = exists ? propertyValue : MixedValue.Null();
+          return (Comparison switch
+          {
+            PropertyComparison.LessThan => value < Value,
+            PropertyComparison.LessThanOrEqual => value <= Value,
+            PropertyComparison.GreaterThan => value > Value,
+            PropertyComparison.GreaterThanOrEqual => value >= Value,
+            _ => throw new ArgumentOutOfRangeException(nameof(Comparison))
+          }).AsBool();
+        }
+        catch (RuntimeException) { return true; }
+      }
+      if (Semantics == PropertyMatchSemantics.Pattern)
         return exists && !Value.IsNull() && !propertyValue.IsNull() && Value.Equals(propertyValue);
       var equal = MixedValue.QueryEquals(exists ? propertyValue : MixedValue.Null(), Value);
       // Unknown must reach the residual evaluator. In particular, do not hide
