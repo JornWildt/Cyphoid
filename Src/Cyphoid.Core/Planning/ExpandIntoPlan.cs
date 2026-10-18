@@ -12,6 +12,9 @@ namespace Cyphoid.Core.Planning
     string? DestinationLabel,
     PropertyMapNode? DestinationPropertyMap) : PipelinePlan
   {
+    /// <summary>Safe WHERE equalities on this operator's candidate node.</summary>
+    public IReadOnlyList<PropertyEntryNode> WhereConstraints { get; init; } = [];
+
     public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
       var input = Input.Compile(factory);
@@ -33,7 +36,7 @@ namespace Cyphoid.Core.Planning
         Relationship?.RelationshipDetail?.RelationshipType,
         Destination.Definition,
         DestinationLabel,
-        BuildPropertyFilter(DestinationPropertyMap, parameters));
+        BuildPropertyFilter(DestinationPropertyMap, parameters, WhereConstraints));
     }
 
     public override void PrettyPrint(StringBuilder sb)

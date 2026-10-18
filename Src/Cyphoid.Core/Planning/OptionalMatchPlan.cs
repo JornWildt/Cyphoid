@@ -19,7 +19,11 @@ namespace Cyphoid.Core.Planning
         return new OptionalMatchReferenceOperator(input(parameters), row =>
         {
           // Match the whole clause normally; only the enclosing operator supplies null fallback rows.
-          var plan = pattern.BuildPlan(new InputRowPlan(row), Columns);
+          var branchInput = new InputRowPlan(row);
+          var plan = pattern.BuildPlan(branchInput, Columns);
+          // Push only within the candidate branch. Its enclosing operator must
+          // still emit a null fallback when WHERE rejects every candidate.
+          plan = MatchPredicatePushdown.Apply(plan, branchInput, predicate);
           if (predicate != null)
             plan = new FilterPlan(plan, predicate);
           return plan.Compile(factory)(parameters);

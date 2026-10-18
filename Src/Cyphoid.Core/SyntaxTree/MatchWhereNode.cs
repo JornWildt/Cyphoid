@@ -17,6 +17,7 @@ namespace Cyphoid.Core.SyntaxTree
         return new OptionalMatchPlan(input ?? new EmptyPlan(), MatchPattern, WhereExpr, DeclaredColumns);
 
       var plan = MatchPattern.BuildPlan(input, DeclaredColumns);
+      plan = MatchPredicatePushdown.Apply(plan, input, WhereExpr);
       if (WhereExpr != null)
       {
         plan = new FilterPlan(plan, WhereExpr);

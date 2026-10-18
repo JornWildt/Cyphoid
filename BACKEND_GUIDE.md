@@ -2,6 +2,9 @@
 
 This document explains how to implement a backend for Cyphoid by providing an `IOperatorFactory` and a small set of data-access operators. The easiest path is to inherit from `ReferenceOperatorFactory`, which supplies all generic operators (filter, projection, aggregation, order by, etc.) using `IAsyncEnumerable` row pipelines. You then implement the few abstract methods that perform real graph lookups.
 
+For database query translation, resource management, and an operator example, see
+[Building a database-backed operator](DATABASE_BACKEND.md).
+
 ## Key concepts
 - **Rows are positional**: each variable has a fixed `SlotIndex` (see `VariableDefinition`), and operators write values into `IRow.Values[slot]`.
 - **Schemas are shared**: `IRow.Schema` references an immutable `RowSchema`. `IRow.Columns` is a read-only view of that schema, shared by all rows in the stream rather than copied into every row.
@@ -135,3 +138,50 @@ The test backend shows a complete minimal implementation:
 - Factory: `Src/Cyphoid.Tests/TestBackend/TestOperatorFactory.cs`
 - Node scan: `Src/Cyphoid.Tests/TestBackend/Operators/NodeScanTestOperator.cs`
 - Graph store: `Src/Cyphoid.Tests/TestBackend/InMemoryGraph.cs`
+
+
+## WHERE constraints in MATCH operators
+
+The planner can pass leading property equalities from a MATCH's WHERE into
+`BuildNodeScan`, `BuildExpandAll`, and `BuildExpandInto`. These arrive in the
+existing `PropertyFilter`, alongside constraints from pattern property maps.
+Each condition names its property and carries a `MixedValue` bound for this
+execution; the backend does not need to inspect a compiled expression delegate.
+
+For example:
+
+```cypher
+MATCH (a:Person)-[:KNOWS]->(b:Person)
+WHERE a.country = 'DK' AND b.active = true
+RETURN a, b
+```
+
+The scan receives `country = 'DK'`; the expansion receives `active = true` for
+its destination node. Filtering scan candidates before constructing rows avoids
+expanding rejected people. Filtering destination candidates avoids emitting
+rejected neighbors. The original WHERE remains as a residual filter.
+
+**Backend implementations must respect `PropertyFilterCondition.Equality`.**
+`Pattern` retains pattern-map matching; `Query` uses the runtime's query equality.
+Use `condition.IsMatch(propertyExists, propertyValue)` for each condition, or
+`filter.IsMatch(graphNode)` when working with `IGraphNode`. Supply
+`MixedValue.Null()` for a missing property and pass `false` for `propertyExists`.
+Do not replace this with `object.Equals`, or automatically reject missing/null
+properties: query equality and pattern-map matching have different semantics.
+Query constraints retain unknown map comparisons so the residual evaluator can
+preserve existing diagnostics. An index may implement the constraint only if it
+retains all these candidates; otherwise apply `IsMatch` to a broader candidate set.
+
+Pushdown stays within one MATCH, including OPTIONAL MATCH's candidate branch;
+null fallback occurs after the branch and its WHERE. The planner uses actual node
+bindings rather than assuming every schema slot is populated. Independent pattern
+parts receive their own constraints before their Cartesian product.
+
+The initial optimization deliberately handles only a leading sequence of
+single-property equalities against scalar literals or parameters, accepting either
+operand order and parentheses. It stops at the first unsupported term, and after
+a parameter or null equality (which could produce an unknown map comparison). OR, ranges, functions,
+EXISTS, nested property lookups, and comparisons between variables remain residual.
+This prevents moving a later condition ahead of a possible error or changing how
+often a volatile expression runs. It also avoids introducing new range/null/type
+semantics through a backend-specific index.

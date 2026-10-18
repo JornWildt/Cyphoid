@@ -4,6 +4,8 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- Added conservative MATCH-local WHERE equality pushdown into node scan and expansion property constraints, including independent pattern parts and OPTIONAL MATCH branches. Constraints carry explicit query/pattern equality semantics and execution-bound values; residual predicates preserve runtime behavior. Backend property filtering must honor PropertyFilterCondition.IsMatch.
+
 - Added correlated EXISTS subqueries in expressions, including NOT EXISTS, nested queries, WITH scope preservation, procedure calls, optional RETURN, pattern shorthand, and UNION. Evaluation is asynchronous, short-circuits at the first row, preserves outer metadata, and propagates parameters/cancellation. ORDER BY now supports boolean results.
 - Added `$name` query parameters supplied through `IQueryContext.Parameters`, immutable QueryParameters snapshots, required-name discovery, and located MissingParameter errors before backend binding. Parameters work in expressions, map-based procedure arguments, node property filters, and WITH/RETURN LIMIT.
 - Execution plans now compile reusable binding templates with execution-local parameter values and aggregation state, retaining shared schemas. Backend factory hooks run during execution binding; custom logical plans implement Compile to return a parameter-binding factory. See PARAMETERS.md.

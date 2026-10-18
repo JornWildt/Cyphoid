@@ -17,11 +17,8 @@ namespace Cyphoid.Tests.TestBackend.Operators
     {
       foreach (var p in filter.Conditions)
       {
-        if (!node.Properties.TryGetValue(p.PropertyName, out var propertyValue))
-          return false;
-
-        // FIXME: Expr must be evaluated to constant value
-        if (!p.Value.Equals(propertyValue))
+        var exists = node.Properties.TryGetValue(p.PropertyName, out var propertyValue);
+        if (!p.IsMatch(exists, Cyphoid.Core.Expressions.MixedValue.FromObject(propertyValue)))
           return false;
       }
 

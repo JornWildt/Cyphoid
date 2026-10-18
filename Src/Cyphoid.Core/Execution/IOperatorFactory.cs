@@ -9,10 +9,8 @@ namespace Cyphoid.Core.Execution
     {
       foreach (var p in Conditions)
       {
-        if (!node.Attributes.TryGetValue(p.PropertyName, out var propertyValue))
-          return false;
-
-        if (p.Value.IsNull() || propertyValue == null || !p.Value.Equals(MixedValue.FromObject(propertyValue)))
+        var exists = node.Attributes.TryGetValue(p.PropertyName, out var propertyValue);
+        if (!p.IsMatch(exists, MixedValue.FromObject(propertyValue)))
           return false;
       }
 
@@ -21,7 +19,28 @@ namespace Cyphoid.Core.Execution
 
   }
 
-  public record PropertyFilterCondition(string PropertyName, MixedValue Value);
+  /// <summary>Identifies the semantics a backend must use for a property equality.</summary>
+  public enum PropertyEquality { Pattern, Query }
+
+  /// <summary>
+  /// A bound, row-independent property equality. Query constraints come from WHERE;
+  /// use IsMatch rather than object.Equals so missing properties and maps retain
+  /// the engine's query semantics. Backends may index these constraints only when
+  /// their index implements the same semantics (including numeric and null values).
+  /// </summary>
+  public record PropertyFilterCondition(string PropertyName, MixedValue Value,
+    PropertyEquality Equality = PropertyEquality.Pattern)
+  {
+    public bool IsMatch(bool exists, MixedValue propertyValue)
+    {
+      if (Equality == PropertyEquality.Pattern)
+        return exists && !Value.IsNull() && !propertyValue.IsNull() && Value.Equals(propertyValue);
+      var equal = MixedValue.QueryEquals(exists ? propertyValue : MixedValue.Null(), Value);
+      // Unknown must reach the residual evaluator. In particular, do not hide
+      // its diagnostics when this equality is an operand of a boolean expression.
+      return equal.IsNull() || equal.AsBool();
+    }
+  }
 
   public enum ExpandDirectionType { Outgoing, Incoming, Unidirectional }
 

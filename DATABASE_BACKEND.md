@@ -1,0 +1,301 @@
+# Building a database-backed operator
+
+A database backend translates graph access into database queries and returns
+Cyphoid rows. Start with [BACKEND_GUIDE.md](BACKEND_GUIDE.md) for the general
+backend contract. This guide focuses on node scans, relationship expansion, and
+translating pushed WHERE constraints.
+
+## Separate planning from database access
+
+Inherit from `ReferenceOperatorFactory` and implement `BuildNodeScan` and
+`BuildExpandAll`. The reference factory supplies filters, projections, aggregation,
+sorting, and other generic operators. Override additional hooks when useful.
+
+The factory methods construct operators; they should not open database readers.
+Database access belongs in `ExecuteAsync`, so cancellation, resource lifetimes,
+and repeated executions are handled correctly.
+
+For a scan, the information flows as follows:
+
+```text
+MATCH pattern and WHERE
+  -> NodeScanPlan
+  -> parameter binding for this execution
+  -> BuildNodeScan(variable, label, propertyFilter, ...)
+  -> operator stores these arguments
+  -> ExecuteAsync creates and executes a database command
+  -> candidate nodes become positional rows
+```
+
+`PropertyFilter` already contains bound values. The operator does not need to
+read `$parameters` or inspect expression delegates to discover restrictions.
+Keep connections, commands, readers, and mutable execution state local to each
+enumeration. Do not cache an execution's parameter values in shared factory state.
+
+## Choose a storage mapping
+
+For illustration, assume these tables:
+
+```text
+nodes(id, kind, country, active)
+edges(source_id, target_id, type)
+```
+
+Here `kind` represents a single node label. A backend with multiple labels would
+use its own label mapping, such as a node-label table. Graph properties need not
+be physical columns: a backend can instead map them into JSON or property tables.
+The translation must follow that backend's representation of missing properties,
+nulls, types, and node identity.
+
+For this query:
+
+```cypher
+MATCH (a:Person)
+WHERE a.country = 'DK' AND a.active = true
+RETURN a
+```
+
+`BuildNodeScan` receives label `Person` and a `PropertyFilter` with two conditions:
+
+| PropertyName | Value | Equality |
+| --- | --- | --- |
+| country | `MixedValue.String("DK")` | Query |
+| active | `MixedValue.Bool(true)` | Query |
+
+If your database comparisons have compatible semantics, the scan can issue:
+
+```sql
+SELECT n.id, n.kind, n.country, n.active
+FROM nodes AS n
+WHERE n.kind = @label
+  AND n.country = @p0
+  AND n.active = @p1
+```
+
+Use command parameters for `Person`, `DK`, and `true`. The parameter syntax shown
+is illustrative; adapt it to your database provider. Project everything needed
+to hydrate nodes, even when the Cypher RETURN asks for only one property.
+
+## Translate constraints conservatively
+
+Each `PropertyFilterCondition` contains:
+
+- `PropertyName`: the property being tested.
+- `Value`: its bound `MixedValue` for this execution.
+- `Equality`: `Pattern` for a pattern property map, or `Query` for a pushed WHERE.
+
+All conditions in a filter are combined with AND. A backend can translate a subset
+into database predicates and apply the complete filter locally afterward.
+
+The following is translation pseudocode; `ColumnMapping`, SQL fragments, and
+parameter collection are backend-owned types:
+
+```csharp
+foreach (var condition in propertyFilter?.Conditions ?? [])
+{
+    // Resolve identifiers through a trusted mapping, not user-controlled SQL.
+    if (!propertyMappings.TryGetValue(condition.PropertyName, out var column))
+        continue;
+
+    // This check depends on the column type, equality mode, database collation,
+    // missing/null representation, and the MixedValue type of the bound value.
+    if (!column.CanTranslateExactly(condition))
+        continue;
+
+    var name = AddDatabaseParameter(command, condition.Value);
+    predicates.Add($"{column.TrustedSqlIdentifier} = {name}");
+}
+```
+
+Always parameterize values. Identifiers cannot generally be value parameters;
+use fixed mappings or provider-correct identifier quoting. Do not concatenate
+`PropertyName`, labels, or property values directly into SQL text.
+
+An SQL predicate may admit extra candidates, but **must not reject any candidate
+that `condition.IsMatch` would retain**. Unsupported translations should therefore
+be omitted, rather than approximated with a stricter comparison.
+
+Examples of differences to account for:
+
+| Case | Backend responsibility |
+| --- | --- |
+| Strings | Ensure case, whitespace, and collation rules match the engine. |
+| Numeric values | Do not assume SQL coercion matches MixedValue equality. |
+| Missing/null properties | Follow the selected equality mode; do not translate every null equality as `= NULL`. |
+| Maps | Do not assume database JSON equality reproduces query map equality. |
+| Unknown comparisons | Preserve candidates retained by `IsMatch`, allowing the residual WHERE to evaluate them. |
+
+Use the public matching helpers as the semantic authority:
+
+```csharp
+bool accepts = filter.IsMatch(graphNode);
+
+// Or, for one condition while working with database-native property storage:
+bool exists = properties.TryGetValue(condition.PropertyName, out var rawValue);
+bool acceptsCondition = condition.IsMatch(exists, MixedValue.FromObject(rawValue));
+```
+
+Supply `false` and `MixedValue.Null()` for an absent property. Convert database
+`DBNull` into a supported null representation before calling MixedValue helpers.
+Use `Pattern` matching for pattern-map conditions and `Query` matching for WHERE
+conditions; replacing both with `object.Equals` changes behavior.
+
+The current planner extracts only a safe leading sequence of single-property
+equalities against scalar literals or parameters. It stops at unsupported terms
+and after parameter/null equalities. Ranges, OR, functions, EXISTS, and comparisons
+between variables remain in the residual WHERE. The residual also remains for
+pushed equalities. A backend must still enforce pattern-map conditions itself.
+
+## Implement a scan operator
+
+This example is an operator skeleton. `IDatabaseNodeStore` is an illustrative
+backend-owned abstraction, not a Cyphoid API. Its implementation translates the
+safe restrictions into database commands and returns fully hydrated `IGraphNode`
+instances. The scan applies the full local filter even if the store translated
+only some restrictions.
+
+```csharp
+using System.Runtime.CompilerServices;
+using Cyphoid.Core.Execution;
+using Cyphoid.Core.Expressions;
+
+public interface IDatabaseNodeStore
+{
+    IAsyncEnumerable<IGraphNode> ReadCandidatesAsync(
+        string? label,
+        PropertyFilter? restrictions,
+        string? targetRelationshipLabel,
+        CancellationToken ct);
+}
+
+public sealed class DatabaseNodeScanOperator(
+    IDatabaseNodeStore store,
+    VariableDefinition variable,
+    string? label,
+    PropertyFilter? propertyFilter,
+    string? targetRelationshipLabel,
+    RowSchema matchColumns) : IOperator
+{
+    public async IAsyncEnumerable<IRow> ExecuteAsync(
+        IQueryContext context,
+        [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        await foreach (var node in store.ReadCandidatesAsync(
+            label, propertyFilter, targetRelationshipLabel, ct)
+            .WithCancellation(ct))
+        {
+            ct.ThrowIfCancellationRequested();
+            if (propertyFilter != null && !propertyFilter.IsMatch(node))
+                continue;
+
+            var row = context.RowFactory.EmptyRow(matchColumns);
+            row.Values[variable.SlotIndex] = MixedValue.GraphNode(node);
+            yield return row;
+        }
+    }
+}
+```
+
+Wire this into the factory's `BuildNodeScan` override by passing its arguments
+unchanged into the constructor. The store must enforce the label and, when
+provided, `targetRelationshipLabel`. For the illustrated schema, the latter can
+be expressed as an outgoing-edge existence check:
+
+```sql
+AND EXISTS (
+  SELECT 1 FROM edges AS e
+  WHERE e.source_id = n.id AND e.type = @relationshipType
+)
+```
+
+When there is no property filter, do not add property restrictions. A label of
+null means no label restriction. Reuse the exact `matchColumns` instance for every
+output row; only the values array and host metadata are per-row allocations.
+
+## Execute database commands and hydrate nodes
+
+Inside the store implementation:
+
+1. Obtain a connection from an execution-scoped connection provider or pool.
+2. Build a parameterized command from the supported restrictions.
+3. Execute it asynchronously and pass `ct` to connection, command, and reader I/O.
+4. Convert database values into the backend's supported graph-property values.
+5. Return graph nodes containing their IDs, properties, and required relationships.
+6. Dispose owned readers, commands, and connections on completion, errors,
+   cancellation, and early disposal by consumers such as LIMIT or EXISTS.
+
+Use `await using` for owned resources that support asynchronous disposal. Never
+dispose a host-owned connection or transaction unless ownership was transferred.
+Preserve the primary query/cancellation exception if cleanup also fails, following
+[ERROR_HANDLING.md](ERROR_HANDLING.md).
+
+`IGraphNode` includes identity, `Type`, `Attributes`, and `Edges`. Populate them
+consistently with your expansion implementation. In particular, reference
+ExpandInto checks the source node's edges; returning an empty edge list merely
+because the initial scan did not fetch edges would produce incorrect results.
+`GraphNode<TId>` in the reference backend is available, or implement `IGraphNode`
+yourself. Ensure IDs have a stable supported MixedValue representation.
+
+The SQL above only shows scalar node columns. Fetch adjacency data using a join,
+a batched second query, or another backend-specific hydration strategy. Avoid
+opening nested commands on an active reader unless the provider supports that
+usage. For large results, hydrate bounded batches rather than buffering the whole
+graph or issuing one adjacency query per node. If overriding ExpandInto to query
+the database, keep the node/edge contract consistent with all other consumers.
+
+## Implement ExpandAll
+
+`BuildExpandAll` receives the input stream, source and destination variables,
+direction, relationship type, destination label, destination property filter,
+and shared output schema.
+
+For each input row:
+
+1. Read `row.Values[sourceVariable.SlotIndex]`. Skip a null source.
+2. Get its backend node ID and query matching relationships.
+3. Apply safely translated label/property restrictions to the destination query.
+4. Hydrate destination nodes and apply the complete destination filter locally.
+5. Create `row.CopyAndExpand(matchColumns)`, fill the destination slot, and emit it.
+
+Copy through the host row hook to preserve existing values and metadata. Do not
+construct an unrelated empty row for each destination.
+
+For an outgoing expansion, the database query has this general shape:
+
+```sql
+SELECT d.id, d.kind, d.country, d.active
+FROM edges AS e
+JOIN nodes AS d ON d.id = e.target_id
+WHERE e.source_id = @sourceId
+  AND e.type = @relationshipType
+  AND d.kind = @destinationLabel
+  AND d.country = @country
+```
+
+Only add the optional type, label, and property restrictions when present and
+safely translatable. Incoming expansion reverses source/target roles; undirected
+expansion must cover both orientations. Follow Cyphoid's existing expansion
+behavior for duplicate targets and self-loops; avoid introducing extra duplicates
+through hydration joins. See the test backend's ExpandAll implementation.
+
+Start with one lookup per input row, then consider batching source IDs or
+caching immutable adjacency within an execution. Preserve each input row's
+multiplicity, bindings, and metadata when mapping batched results back to rows.
+
+Do not emit an optional fallback yourself. OPTIONAL MATCH's enclosing operator
+handles the complete pattern, its WHERE, and the null fallback. Expansion operators
+emit actual matches only.
+
+## Verify the backend
+
+Compare database results with the test/reference backend for the same graph and
+queries. Include pattern and query equality, missing/null properties, maps,
+string case, numeric types, incoming/undirected expansion, duplicate targets,
+self-loops, repeated input rows, and OPTIONAL MATCH fallback. Check that early
+exit and cancellation close readers and release connections, that metadata
+survives expansion, and that output rows retain the supplied schema instance.
+
+Inspect generated SQL and database execution plans separately to confirm useful
+indexes are selected. Correct results alone do not establish that the database
+applied the restrictions efficiently.

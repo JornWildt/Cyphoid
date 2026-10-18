@@ -11,6 +11,9 @@ namespace Cyphoid.Core.Planning
     RelationshipPatternNode? RelationshipDetail,
     RowSchema MatchColumns) : PipelinePlan
   {
+    /// <summary>Safe WHERE equalities on this operator's candidate node.</summary>
+    public IReadOnlyList<PropertyEntryNode> WhereConstraints { get; init; } = [];
+
     public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
       // Use optional immediate -[:label]-> if there is such a label, to filter the scanned nodes
@@ -19,7 +22,7 @@ namespace Cyphoid.Core.Planning
         : null;
 
       return parameters => factory.BuildNodeScan(Variable.Definition, Label,
-        BuildPropertyFilter(PropertyMap, parameters), targetRelationshipLabel, MatchColumns);
+        BuildPropertyFilter(PropertyMap, parameters, WhereConstraints), targetRelationshipLabel, MatchColumns);
     }
     
     
