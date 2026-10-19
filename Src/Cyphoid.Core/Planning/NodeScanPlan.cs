@@ -16,13 +16,13 @@ namespace Cyphoid.Core.Planning
 
     public override Func<QueryParameters, IOperator> Compile(IOperatorFactory factory)
     {
-      // Use optional immediate -[:label]-> if there is such a label, to filter the scanned nodes
-      var targetRelationshipLabel = RelationshipDetail?.RelationshipDirection == RelationshipDirectionType.Right
+      // Use optional immediate -[:type]-> if there is such a relationship type, to filter the scanned nodes
+      var targetRelationshipType = RelationshipDetail?.RelationshipDirection == RelationshipDirectionType.Right
         ? RelationshipDetail?.RelationshipDetail?.RelationshipType
         : null;
 
       return parameters => factory.BuildNodeScan(Variable.Definition, Label,
-        BuildPropertyFilter(PropertyMap, parameters, WhereConstraints), targetRelationshipLabel, MatchColumns);
+        BuildPropertyFilter(PropertyMap, parameters, WhereConstraints), targetRelationshipType, MatchColumns);
     }
     
     

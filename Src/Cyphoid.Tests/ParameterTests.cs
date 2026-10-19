@@ -157,10 +157,10 @@ internal class ParameterTests
   {
     public int Scans { get; private set; }
     protected override IOperator BuildNodeScan(VariableDefinition variable, string? label,
-      PropertyFilter? propertyFilter, string? targetRelationshipLabel, RowSchema matchColumns)
+      PropertyFilter? propertyFilter, string? targetRelationshipType, RowSchema matchColumns)
     {
       Scans++;
-      return base.BuildNodeScan(variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
+      return base.BuildNodeScan(variable, label, propertyFilter, targetRelationshipType, matchColumns);
     }
   }
 

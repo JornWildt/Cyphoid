@@ -11,7 +11,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
     IOperator Input;
     VariableDefinition SourceVariable;
     ExpandDirectionType Direction;
-    string? RelationLabel;
+    string? RelationshipType;
     VariableDefinition DestinationVariable;
     string? DestinationLabel;
     PropertyFilter? DestinationPropertyFilter;
@@ -23,7 +23,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
       IOperator input,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
-      string? relationLabel,
+      string? relationshipType,
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter,
@@ -33,7 +33,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
       Input = input;
       SourceVariable = sourceVariable;
       Direction = direction;
-      RelationLabel = relationLabel;
+      RelationshipType = relationshipType;
       DestinationVariable = destinationVariable;
       DestinationLabel = destinationLabel;
       DestinationPropertyFilter = destinationPropertyFilter;
@@ -66,7 +66,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
         {
           var sourceNode = sourceVariable.Value.AsGraphNode();
           var matchingEdges = sourceNode.Edges
-            .Where(e => RelationLabel == null || e.Type == RelationLabel);
+            .Where(e => RelationshipType == null || e.Type == RelationshipType);
 
           var targetIds = matchingEdges
             .Cast<GraphEdge<string>>()
@@ -115,7 +115,7 @@ namespace Cyphoid.Tests.TestBackend.Operators
           var sourceId = sourceNode.Id;
 
           var matchingEdges = Graph.Incoming(sourceId)
-            .Where(e => RelationLabel == null || e.Type == RelationLabel);
+            .Where(e => RelationshipType == null || e.Type == RelationshipType);
 
           // The IDs of the nodes that target the source
           var targetIds = matchingEdges

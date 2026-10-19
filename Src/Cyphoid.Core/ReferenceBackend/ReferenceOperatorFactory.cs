@@ -9,14 +9,14 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator IOperatorFactory.BuildEmptyResult()
       => BuildEmptyResult();
 
-    IOperator IOperatorFactory.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, RowSchema matchColumns)
-      => BuildNodeScan(variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
+    IOperator IOperatorFactory.BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipType, RowSchema matchColumns)
+      => BuildNodeScan(variable, label, propertyFilter, targetRelationshipType, matchColumns);
 
-    IOperator IOperatorFactory.BuildExpandAll(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, RowSchema matchColumns)
-      => BuildExpandAll(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter, matchColumns);
+    IOperator IOperatorFactory.BuildExpandAll(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationshipType, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, RowSchema matchColumns)
+      => BuildExpandAll(input, sourceVariable, direction, relationshipType, destinationVariable, destinationLabel, destinationPropertyFilter, matchColumns);
 
-    IOperator IOperatorFactory.BuildExpandInto(IOperator input, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
-      => BuildExpandInto(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
+    IOperator IOperatorFactory.BuildExpandInto(IOperator input, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationshipType, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
+      => BuildExpandInto(input, sourceVariable, direction, relationshipType, destinationVariable, destinationLabel, destinationPropertyFilter);
 
     IOperator IOperatorFactory.BuildCartesianProduct(IOperator left, IOperator right)
       => BuildCartesianProduct(left, right);
@@ -47,8 +47,8 @@ namespace Cyphoid.Core.ReferenceBackend
     protected virtual IOperator BuildEmptyResult()
       => new EmptyResultReferenceOperator();
 
-    protected virtual IOperator BuildExpandInto(IOperator input, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
-      => new ExpandIntoReferenceOperator(input, sourceVariable, direction, relationLabel, destinationVariable, destinationLabel, destinationPropertyFilter);
+    protected virtual IOperator BuildExpandInto(IOperator input, VariableDefinition? sourceVariable, ExpandDirectionType? direction, string? relationshipType, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter)
+      => new ExpandIntoReferenceOperator(input, sourceVariable, direction, relationshipType, destinationVariable, destinationLabel, destinationPropertyFilter);
 
     protected virtual IOperator BuildCartesianProduct(IOperator left, IOperator right)
       => new CartesianProductReferenceOperator(left, right);
@@ -82,9 +82,9 @@ namespace Cyphoid.Core.ReferenceBackend
 
     #region Backend implementation specific
 
-    protected abstract IOperator BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipLabel, RowSchema matchColumns);
+    protected abstract IOperator BuildNodeScan(VariableDefinition variable, string? label, PropertyFilter? propertyFilter, string? targetRelationshipType, RowSchema matchColumns);
 
-    protected abstract IOperator BuildExpandAll(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, RowSchema matchColumns);
+    protected abstract IOperator BuildExpandAll(IOperator input, VariableDefinition sourceVariable, ExpandDirectionType direction, string? relationshipType, VariableDefinition destinationVariable, string? destinationLabel, PropertyFilter? destinationPropertyFilter, RowSchema matchColumns);
 
 
     #endregion

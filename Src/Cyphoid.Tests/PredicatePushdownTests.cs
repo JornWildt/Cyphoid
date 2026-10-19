@@ -14,17 +14,17 @@ internal class PredicatePushdownTests
     public List<(string Variable, PropertyFilter? Filter)> Scans { get; } = [];
     public List<(string Variable, PropertyFilter? Filter)> Expansions { get; } = [];
     protected override IOperator BuildNodeScan(VariableDefinition variable, string? label,
-      PropertyFilter? propertyFilter, string? targetRelationshipLabel, RowSchema matchColumns)
+      PropertyFilter? propertyFilter, string? targetRelationshipType, RowSchema matchColumns)
     {
       Scans.Add((variable.Name, propertyFilter));
-      return base.BuildNodeScan(variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
+      return base.BuildNodeScan(variable, label, propertyFilter, targetRelationshipType, matchColumns);
     }
     protected override IOperator BuildExpandAll(IOperator input, VariableDefinition sourceVariable,
-      ExpandDirectionType direction, string? relationLabel, VariableDefinition destinationVariable,
+      ExpandDirectionType direction, string? relationshipType, VariableDefinition destinationVariable,
       string? destinationLabel, PropertyFilter? destinationPropertyFilter, RowSchema matchColumns)
     {
       Expansions.Add((destinationVariable.Name, destinationPropertyFilter));
-      return base.BuildExpandAll(input, sourceVariable, direction, relationLabel, destinationVariable,
+      return base.BuildExpandAll(input, sourceVariable, direction, relationshipType, destinationVariable,
         destinationLabel, destinationPropertyFilter, matchColumns);
     }
   }

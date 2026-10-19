@@ -20,10 +20,10 @@ namespace Cyphoid.Tests.TestBackend
       VariableDefinition variable, 
       string? label, 
       PropertyFilter? propertyFilter,
-      string? targetRelationshipLabel,
+      string? targetRelationshipType,
       RowSchema matchColumns)
     {
-      return new NodeScanTestOperator(Graph, variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
+      return new NodeScanTestOperator(Graph, variable, label, propertyFilter, targetRelationshipType, matchColumns);
     }
 
 
@@ -31,7 +31,7 @@ namespace Cyphoid.Tests.TestBackend
       IOperator input,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
-      string? relationLabel,
+      string? relationshipType,
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter,
@@ -42,7 +42,7 @@ namespace Cyphoid.Tests.TestBackend
         input,
         sourceVariable,
         direction,
-        relationLabel,
+        relationshipType,
         destinationVariable,
         destinationLabel,
         destinationPropertyFilter,

@@ -228,8 +228,8 @@ internal class ExistsTests : TestHelper
     public int Reads { get; private set; }
     public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
     protected override IOperator BuildNodeScan(VariableDefinition variable, string? label,
-      PropertyFilter? propertyFilter, string? targetRelationshipLabel, RowSchema matchColumns) => label == "probe"
-      ? new Probe(this, variable, matchColumns) : base.BuildNodeScan(variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
+      PropertyFilter? propertyFilter, string? targetRelationshipType, RowSchema matchColumns) => label == "probe"
+      ? new Probe(this, variable, matchColumns) : base.BuildNodeScan(variable, label, propertyFilter, targetRelationshipType, matchColumns);
     private sealed record Probe(ProbeFactory Owner, VariableDefinition Variable, RowSchema Schema) : IOperator
     {
       public async IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, [EnumeratorCancellation] CancellationToken ct = default)

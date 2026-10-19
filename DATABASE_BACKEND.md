@@ -230,7 +230,7 @@ public interface IDatabaseNodeStore
     IAsyncEnumerable<IGraphNode> ReadCandidatesAsync(
         string? label,
         PropertyFilter? restrictions,
-        string? targetRelationshipLabel,
+        string? targetRelationshipType,
         CancellationToken ct);
 }
 
@@ -239,7 +239,7 @@ public sealed class DatabaseNodeScanOperator(
     VariableDefinition variable,
     string? label,
     PropertyFilter? propertyFilter,
-    string? targetRelationshipLabel,
+    string? targetRelationshipType,
     RowSchema matchColumns) : IOperator
 {
     public async IAsyncEnumerable<IRow> ExecuteAsync(
@@ -248,7 +248,7 @@ public sealed class DatabaseNodeScanOperator(
     {
         ct.ThrowIfCancellationRequested();
         await foreach (var node in store.ReadCandidatesAsync(
-            label, propertyFilter, targetRelationshipLabel, ct)
+            label, propertyFilter, targetRelationshipType, ct)
             .WithCancellation(ct))
         {
             ct.ThrowIfCancellationRequested();
@@ -265,7 +265,7 @@ public sealed class DatabaseNodeScanOperator(
 
 Wire this into the factory's `BuildNodeScan` override by passing its arguments
 unchanged into the constructor. The store must enforce the label and, when
-provided, `targetRelationshipLabel`. For the illustrated schema, the latter can
+provided, `targetRelationshipType`. For the illustrated schema, the latter can
 be expressed as an outgoing-edge existence check:
 
 ```sql

@@ -10,7 +10,7 @@ namespace Cyphoid.Core.ReferenceBackend
     IOperator Input,
     VariableDefinition? SourceVariable,
     ExpandDirectionType? Direction,
-    string? RelationLabel,
+    string? RelationshipType,
     VariableDefinition DestinationVariable,
     string? DestinationLabel,
     PropertyFilter? DestinationPropertyFilter) : IOperator
@@ -37,7 +37,7 @@ namespace Cyphoid.Core.ReferenceBackend
               if (Direction == ExpandDirectionType.Outgoing)
               {
                 var matchingEdges = sourceNode.Edges
-                  .Where(e => RelationLabel == null || e.Type == RelationLabel);
+                  .Where(e => RelationshipType == null || e.Type == RelationshipType);
 
                 if (matchingEdges.Any(e => e.RefersTo(destinationNode)))
                   isMatch = true;
@@ -45,7 +45,7 @@ namespace Cyphoid.Core.ReferenceBackend
               else
               {
                 var matchingEdges = destinationNode.Edges
-                  .Where(e => RelationLabel == null || e.Type == RelationLabel);
+                  .Where(e => RelationshipType == null || e.Type == RelationshipType);
 
                 // FIXME: Edge destination must be TId (not string)
                 if (matchingEdges.Any(e => e.RefersTo(sourceNode)))

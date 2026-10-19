@@ -34,7 +34,7 @@ internal sealed class MyOperatorFactory : ReferenceOperatorFactory
     VariableDefinition variable,
     string? label,
     PropertyFilter? propertyFilter,
-    string? targetRelationshipLabel,
+    string? targetRelationshipType,
     RowSchema matchColumns)
     => new MyNodeScanOperator(...);
 
@@ -42,7 +42,7 @@ internal sealed class MyOperatorFactory : ReferenceOperatorFactory
     IOperator input,
     VariableDefinition sourceVariable,
     ExpandDirectionType direction,
-    string? relationLabel,
+    string? relationshipType,
     VariableDefinition destinationVariable,
     string? destinationLabel,
     PropertyFilter? destinationPropertyFilter,
@@ -98,7 +98,7 @@ value type. Maps with different keys do not require different row schemas.
 ### Node scan (BuildNodeScan)
 - Produce one row per matching node in your storage layer.
 - Apply `label` and `propertyFilter` when provided.
-- `targetRelationshipLabel` is a hint for the following relationship expansion; any optimization using it must preserve the scan's matching semantics.
+- `targetRelationshipType` is a hint for the following relationship expansion; any optimization using it must preserve the scan's matching semantics.
 - For each match, set `row.Values[variable.SlotIndex]` to a `MixedValue` that wraps your graph node.
 - Use `matchColumns` when constructing the row so downstream operators can access the correct metadata.
 
@@ -106,7 +106,7 @@ value type. Maps with different keys do not require different row schemas.
 - Read the bound source node from `sourceVariable.SlotIndex` in each input row.
 - Traverse relationships based on:
   - `direction` (incoming/outgoing)
-  - `relationLabel` (relationship type)
+  - `relationshipType` (relationship type)
   - `destinationLabel` (node label)
   - `destinationPropertyFilter` (node properties)
 - For each match, emit a new row where `destinationVariable.SlotIndex` is filled with the destination node value.

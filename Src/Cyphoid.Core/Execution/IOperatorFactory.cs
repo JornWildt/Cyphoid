@@ -80,14 +80,14 @@ namespace Cyphoid.Core.Execution
       VariableDefinition variable,
       string? label,
       PropertyFilter? propertyFilter,
-      string? targetRelationshipLabel,
+      string? targetRelationshipType,
       RowSchema matchColumns);
 
     IOperator BuildExpandAll(
       IOperator input,
       VariableDefinition sourceVariable,
       ExpandDirectionType direction,
-      string? relationLabel,
+      string? relationshipType,
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter,
@@ -97,7 +97,7 @@ namespace Cyphoid.Core.Execution
       IOperator input,
       VariableDefinition? sourceVariable,
       ExpandDirectionType? direction,
-      string? relationLabel,
+      string? relationshipType,
       VariableDefinition destinationVariable,
       string? destinationLabel,
       PropertyFilter? destinationPropertyFilter);

@@ -68,10 +68,10 @@ namespace Cyphoid.Tests
     private class NoImpactScanFactory(InMemoryGraph graph) : TestOperatorFactory(graph)
     {
       protected override IOperator BuildNodeScan(VariableDefinition variable, string? label,
-        PropertyFilter? propertyFilter, string? targetRelationshipLabel, RowSchema matchColumns)
+        PropertyFilter? propertyFilter, string? targetRelationshipType, RowSchema matchColumns)
       {
         Assert.That(label, Is.Not.EqualTo("impact"), "Bound-endpoint expansion must not scan impacts.");
-        return base.BuildNodeScan(variable, label, propertyFilter, targetRelationshipLabel, matchColumns);
+        return base.BuildNodeScan(variable, label, propertyFilter, targetRelationshipType, matchColumns);
       }
     }
   }
