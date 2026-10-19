@@ -52,10 +52,13 @@ internal static class AsyncExpressionCompiler
     if (expression is BinaryOperatorNode { Operator: BinaryOperatorType.And or BinaryOperatorType.Or } binary)
       return async (row, context, ct) =>
       {
-        var left = (await children[0](row, context, ct)).AsBool();
-        if (binary.Operator == BinaryOperatorType.And && !left) return MixedValue.Bool(false);
-        if (binary.Operator == BinaryOperatorType.Or && left) return MixedValue.Bool(true);
-        return MixedValue.Bool((await children[1](row, context, ct)).AsBool());
+        var left = await children[0](row, context, ct);
+        var boolean = MixedValue.QueryBoolean(left);
+        if (binary.Operator == BinaryOperatorType.And && boolean == false) return MixedValue.Bool(false);
+        if (binary.Operator == BinaryOperatorType.Or && boolean == true) return MixedValue.Bool(true);
+        var right = await children[1](row, context, ct);
+        return binary.Operator == BinaryOperatorType.And
+          ? MixedValue.QueryAnd(left, right) : MixedValue.QueryOr(left, right);
       };
     if (expression is FunctionCallNode { Definition: CoalesceFunction })
       return async (row, context, ct) =>

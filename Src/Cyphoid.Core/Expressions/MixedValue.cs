@@ -243,11 +243,29 @@ namespace Cyphoid.Core.Expressions
 
     // Grouping uses structural Equals; query equality must retain unknown results
     // when matching map entries contain null. A definite mismatch takes precedence.
+    // Boolean expressions use three-valued logic, while structural equality and
+    // IComparable keep their grouping/sorting semantics. Share these helpers with
+    // async EXISTS evaluation so both execution paths have identical truth tables.
+    internal static bool? QueryBoolean(MixedValue value) => value.IsNull() ? null : value.AsBool();
+    internal static MixedValue QueryNot(MixedValue value) => value.IsNull() ? Null() : Bool(!value.AsBool());
+    internal static MixedValue QueryAnd(MixedValue left, MixedValue right)
+    {
+      var a = QueryBoolean(left);
+      var b = QueryBoolean(right);
+      return a == false || b == false ? Bool(false) : a == null || b == null ? Null() : Bool(true);
+    }
+    internal static MixedValue QueryOr(MixedValue left, MixedValue right)
+    {
+      var a = QueryBoolean(left);
+      var b = QueryBoolean(right);
+      return a == true || b == true ? Bool(true) : a == null || b == null ? Null() : Bool(false);
+    }
+
     internal static MixedValue QueryEquals(MixedValue left, MixedValue right)
     {
+      if (left.IsNull() || right.IsNull()) return Null();
       if (left.Type != ValueType.Map && right.Type != ValueType.Map)
         return Bool(left.Equals(right));
-      if (left.IsNull() || right.IsNull()) return Null();
       if (!left.TryGetMap(out var a) || !right.TryGetMap(out var b)) return Bool(false);
       if (a.Count != b.Count) return Bool(false);
       var unknown = false;
@@ -335,24 +353,28 @@ namespace Cyphoid.Core.Expressions
     
     public static MixedValue operator <=(MixedValue left, MixedValue right)
     {
+      if (left.IsNull() || right.IsNull()) return Null();
       return MixedValue.Bool(((IComparable<MixedValue>)left).CompareTo(right) <= 0);
     }
 
 
     public static MixedValue operator <(MixedValue left, MixedValue right)
     {
+      if (left.IsNull() || right.IsNull()) return Null();
       return MixedValue.Bool(((IComparable<MixedValue>)left).CompareTo(right) < 0);
     }
 
 
     public static MixedValue operator >=(MixedValue left, MixedValue right)
     {
+      if (left.IsNull() || right.IsNull()) return Null();
       return MixedValue.Bool(((IComparable<MixedValue>)left).CompareTo(right) >= 0);
     }
 
 
     public static MixedValue operator >(MixedValue left, MixedValue right)
     {
+      if (left.IsNull() || right.IsNull()) return Null();
       return MixedValue.Bool(((IComparable<MixedValue>)left).CompareTo(right) > 0);
     }
 

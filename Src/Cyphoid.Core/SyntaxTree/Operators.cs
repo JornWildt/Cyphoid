@@ -64,8 +64,18 @@ namespace Cyphoid.Core.SyntaxTree
 #pragma warning disable CS8524 // unnamed enum values
       return Operator switch
       {
-        BinaryOperatorType.And => (IRow r) => MixedValue.Bool(leftEvaluator(r).AsBool() && rightEvaluator(r).AsBool()),
-        BinaryOperatorType.Or => (IRow r) => MixedValue.Bool(leftEvaluator(r).AsBool() || rightEvaluator(r).AsBool()),
+        BinaryOperatorType.And => (IRow r) =>
+        {
+          var left = leftEvaluator(r);
+          return MixedValue.QueryBoolean(left) == false ? MixedValue.Bool(false)
+            : MixedValue.QueryAnd(left, rightEvaluator(r));
+        },
+        BinaryOperatorType.Or => (IRow r) =>
+        {
+          var left = leftEvaluator(r);
+          return MixedValue.QueryBoolean(left) == true ? MixedValue.Bool(true)
+            : MixedValue.QueryOr(left, rightEvaluator(r));
+        },
         BinaryOperatorType.EQ => (IRow r) => MixedValue.QueryEquals(leftEvaluator(r), rightEvaluator(r)),
         BinaryOperatorType.NEQ => (IRow r) =>
         {
@@ -125,7 +135,7 @@ namespace Cyphoid.Core.SyntaxTree
 #pragma warning disable CS8524 // unnamed enum values
       return Operator switch
       {
-        UnaryOperatorType.Not => (IRow r) => MixedValue.Bool(exprEvaluator(r).IsAnythingButTrue()),
+        UnaryOperatorType.Not => (IRow r) => MixedValue.QueryNot(exprEvaluator(r)),
         UnaryOperatorType.Plus => (IRow r) => +exprEvaluator(r),
         UnaryOperatorType.Minus => (IRow r) => -exprEvaluator(r)
       };

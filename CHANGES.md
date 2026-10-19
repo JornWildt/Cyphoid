@@ -4,6 +4,8 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- Fixed null propagation for scalar equality/inequality and range comparisons, and three-valued AND/OR/NOT in synchronous and asynchronous EXISTS expressions. IN now uses null-propagating scalar equality. WHERE retains only true; use IS NULL instead of = null. Grouping, DISTINCT, and ordering keep their structural semantics. Host scan/expansion constraints retain unknown candidates for residual evaluation; nullable SQL range translations need the same candidate preservation (see BACKEND_GUIDE.md).
+
 - Renamed relationship-type arguments from `relationLabel` to `relationshipType`, the node-scan hint from `targetRelationshipLabel` to `targetRelationshipType`, and corresponding operator members. Node label arguments are unchanged. Update named arguments and references to `ExpandIntoReferenceOperator.RelationLabel` (now `RelationshipType`).
 
 ## 1.0.0 ? 2026-10-18

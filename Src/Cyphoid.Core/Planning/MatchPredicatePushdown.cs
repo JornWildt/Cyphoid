@@ -44,8 +44,8 @@ internal static class MatchPredicatePushdown
       }
       if (left is not PropertyAccessNode { Properties.Count: 1 } property ||
           right is not (LiteralValueNode or ParameterNode)) break;
-      // Bound map values can produce unknown equality, which the existing AND
-      // evaluator may diagnose. Do not move later terms ahead of that evaluation.
+      // Keep map-valued constraints residual. Unknown results must still allow
+      // later operands to run, including any source-located failures.
       if (right is LiteralValueNode literal && literal.ToConstantValue().Type == Cyphoid.Core.Expressions.MixedValue.ValueType.Map)
         break;
       constraints.Add((property.Variable, new PropertyConstraintNode(property.Properties[0], right, comparison.Value)));

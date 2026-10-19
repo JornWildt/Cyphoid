@@ -108,7 +108,7 @@ namespace Cyphoid.Tests
 
 
     [TestCase("MATCH (n) WHERE n.name IN ['Oslo', 'København'] RETURN n.name", 2)]
-    [TestCase("MATCH (n) WHERE n.name IN [n.name] RETURN n.name", 12)]
+    [TestCase("MATCH (n) WHERE n.name IN [n.name] RETURN n.name", 4)]
     [TestCase("MATCH (n) WHERE n.name IN [] RETURN n.name", 0)]
     public async Task ItCanHandleInOperator(string input, int rowCount)
     {

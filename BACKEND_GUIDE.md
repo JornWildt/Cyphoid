@@ -174,9 +174,11 @@ retains all these candidates; otherwise apply `IsMatch` to a broader candidate s
 
 For equality, Pattern rejects missing/null properties and null bound values;
 Query compares missing properties as null and preserves runtime query equality,
-including unknown map comparisons. Cyphoid currently considers scalar null equal
-to null, unlike standard Cypher null propagation. For range comparisons both modes
-use the same runtime ordering, retaining incompatible values for residual errors.
+including unknown scalar and map comparisons. Any equality or range comparison
+with null now evaluates to null, including `null = null`; use `IS NULL` to test
+for missing/null values. Query candidate filters retain unknown results so later
+WHERE operands still run. For range comparisons both modes use the same runtime
+comparison rules, retaining null and incompatible values for residual evaluation.
 See [Exactly what Pattern and Query change](DATABASE_BACKEND.md#exactly-what-pattern-and-query-change)
 for the behavior table, examples, and database translation requirements.
 
@@ -196,3 +198,19 @@ EXISTS, nested property lookups, and comparisons between variables remain residu
 This prevents moving a later condition ahead of a possible error or changing how
 often a volatile expression runs. It also avoids introducing new range/null/type
 semantics through a backend-specific index.
+
+
+### Host migration: null-propagating query constraints
+
+NodeScan and ExpandAll implementations must use the updated
+`PropertyFilterCondition.IsMatch` / `PropertyFilter.IsMatch`, or equivalent
+candidate semantics. Pattern-map equality still rejects missing/null properties.
+Query equality and ranges retain unknown candidates; the residual WHERE keeps
+only true and may need to evaluate further operands when an earlier one is null.
+Do not treat a null range operand as the smallest value, and do not drop unknown
+candidates just because SQL WHERE would drop them. Translate nullable query
+comparisons using a broader candidate predicate (for example,
+`age >= @minAge OR age IS NULL`), or omit that SQL predicate and filter locally.
+For a null bound value, leave query candidates unrestricted. Retain incompatible
+types for source-located runtime errors as before. See DATABASE_BACKEND.md for
+translation details. No operator signature or row-factory changes are required.

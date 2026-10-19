@@ -190,3 +190,20 @@ Temporarily, at command line.
 
 > set CLASSPATH=D:\Javalib\antlr-4.13.2-complete.jar
 
+
+
+## Null semantics
+
+Comparisons (`=`, `<>`, `<`, `<=`, `>`, `>=`) return null if either operand is
+null, even for `null = null`. Use `IS NULL` / `IS NOT NULL` to test nulls.
+AND, OR, and NOT use three-valued logic: false AND null is false, true OR null
+is true, and NOT null is null. Only a definite false left operand short-circuits
+AND; only a definite true left operand short-circuits OR. WHERE keeps only true.
+IN returns true for a definite match, null when no match is found but a comparison
+is unknown, and false otherwise (including an empty list).
+Grouping, DISTINCT, and ORDER BY retain structural equality and sorting rules;
+query comparison null propagation does not change their behavior.
+Backend implementers should read the null-constraint migration notes in
+[BACKEND_GUIDE.md](BACKEND_GUIDE.md).
+
+These truth tables follow [Cypher's documented null semantics](https://neo4j.com/docs/cypher-manual/current/values-and-types/working-with-null/).

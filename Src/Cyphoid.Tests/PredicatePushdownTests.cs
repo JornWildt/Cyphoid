@@ -132,9 +132,9 @@ internal class PredicatePushdownTests
 
   [TestCase(PropertyComparison.LessThan, true)]
   [TestCase(PropertyComparison.LessThanOrEqual, true)]
-  [TestCase(PropertyComparison.GreaterThan, false)]
-  [TestCase(PropertyComparison.GreaterThanOrEqual, false)]
-  public void MissingPropertiesUseExistingRuntimeOrdering(PropertyComparison comparison, bool expected)
+  [TestCase(PropertyComparison.GreaterThan, true)]
+  [TestCase(PropertyComparison.GreaterThanOrEqual, true)]
+  public void MissingPropertiesRemainCandidatesForResidualEvaluation(PropertyComparison comparison, bool expected)
   {
     var condition = new PropertyFilterCondition("missing", MixedValue.Int(20), comparison, PropertyMatchSemantics.Query);
     Assert.That(condition.IsMatch(false, MixedValue.Null()), Is.EqualTo(expected));
@@ -188,24 +188,22 @@ internal class PredicatePushdownTests
     var factory = new RecordingFactory(Graph());
     var rows = await Plan("MATCH (a) WHERE a.missing = null RETURN a", factory)
       .ExecuteAsync(new TestQueryContext()).ToListAsync();
-    // Match the current runtime's scalar equality semantics, even where they differ
-    // from pattern-map matching. Pushdown must not silently change language behavior.
-    Assert.That(rows, Has.Count.EqualTo(2));
+    Assert.That(rows, Is.Empty);
   }
 
   [Test]
-  public void NullComparedWithMapDoesNotAllowLaterConstraintsToHideErrors()
+  public async Task NullComparedWithMapUsesThreeValuedLogic()
   {
     var graph = Graph();
     graph.SetNodeProperty("a", "data", new Dictionary<string, object?> { ["x"] = null });
     var factory = new RecordingFactory(graph);
     var plan = Plan("MATCH (a) WHERE a.data = null AND a.age = 999 RETURN a", factory);
-    Assert.ThrowsAsync<RuntimeException>(async () => await plan.ExecuteAsync(new TestQueryContext()).ToListAsync());
+    Assert.That(await plan.ExecuteAsync(new TestQueryContext()).ToListAsync(), Is.Empty);
     Assert.That(factory.Scans.Single().Filter!.Conditions, Has.Count.EqualTo(1));
   }
 
   [Test]
-  public void UnknownMapEqualityStillReachesTheResidualEvaluator()
+  public async Task UnknownMapEqualityStillReachesTheResidualEvaluator()
   {
     var graph = Graph();
     graph.SetNodeProperty("a", "data", new Dictionary<string, object?> { ["x"] = null });
@@ -215,7 +213,7 @@ internal class PredicatePushdownTests
     {
       ["map"] = MixedValue.Map(new Dictionary<string, MixedValue> { ["x"] = MixedValue.Null() })
     }));
-    Assert.ThrowsAsync<RuntimeException>(async () => await plan.ExecuteAsync(context).ToListAsync());
+    Assert.That(await plan.ExecuteAsync(context).ToListAsync(), Is.Empty);
     Assert.That(factory.Scans.Single().Filter!.Conditions, Has.Count.EqualTo(1));
   }
 }

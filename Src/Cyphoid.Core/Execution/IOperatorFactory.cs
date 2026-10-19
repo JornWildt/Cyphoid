@@ -47,14 +47,15 @@ namespace Cyphoid.Core.Execution
         try
         {
           var value = exists ? propertyValue : MixedValue.Null();
-          return (Comparison switch
+          var result = Comparison switch
           {
             PropertyComparison.LessThan => value < Value,
             PropertyComparison.LessThanOrEqual => value <= Value,
             PropertyComparison.GreaterThan => value > Value,
             PropertyComparison.GreaterThanOrEqual => value >= Value,
             _ => throw new ArgumentOutOfRangeException(nameof(Comparison))
-          }).AsBool();
+          };
+          return result.IsNull() || result.AsBool();
         }
         catch (RuntimeException) { return true; }
       }
@@ -62,7 +63,7 @@ namespace Cyphoid.Core.Execution
         return exists && !Value.IsNull() && !propertyValue.IsNull() && Value.Equals(propertyValue);
       var equal = MixedValue.QueryEquals(exists ? propertyValue : MixedValue.Null(), Value);
       // Unknown must reach the residual evaluator. In particular, do not hide
-      // its diagnostics when this equality is an operand of a boolean expression.
+      // later operands (which may fail) when equality is unknown.
       return equal.IsNull() || equal.AsBool();
     }
   }

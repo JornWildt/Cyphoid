@@ -177,22 +177,29 @@ The pattern condition rejects that node. In contrast:
 MATCH (n) WHERE n.missing = null RETURN n
 ```
 
-Cyphoid's **current scalar query equality treats null as equal to null**, so the
-WHERE condition accepts it. This differs from standard Cypher null propagation;
-pushdown preserves the current runtime rather than changing its language behavior.
-For a SQL mapping that represents absence as SQL NULL, translating the latter as
-`column = @null` would incorrectly exclude the node. Even `IS NULL` is safe only
-when the mapping preserves every relevant distinction between missing and null.
+Query equality now returns null whenever either operand is null, including
+`null = null`. WHERE accepts only true, so the second query also returns no rows.
+Use `WHERE n.missing IS NULL` to find missing/null properties.
+
+There is still an operator-level distinction: Pattern rejects these candidates
+immediately; Query's `IsMatch` **retains unknown candidates** for the residual
+WHERE. For example, `n.missing = 1 AND 1 / 0 = 1` must still evaluate the right
+operand and report its error. Removing the candidate in SQL would hide that error.
+Consequently, a query constraint translated as `column = @value` generally needs
+an additional `OR column IS NULL` candidate branch when the column is nullable.
+For a null bound value, omit the SQL restriction: every comparison is unknown.
+This applies to both equality and ranges; it is not the final WHERE result.
 
 Maps need a similar distinction: structurally equal maps containing null entries
 can match a pattern equality, while query map equality can return unknown. The
 candidate filter retains unknown results, leaving the original WHERE to accept,
-reject, or diagnose them according to the surrounding expression. A pushed
+or reject them according to three-valued logic and evaluate later operands. A pushed
 constraint is therefore a candidate restriction, not a replacement for WHERE.
 
 For `<`, `<=`, `>`, and `>=`, both semantics modes currently use the **same runtime
-ordering rules**. Pattern maps generate only Equal constraints. Range matching
-retains candidates whose comparison raises a RuntimeException, so the original
+comparison rules**, including null propagation (not sorting's null ordering).
+Pattern maps generate only Equal constraints. Range matching retains unknown
+candidates and candidates whose comparison raises a RuntimeException, so the original
 WHERE can report that error at its source location. A backend must not silently
 remove incompatible values by applying a stricter SQL type filter or conversion.
 

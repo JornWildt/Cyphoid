@@ -37,14 +37,14 @@ namespace Cyphoid.Tests
 
 
     [TestCase("MATCH (n) WHERE n.isDanish RETURN n", 1)]
-    [TestCase("MATCH (n) WHERE n.isDanish = null RETURN n", 8)]
+    [TestCase("MATCH (n) WHERE n.isDanish = null RETURN n", 0)]
     [TestCase("MATCH (n) WHERE n.isDanish = true RETURN n", 1)]
     [TestCase("MATCH (n) WHERE n.isDanish = false RETURN n", 0)]
     [TestCase("MATCH (n) WHERE n.isDanish RETURN n", 1)]
     [TestCase("MATCH (n) WHERE n.isDanish RETURN n", 1)]
-    [TestCase("MATCH (n) WHERE NOT n.isDanish RETURN n", 8)]
+    [TestCase("MATCH (n) WHERE NOT n.isDanish RETURN n", 0)]
     [TestCase("MATCH (n) WHERE n.name = 'Oslo' RETURN n", 1)]
-    [TestCase("MATCH (n) WHERE n.name <> 'Oslo' RETURN n", 8)]
+    [TestCase("MATCH (n) WHERE n.name <> 'Oslo' RETURN n", 3)]
     [TestCase("MATCH (n) WHERE n.name = 'Oslo' OR n.name = 'København' RETURN n", 2)]
     [TestCase("MATCH (n) WHERE n.name = 'Oslo' AND n.name = 'København' RETURN n", 0)]
     [TestCase("MATCH (n) WHERE n.name = 'Oslo' = true RETURN n", 1)]
