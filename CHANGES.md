@@ -2,7 +2,9 @@
 
 Changes are listed by version, newest first. Historical dates follow version updates in Git, rather than verified package publication dates. Version 0.10.0 appears in package release notes but has no separate version commit.
 
-## Unreleased
+## 1.1.0 ? 2026-10-19
+
+- Rewrote documentation to describe current behavior directly, keeping historical and migration information in this changelog.
 
 - Fixed null propagation for scalar equality/inequality and range comparisons, and three-valued AND/OR/NOT in synchronous and asynchronous EXISTS expressions. IN now uses null-propagating scalar equality. WHERE retains only true; use IS NULL instead of = null. Grouping, DISTINCT, and ordering keep their structural semantics. Host scan/expansion constraints retain unknown candidates for residual evaluation; nullable SQL range translations need the same candidate preservation (see BACKEND_GUIDE.md).
 

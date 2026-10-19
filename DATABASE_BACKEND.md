@@ -152,7 +152,7 @@ Supply `false` and `MixedValue.Null()` for an absent property. Convert database
 Use `Pattern` matching for pattern-map conditions and `Query` matching for WHERE
 conditions; replacing both with `object.Equals` changes behavior.
 
-### Exactly what Pattern and Query change
+### Pattern and Query matching rules
 
 `Comparison` selects the operator; `Semantics` selects the matching rules for
 **equality**. These are separate choices. The planner supplies them; operators
@@ -177,13 +177,13 @@ The pattern condition rejects that node. In contrast:
 MATCH (n) WHERE n.missing = null RETURN n
 ```
 
-Query equality now returns null whenever either operand is null, including
+Query equality returns null whenever either operand is null, including
 `null = null`. WHERE accepts only true, so the second query also returns no rows.
 Use `WHERE n.missing IS NULL` to find missing/null properties.
 
-There is still an operator-level distinction: Pattern rejects these candidates
+The operator-level distinction is: Pattern rejects these candidates
 immediately; Query's `IsMatch` **retains unknown candidates** for the residual
-WHERE. For example, `n.missing = 1 AND 1 / 0 = 1` must still evaluate the right
+WHERE. For example, `n.missing = 1 AND 1 / 0 = 1` must evaluate the right
 operand and report its error. Removing the candidate in SQL would hide that error.
 Consequently, a query constraint translated as `column = @value` generally needs
 an additional `OR column IS NULL` candidate branch when the column is nullable.
@@ -192,11 +192,11 @@ This applies to both equality and ranges; it is not the final WHERE result.
 
 Maps need a similar distinction: structurally equal maps containing null entries
 can match a pattern equality, while query map equality can return unknown. The
-candidate filter retains unknown results, leaving the original WHERE to accept,
-or reject them according to three-valued logic and evaluate later operands. A pushed
+candidate filter retains unknown results. The residual WHERE uses three-valued
+logic to determine the result and evaluates later operands when required. A pushed
 constraint is therefore a candidate restriction, not a replacement for WHERE.
 
-For `<`, `<=`, `>`, and `>=`, both semantics modes currently use the **same runtime
+For `<`, `<=`, `>`, and `>=`, both semantics modes use the **same runtime
 comparison rules**, including null propagation (not sorting's null ordering).
 Pattern maps generate only Equal constraints. Range matching retains unknown
 candidates and candidates whose comparison raises a RuntimeException, so the original
@@ -209,15 +209,15 @@ A database translator must check both `Comparison` and `Semantics`, along with
 its storage types and collation. If it cannot reproduce the required candidate
 set, leave that condition out of SQL and use the local helper after retrieval.
 
-The current planner extracts only a safe leading sequence of single-property
+The planner extracts a safe leading sequence of single-property
 comparisons (`=`, `<`, `<=`, `>`, `>=`) against scalar literals or parameters.
 `PropertyFilterCondition.Comparison` identifies the operation and defaults to
 `Equal`. Reverse the database comparison only when required by your own storage
 mapping; the planner has already normalized reversed Cypher operands.
 It stops at unsupported terms, after a range, and after parameter/null equalities.
 OR, functions, EXISTS, and comparisons
-between variables remain in the residual WHERE. The residual also remains for
-pushed equalities. A backend must still enforce pattern-map conditions itself.
+between variables are evaluated by the residual WHERE. The residual evaluates
+pushed comparisons too. A backend must enforce pattern-map conditions itself.
 
 ## Implement a scan operator
 
@@ -348,7 +348,7 @@ WHERE e.source_id = @sourceId
 
 Only add the optional type, label, and property restrictions when present and
 safely translatable. Incoming expansion reverses source/target roles; undirected
-expansion must cover both orientations. Follow Cyphoid's existing expansion
+expansion must cover both orientations. Follow Cyphoid's expansion
 behavior for duplicate targets and self-loops; avoid introducing extra duplicates
 through hydration joins. See the test backend's ExpandAll implementation.
 

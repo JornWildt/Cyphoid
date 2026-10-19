@@ -9,7 +9,7 @@ See the [changelog](https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md)
 
 ## Features
 
-- Implements a subset of Cyhper.
+- Implements a subset of Cypher.
 - Fast parser implementation with Antlr.
 - In-memory implementation of query plans for any backend.
 - Multiple comma-separated MATCH patterns, including independent patterns and patterns sharing node variables.
@@ -60,7 +60,7 @@ These functions use .NET semantics rather than full Cypher compatibility:
 - Other functions return null when any supplied argument is null. Invalid argument counts, types, conversions, and ranges raise query errors.
 - Casing uses `ToLowerInvariant` / `ToUpperInvariant`. Trim functions use .NET whitespace rules and accept one string argument.
 - Conversions use `Convert.ToString`, `Convert.ToInt64`, `Convert.ToDouble`, and `Convert.ToBoolean` with invariant culture. For example, `toInteger(2.5)` returns `2`, `toString(true)` returns `"True"`, and `toBoolean(1)` returns true. Nodes cannot be converted.
-- `size(string)` counts UTF-16 code units. `substring(string, start [, length])`, `left(string, length)`, and `right(string, length)` use zero-based .NET substring indexing and require valid ranges; oversized lengths raise errors. No list values are introduced.
+- `size(string)` counts UTF-16 code units. `substring(string, start [, length])`, `left(string, length)`, and `right(string, length)` use zero-based .NET substring indexing and require valid ranges; oversized lengths raise errors. List values are not supported.
 - `replace(string, search, replacement)` performs ordinal, case-sensitive replacement; the search string must not be empty.
 - `abs(number)` preserves integer or double type. `floor(number)`, `ceil(number)`, and `round(number [, precision [, mode]])` return doubles. Precision is an integer from 0 to 15. Rounding defaults to `ToEven`; mode accepts .NET `MidpointRounding` names: `ToEven`, `AwayFromZero`, `ToZero`, `ToNegativeInfinity`, and `ToPositiveInfinity`.
 
@@ -82,7 +82,7 @@ When combined in one WITH clause, modifiers follow the order `WITH ... ORDER BY 
 
 Use label predicates to check a node's single type: `WHERE n:pressure OR n:activity OR n:impact`. The comparison is ordinal and case-sensitive. A null node produces null; non-node values raise a query error. Single-label predicates can also be projected, such as `RETURN n:pressure AS isPressure`.
 
-`labels(node)` returns the node's single `IGraphNode.Type` as a string. It is an alias for Cyphoid's `type(node)`; both return null for null or non-node inputs. This differs from standard Cypher, where `labels(node)` returns a list and `type()` reads a relationship type. Cyphoid does not currently bind relationship values to runtime rows.
+`labels(node)` returns the node's single `IGraphNode.Type` as a string. It is an alias for Cyphoid's `type(node)`; both return null for null or non-node inputs. This differs from standard Cypher, where `labels(node)` returns a list and `type()` reads a relationship type. Cyphoid does not bind relationship values to runtime rows.
 
 ```cypher
 MATCH (s:person) RETURN labels(s) AS label
@@ -141,8 +141,8 @@ Cypher executable query plan
 Guidance for third-party backends is in `BACKEND_GUIDE.md`.
 
 Rows share immutable `RowSchema` instances; `IRow.Columns` exposes a read-only
-view without allocating column arrays per row. Backend and procedure migration
-guidance is included in the backend guide.
+view without allocating column arrays per row. The backend guide describes row
+creation and schema handling for backends and procedures.
 
 Query exceptions, diagnostic codes, source locations, and cleanup failures are
 documented in [ERROR_HANDLING.md](ERROR_HANDLING.md).
@@ -201,9 +201,10 @@ is true, and NOT null is null. Only a definite false left operand short-circuits
 AND; only a definite true left operand short-circuits OR. WHERE keeps only true.
 IN returns true for a definite match, null when no match is found but a comparison
 is unknown, and false otherwise (including an empty list).
-Grouping, DISTINCT, and ORDER BY retain structural equality and sorting rules;
-query comparison null propagation does not change their behavior.
-Backend implementers should read the null-constraint migration notes in
+Grouping and DISTINCT use structural equality, where matching null values form
+one group. ORDER BY uses sorting rules that order null values separately from
+non-null values. These rules are distinct from query comparison semantics.
+Backend implementers should read the null-constraint requirements in
 [BACKEND_GUIDE.md](BACKEND_GUIDE.md).
 
 These truth tables follow [Cypher's documented null semantics](https://neo4j.com/docs/cypher-manual/current/values-and-types/working-with-null/).

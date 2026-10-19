@@ -78,8 +78,8 @@ Integer division/remainder by zero raises `RuntimeException` with code
 division check overflow and report `NumericOverflow`, preserving the original
 arithmetic exception. Aggregate integer arithmetic uses the same rules.
 
-Double arithmetic retains .NET IEEE behavior, including infinity and NaN; it is
-not changed into integer-style division errors. Scalar conversions and range
+Double arithmetic uses .NET IEEE behavior, including infinity and NaN, without
+integer-style division errors. Scalar conversions and range
 checks report `InvalidArgumentValue`, `TypeMismatch`, or `NumericOverflow` and
 preserve their original exceptions. Scalar errors include the function name.
 

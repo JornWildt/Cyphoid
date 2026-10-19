@@ -2,7 +2,7 @@
 
 Maps are immutable, unordered collections of string keys and MixedValue values.
 Keys are ordinal and case-sensitive. Values can include nested maps, nodes,
-scalars, and null. Lists and paths are not introduced by this feature.
+scalars, and null. List and path values are not supported.
 
 ## Constructing and reading maps
 
@@ -26,8 +26,8 @@ RETURN config.settings.enabled AS enabled, config[key] AS iterations
 Both forms support nested access, including `config['settings'].enabled`.
 A missing key, null target, or null key returns null. A non-string key or a
 non-map/non-node target raises a located runtime type error. Bracket access also
-works for node properties. The existing map-shaped syntax in MATCH patterns
-remains a property filter, separate from runtime map construction.
+works for node properties. Map-shaped syntax in MATCH patterns
+defines a property filter, separate from runtime map construction.
 
 ## Map projections
 
@@ -63,7 +63,7 @@ RETURN {total: total} AS summary
 Map equality compares keys and values recursively, independently of insertion
 order. Query equality involving null map entries can produce null; a definite
 key/value mismatch produces false. `<>` and IN preserve these unknown results.
-Non-null scalar entries follow Cyphoid's existing scalar equality rules,
+Non-null scalar entries follow Cyphoid's scalar equality rules,
 including distinct integer and double types.
 
 Grouping, DISTINCT, and UNION use structural equality and consistent hashes,
@@ -93,13 +93,11 @@ conditional access. `Map(null)` produces null.
 
 `FromObject` accepts string-keyed MixedValue dictionaries or object dictionaries,
 including nested dictionaries. `AsObject` exports maps as read-only dictionaries
-whose values are recursively converted to host objects. `Match` has an overload
-with a final map callback; the original overload remains available for callers
-that do not handle map values.
+whose values are recursively converted to host objects. `Match` provides overloads with and without a final map callback.
 
 ## Procedure configuration
 
-Declare a map parameter using the existing procedure signature system:
+Declare a map parameter in the procedure signature:
 
 ```csharp
 public IReadOnlyList<ProcedureField> Parameters { get; } =

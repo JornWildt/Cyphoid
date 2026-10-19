@@ -40,7 +40,7 @@ public sealed class MyQueryContext(
 }
 ```
 
-Existing contexts need no changes: `IQueryContext.Parameters` defaults to
+`IQueryContext.Parameters` defaults to
 `QueryParameters.Empty`.
 
 ## Names, scope, and values
@@ -59,7 +59,7 @@ Existing contexts need no changes: `IQueryContext.Parameters` defaults to
 - Supplying `MixedValue.Null()` is different from omitting a parameter. Extra
   parameters are ignored. Runtime operations validate the supplied value types.
 
-All current MixedValue types can be supplied, including nested maps. No values
+All MixedValue types can be supplied, including nested maps. No values
 are interpolated into the query text, and PrettyPrint retains the placeholders.
 
 ## Supported positions
@@ -82,7 +82,7 @@ RETURN n
 
 These filters are bound once for execution and passed as concrete values to
 backend scan and expansion hooks. Null property filters do not match nodes.
-Arbitrary row-dependent expressions in pattern property maps remain unsupported.
+Arbitrary row-dependent expressions in pattern property maps are not supported.
 
 WITH and RETURN LIMIT accept an integer literal or a single parameter:
 
@@ -96,7 +96,7 @@ The supplied limit must be an integer from 0 to Int32.MaxValue. Nulls, strings,
 doubles, negative integers, and oversized integers produce located runtime
 errors. General LIMIT expressions are not supported.
 
-Labels, relationship types, procedure names, and aliases remain fixed query
+Labels, relationship types, procedure names, and aliases are fixed query
 structure. Use `n[$propertyName]` for a dynamic property key, rather than
 `n.$propertyName`.
 
@@ -122,10 +122,10 @@ var parameters = new QueryParameters(new Dictionary<string, MixedValue>
 });
 ```
 
-The procedure reads `arguments[0].AsMap()` as usual. Its schema checks,
-cancellation, and host metadata handling are unchanged. The original host
-context is passed through without a wrapper, so host-specific context types
-and query resources remain accessible.
+The procedure reads `arguments[0].AsMap()`. Procedure calls validate schemas,
+propagate cancellation, and preserve host metadata. The host context is passed
+through without a wrapper, so procedures can access host-specific context types
+and query resources.
 
 ## Binding and plan reuse
 
@@ -140,8 +140,7 @@ AST or template. Row schemas remain shared between executions.
 without copying it again. If a host supplies a mutable dictionary, bindings use
 the snapshot taken when enumeration starts. Do not mutate a dictionary while
 that snapshot is being copied. Plugins reading `context.Parameters` directly
-still see the original host property; supplying QueryParameters keeps that view
-immutable too.
+see the host property; supplying QueryParameters makes that view immutable too.
 
 Concurrent reuse has isolated engine parameter bindings and aggregation state.
 Host operator factories, graph storage, and plugin implementations must also be

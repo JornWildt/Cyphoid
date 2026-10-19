@@ -20,7 +20,7 @@ reuse local names. A null correlated node has no pattern matches.
 
 ## Supported bodies
 
-The body supports the engine's existing read clauses: MATCH, OPTIONAL MATCH,
+The body supports the engine's read clauses: MATCH, OPTIONAL MATCH,
 WHERE, WITH, CALL/YIELD, optional RETURN, ORDER BY, LIMIT, and UNION/UNION ALL.
 RETURN can be omitted, including in UNION branches. If one UNION branch uses
 RETURN, all branches must use it. Mixed UNION/UNION ALL chains are rejected.
@@ -82,7 +82,7 @@ replaced. Required parameters inside subqueries are validated before execution,
 including references in a branch that lazy evaluation might otherwise skip.
 
 Evaluation stops as soon as a subquery produces its first row, then disposes the
-enumerator. AND, OR, coalesce, and IN retain their existing lazy evaluation:
+enumerator. AND, OR, coalesce, and IN use lazy evaluation:
 an unnecessary EXISTS operand does not execute. Operations that inherently need
 all input rows, such as sorting or aggregation, can still buffer or consume all
 their input before producing the first row.
@@ -94,7 +94,7 @@ Mutable state is local to each evaluation, so a reused execution plan does not
 share subquery bindings across concurrent executions.
 
 Only a boolean leaves the subquery. Local values, schemas, and result metadata
-are not added to the outer row. The host's existing copy and row-factory hooks
+are not added to the outer row. The host's copy and row-factory hooks
 preserve outer metadata when async expression values are materialized internally.
 
 Procedure calls follow the host's installed procedure contract. EXISTS does not

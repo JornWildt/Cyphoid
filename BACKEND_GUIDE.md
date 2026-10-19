@@ -12,9 +12,9 @@ For database query translation, resource management, and an operator example, se
 - **Operators are async streams**: every `IOperator` exposes `IAsyncEnumerable<IRow> ExecuteAsync(IQueryContext context, CancellationToken ct = default)`.
 
 ## Recommended approach
-As of 0.13.0, `BuildExpandAll` and `BuildExpandInto` have no `optional` parameter. Expansion operators must emit only matches. The enclosing clause-level optional-match operator preserves an incoming row with null new bindings when the whole pattern and WHERE have no matches; backend expansion operators must not supply their own fallback rows.
+`BuildExpandAll` and `BuildExpandInto` emit only matches. The enclosing clause-level optional-match operator preserves an incoming row with null new bindings when the whole pattern and WHERE have no matches; backend expansion operators must not supply their own fallback rows.
 
-Graph nodes implement the non-generic `IGraphNode` interface, including `MixedValue GetId()`. The scalar function `id(node)` returns this value and `id(null)` returns null. IDs retain their backend-defined query type, such as string or integer. Relationship IDs are not currently supported.
+Graph nodes implement the non-generic `IGraphNode` interface, including `MixedValue GetId()`. The scalar function `id(node)` returns this value and `id(null)` returns null. IDs retain their backend-defined query type, such as string or integer. Relationship IDs are not supported.
 
 `GraphNode<TId>.GetId()` uses `MixedValue.FromObject(Id)`. If your ID type is not supported by that conversion (for example, `Guid`), override `GetId()` to choose a supported query representation, such as `MixedValue.String(Id.ToString())`.
 
@@ -59,7 +59,7 @@ internal sealed class MyOperatorFactory : ReferenceOperatorFactory
 - Return an `IRow` with the supplied columns and enough values for every declared variable slot. The reference `Row` class is available if no custom row implementation is needed.
 - Retain the exact `RowSchema` supplied to your row factory. Do not reconstruct or copy schemas per row. Only the value array and host metadata belong to each row.
 
-### Immutable schemas and migration
+### Immutable schemas
 
 `RowSchema` snapshots column definitions once, including the fields of mutable
 host `IRowColumn` implementations. Its columns have sequential zero-based indexes,
@@ -77,12 +77,11 @@ IRow second = new Row(schema);
 // Their Values arrays are separate.
 ```
 
-This is a backend/procedure API change: replace column arrays and lists in row
-factory, operator factory, row copy, and procedure output-schema signatures with
-`RowSchema`. Custom rows implement `IRow.Schema`; `IRow.Columns` has a default
-read-only implementation forwarding to the schema. Use `Columns.Count` instead
-of `Columns.Length`. Overrides of `Row.CreateEmptyRow` and `CopyAndExpand` must
-also accept RowSchema and pass it unchanged to the new row.
+Row factories, operator factories, row copies, and procedure output schemas use
+`RowSchema`. Custom rows implement `IRow.Schema`; `IRow.Columns` provides a default
+read-only view of that schema. `Columns.Count` gives the column count. Overrides
+of `Row.CreateEmptyRow` and `CopyAndExpand` accept `RowSchema` and pass the supplied
+instance to the output row.
 
 The reference backend creates schemas at parsing or operator construction time.
 Projection creates a schema for its new columns; expansion and optional fallback
@@ -91,7 +90,7 @@ once per call operator and reused across invocations. UNION normalizes branch
 rows to the first emitted schema through the host row-copy hook, preserving
 values and metadata. No global schema cache is needed.
 
-Column Type remains declared/inferred metadata; values may differ in kind,
+Column Type is declared/inferred metadata; values may differ in kind,
 especially across UNION branches. Inspect `row.Values[i]?.Type` for the runtime
 value type. Maps with different keys do not require different row schemas.
 
@@ -125,7 +124,7 @@ If you override, preserve semantics and output row shapes exactly.
 - EXISTS uses normal backend scan/expansion operators and stops enumeration at the first result. Backends must dispose resources on early exit and treat null bound source nodes as having no expansions. Async subquery predicates use a reference async filter; projection, grouping, and sorting can receive rows with internal materialized expression slots before projecting the public result schema.
 - `BuildExecutionPlan` compiles a reusable template. Backend factory hooks are invoked when execution binds parameter values, not necessarily while the template is built. Each execution receives fresh mutable engine operators/aggregate states and shared schemas. Scan/expansion property filters and limits are already concrete values when passed to backend hooks.
 - Projection hooks may receive `ProjectionBindings`, whose `Schema` retains the template's immutable output schema. Reuse it in custom projection operators rather than reconstructing schemas per execution.
-- Backend operator implementations must accept the new `CancellationToken ct` parameter. Existing callers can continue calling `ExecuteAsync(context)`.
+- Backend operators implement `ExecuteAsync(IQueryContext context, CancellationToken ct = default)`. Callers can omit the token when cancellation is not needed.
 - Mark async iterator token parameters with `[EnumeratorCancellation]` (from `System.Runtime.CompilerServices`) so `.WithCancellation(ct)` works as well as direct token arguments.
 - Pass `ct` to upstream `ExecuteAsync(context, ct)` calls and asynchronous storage operations. Enumerate upstream streams with `.WithCancellation(ct)`. Check `ct.ThrowIfCancellationRequested()` before work and periodically inside CPU loops, including loops that discard rows.
 - Cancellation must propagate as `OperationCanceledException`; do not wrap it as a backend error. Dispose enumerators and release resources through `await using` or iterator `finally` blocks.
@@ -144,7 +143,7 @@ The test backend shows a complete minimal implementation:
 
 The planner can pass leading property comparisons from a MATCH's WHERE into
 `BuildNodeScan`, `BuildExpandAll`, and `BuildExpandInto`. These arrive in the
-existing `PropertyFilter`, alongside constraints from pattern property maps.
+`PropertyFilter`, alongside constraints from pattern property maps.
 Each condition names its property and carries a `MixedValue` bound for this
 execution; the backend does not need to inspect a compiled expression delegate.
 
@@ -159,7 +158,7 @@ RETURN a, b
 The scan receives `country = 'DK'`; the expansion receives `active = true` for
 its destination node. Filtering scan candidates before constructing rows avoids
 expanding rejected people. Filtering destination candidates avoids emitting
-rejected neighbors. The original WHERE remains as a residual filter.
+rejected neighbors. WHERE also executes as a residual filter.
 
 **Backend implementations must respect `PropertyFilterCondition.Semantics`.**
 `Pattern` retains pattern-map matching; `Query` uses the runtime's query equality.
@@ -169,17 +168,17 @@ Use `condition.IsMatch(propertyExists, propertyValue)` for each condition, or
 Do not replace this with `object.Equals`, or automatically reject missing/null
 properties: query equality and pattern-map matching have different semantics.
 Query constraints retain unknown map comparisons so the residual evaluator can
-preserve existing diagnostics. An index may implement the constraint only if it
+report source-located errors. An index may implement the constraint only if it
 retains all these candidates; otherwise apply `IsMatch` to a broader candidate set.
 
 For equality, Pattern rejects missing/null properties and null bound values;
 Query compares missing properties as null and preserves runtime query equality,
 including unknown scalar and map comparisons. Any equality or range comparison
-with null now evaluates to null, including `null = null`; use `IS NULL` to test
+with null evaluates to null, including `null = null`; use `IS NULL` to test
 for missing/null values. Query candidate filters retain unknown results so later
-WHERE operands still run. For range comparisons both modes use the same runtime
+WHERE operands are evaluated when required. For range comparisons both modes use the same runtime
 comparison rules, retaining null and incompatible values for residual evaluation.
-See [Exactly what Pattern and Query change](DATABASE_BACKEND.md#exactly-what-pattern-and-query-change)
+See [Pattern and Query matching rules](DATABASE_BACKEND.md#pattern-and-query-matching-rules)
 for the behavior table, examples, and database translation requirements.
 
 Pushdown stays within one MATCH, including OPTIONAL MATCH's candidate branch;
@@ -187,30 +186,30 @@ null fallback occurs after the branch and its WHERE. The planner uses actual nod
 bindings rather than assuming every schema slot is populated. Independent pattern
 parts receive their own constraints before their Cartesian product.
 
-The initial optimization deliberately handles only a leading sequence of
+The planner extracts a leading sequence of
 single-property comparisons (`=`, `<`, `<=`, `>`, `>=`) against scalar literals or
 parameters, accepting either operand order and parentheses. `Comparison` identifies
-the operation; equality is the default for existing callers. It stops at the first
+the operation; equality is the default. It stops at the first
 unsupported term, after a range, and after a parameter or null equality. Range
 matching retains incompatible values for the source-located residual error; later
 constraints cannot be pushed ahead of that possible error. OR, functions,
-EXISTS, nested property lookups, and comparisons between variables remain residual.
+EXISTS, nested property lookups, and comparisons between variables are evaluated by the residual filter.
 This prevents moving a later condition ahead of a possible error or changing how
-often a volatile expression runs. It also avoids introducing new range/null/type
-semantics through a backend-specific index.
+often a volatile expression runs. Backend indexes must preserve the runtime
+comparison semantics.
 
 
-### Host migration: null-propagating query constraints
+### Null handling in host operators
 
-NodeScan and ExpandAll implementations must use the updated
+NodeScan and ExpandAll implementations must use
 `PropertyFilterCondition.IsMatch` / `PropertyFilter.IsMatch`, or equivalent
-candidate semantics. Pattern-map equality still rejects missing/null properties.
+candidate semantics. Pattern-map equality rejects missing/null properties.
 Query equality and ranges retain unknown candidates; the residual WHERE keeps
 only true and may need to evaluate further operands when an earlier one is null.
-Do not treat a null range operand as the smallest value, and do not drop unknown
+Null range operands produce unknown. Do not drop unknown
 candidates just because SQL WHERE would drop them. Translate nullable query
 comparisons using a broader candidate predicate (for example,
 `age >= @minAge OR age IS NULL`), or omit that SQL predicate and filter locally.
 For a null bound value, leave query candidates unrestricted. Retain incompatible
-types for source-located runtime errors as before. See DATABASE_BACKEND.md for
-translation details. No operator signature or row-factory changes are required.
+types for source-located runtime errors. See DATABASE_BACKEND.md for
+translation details.

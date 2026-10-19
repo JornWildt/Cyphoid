@@ -73,7 +73,7 @@ query resources. Avoid capturing a transaction while installing or parsing.
 
 ## Names and registration
 
-- Names are ordinal and case-sensitive. Cypher clause keywords remain case-insensitive.
+- Names are ordinal and case-sensitive. Cypher clause keywords are case-insensitive.
 - Namespaces can contain several identifier segments, such as `company.knowledge`.
   Procedure names are a single identifier. Use non-keyword ASCII identifiers:
   a letter followed by letters, digits, or underscores, as supported by the grammar.
@@ -111,7 +111,7 @@ in scope; aliases must not collide with them. WHERE after YIELD sees both input
 and yielded variables. Yielded nodes can participate in subsequent MATCH clauses.
 Further WITH, RETURN, aggregation, sorting, limiting, and UNION work normally.
 
-This initial subset requires parentheses, explicit YIELD fields, and a final
+Procedure calls require parentheses, explicit YIELD fields, and a final
 RETURN. Standalone calls, YIELD *, optional arguments, overloads, void procedures,
 and CALL subqueries are not supported. Aggregate arguments must first be
 projected in WITH.
@@ -122,13 +122,13 @@ Arguments and results use MixedValue types, including `MixedValue.ValueType.Map`
 for configuration objects and structured results. Maps can be passed inline or
 through variables, and read using `arguments[i].AsMap()`. See [MAPS.md](MAPS.md)
 for query syntax and a procedure configuration example. List and path values
-remain unsupported; represent those collections as multiple rows.
+are not supported; represent those collections as multiple rows.
 
 Map configurations may also be supplied as query parameters:
 `CALL analytics.pageRank($config) YIELD node, score RETURN node, score`.
 Supply a `"config"` map entry in the host context's parameter collection;
 see [PARAMETERS.md](PARAMETERS.md). Parsing and plugin
-installation remain independent of execution values.
+installation are independent of execution values.
 
 Signatures are fixed and ordered. Argument counts, names, variable bindings, and
 YIELD fields are checked while parsing. Runtime types must match exactly, with no
