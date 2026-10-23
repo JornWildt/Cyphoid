@@ -612,6 +612,30 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.caseExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterCaseExpression([NotNull] CypherParser.CaseExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.caseExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitCaseExpression([NotNull] CypherParser.CaseExpressionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.caseAlternative"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterCaseAlternative([NotNull] CypherParser.CaseAlternativeContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.caseAlternative"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitCaseAlternative([NotNull] CypherParser.CaseAlternativeContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.parameter"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

@@ -48,6 +48,26 @@ internal static class AsyncExpressionCompiler
       };
     }
 
+    if (expression is CaseExpressionNode conditional)
+    {
+      var input = conditional.Input?.CompileAsync(factory, parameters);
+      var alternatives = conditional.Alternatives.Select(a =>
+        (When: a.When.CompileAsync(factory, parameters), Then: a.Then.CompileAsync(factory, parameters))).ToArray();
+      var fallback = conditional.Else?.CompileAsync(factory, parameters);
+      return async (row, context, ct) =>
+      {
+        var value = input == null ? MixedValue.Null() : await input(row, context, ct);
+        foreach (var alternative in alternatives)
+        {
+          var candidate = await alternative.When(row, context, ct);
+          var matches = input == null ? MixedValue.QueryBoolean(candidate) == true
+            : !MixedValue.QueryEquals(value, candidate).IsAnythingButTrue();
+          if (matches) return await alternative.Then(row, context, ct);
+        }
+        return fallback == null ? MixedValue.Null() : await fallback(row, context, ct);
+      };
+    }
+
     var children = Children(expression).Select(e => e.CompileAsync(factory, parameters)).ToArray();
     if (expression is BinaryOperatorNode { Operator: BinaryOperatorType.And or BinaryOperatorType.Or } binary)
       return async (row, context, ct) =>
@@ -109,6 +129,9 @@ internal static class AsyncExpressionCompiler
 
   private static IEnumerable<ExprNode> Children(ExprNode expression) => expression switch
   {
+    CaseExpressionNode n => (n.Input == null ? Enumerable.Empty<ExprNode>() : new[] { n.Input })
+      .Concat(n.Alternatives.SelectMany(a => new[] { a.When, a.Then }))
+      .Concat(n.Else == null ? Enumerable.Empty<ExprNode>() : new[] { n.Else }),
     BinaryOperatorNode n => [n.Left, n.Right], UnaryOperatorNode n => [n.Expr],
     NullCheckNode n => [n.Expr], SubExpression n => [n.Sub],
     InOperatorNode n => new[] { n.Expr }.Concat(n.Items), FunctionCallNode n => n.Parameters,

@@ -229,7 +229,7 @@ mapKey
   : identifier
   | MATCH | CALL | YIELD | UNION | ALL | OPTIONAL | WHERE | RETURN | SKIP_KW | LIMIT
   | AS | AND | OR | NOT | IS | CONTAINS | STARTS | ENDS | IN | WITH
-  | TRUE | FALSE | NULL | ASC | DESC | DISTINCT | EXISTS
+  | TRUE | FALSE | NULL | ASC | DESC | DISTINCT | EXISTS | CASE | WHEN | THEN | ELSE | END
   ;
 
 // (all operators not here yet)
@@ -237,6 +237,7 @@ mapKey
 primaryExpression
   : literal
   | existsSubquery
+  | caseExpression
   | parameter
   | mapLiteral
   | labelPredicate
@@ -244,6 +245,14 @@ primaryExpression
   | functionCall
   | variable
   | LPAREN expression RPAREN
+  ;
+
+caseExpression
+  : CASE expression? caseAlternative+ (ELSE expression)? END
+  ;
+
+caseAlternative
+  : WHEN expression THEN expression
   ;
 
 parameter
@@ -325,6 +334,11 @@ ALL        : [Aa][Ll][Ll];
 OPTIONAL   : [Oo][Pp][Tt][Ii][Oo][Nn][Aa][Ll];
 WHERE      : [Ww][Hh][Ee][Rr][Ee];
 RETURN     : [Rr][Ee][Tt][Uu][Rr][Nn];
+CASE       : [Cc][Aa][Ss][Ee];
+WHEN       : [Ww][Hh][Ee][Nn];
+THEN       : [Tt][Hh][Ee][Nn];
+ELSE       : [Ee][Ll][Ss][Ee];
+END        : [Ee][Nn][Dd];
 SKIP_KW       : [Ss][Kk][Ii][Pp];
 LIMIT      : [Ll][Ii][Mm][Ii][Tt];
 AS         : [Aa][Ss];

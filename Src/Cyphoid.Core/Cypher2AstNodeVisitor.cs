@@ -576,6 +576,7 @@ namespace Cyphoid.Core
     {
       if (context.existsSubquery() != null) return Visit<ExistsSubqueryNode>(context.existsSubquery());
       if (context.parameter() != null) return Visit<ParameterNode>(context.parameter());
+      if (context.caseExpression() != null) return Visit<CaseExpressionNode>(context.caseExpression());
       if (context.mapLiteral() != null) return Visit<MapLiteralNode>(context.mapLiteral());
       if (context.labelPredicate() != null)
         return Visit<LabelPredicateNode>(context.labelPredicate());
@@ -710,6 +711,18 @@ namespace Cyphoid.Core
       return expr;
     }
 
+
+    public override AstNode VisitCaseExpression([NotNull] CypherParser.CaseExpressionContext context)
+    {
+      RejectAggregateCalls(context);
+      var expressions = context.expression();
+      var input = expressions.Length > (context.ELSE() == null ? 0 : 1)
+        ? Visit<ExprNode>(expressions[0]) : null;
+      var alternatives = context.caseAlternative().Select(a => new CaseAlternativeNode(
+        Visit<ExprNode>(a.expression(0)), Visit<ExprNode>(a.expression(1)))).ToArray();
+      var fallback = context.ELSE() == null ? null : Visit<ExprNode>(expressions[^1]);
+      return new CaseExpressionNode(input, alternatives, fallback);
+    }
 
     public override AstNode VisitFunctionCall([NotNull] CypherParser.FunctionCallContext context)
     {

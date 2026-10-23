@@ -511,6 +511,26 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.caseExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterCaseExpression([NotNull] CypherParser.CaseExpressionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.caseExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitCaseExpression([NotNull] CypherParser.CaseExpressionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.caseAlternative"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterCaseAlternative([NotNull] CypherParser.CaseAlternativeContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.caseAlternative"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitCaseAlternative([NotNull] CypherParser.CaseAlternativeContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.parameter"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

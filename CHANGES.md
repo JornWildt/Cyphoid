@@ -4,6 +4,8 @@ Changes are listed by version, newest first. Historical dates follow version upd
 
 ## Unreleased
 
+- Added searched and simple CASE expressions with lazy branches, null fallback, parameters, and async EXISTS evaluation, including CASE arguments to count/sum for conditional aggregation. Documented project/activity queries and the EXISTS alternative to bare pattern predicates.
+
 - Added SKIP to WITH and RETURN, including EXISTS subqueries and UNION branches, with integer literal/parameter validation and reference execution after ORDER BY and before LIMIT. SKIP preserves host rows and propagates cancellation/disposal without database pushdown.
 
 ## 1.1.0 ? 2026-10-19

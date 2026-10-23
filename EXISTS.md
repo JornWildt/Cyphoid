@@ -59,7 +59,7 @@ OPTIONAL MATCH can also produce a fallback row and therefore a true result.
 ## Expressions and nesting
 
 EXISTS is a boolean expression and can appear in WHERE, WITH/RETURN projections,
-map values, grouping keys, aggregate arguments, ORDER BY, and procedure arguments.
+map values, CASE conditions/results, grouping keys, aggregate arguments, ORDER BY, and procedure arguments.
 Subqueries may contain nested EXISTS expressions. For example:
 
 ```cypher

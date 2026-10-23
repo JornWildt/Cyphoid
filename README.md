@@ -73,6 +73,55 @@ projections such as `n {.name, .age}`. Procedures can declare Map parameters for
 configuration: `CALL analytics.pageRank({iterations: 20}) YIELD node, score ...`.
 See [MAPS.md](MAPS.md) for the host API, examples, and supported subset.
 
+### CASE and conditional aggregation
+
+CASE selects the first matching branch and evaluates only its result:
+
+```cypher
+RETURN CASE WHEN $score >= 80 THEN 'high' ELSE 'low' END AS category
+```
+
+Simple CASE evaluates a selector once and compares it with each WHEN value:
+
+```cypher
+RETURN CASE $status WHEN 'open' THEN 1 WHEN 'closed' THEN 0 ELSE null END AS state
+```
+
+A searched WHEN condition must be boolean or null; only true matches. Simple CASE
+uses query equality, so `CASE null WHEN null ...` does not match. Omitted ELSE
+returns null. CASE supports nesting, parameters, maps, and EXISTS expressions.
+Unselected conditions/results are not evaluated. Aggregate calls inside CASE
+must be projected in WITH first; CASE can be an argument to an aggregate.
+
+For project/activity totals, OPTIONAL MATCH preserves projects with no activities,
+and `count(a)` counts only non-null matches:
+
+```cypher
+MATCH (p:project)
+OPTIONAL MATCH (a:activity)-[:in_project]->(p)
+WITH p, count(a) AS activity_count
+RETURN count(CASE WHEN activity_count > 0 THEN 1 END) AS projects_with_activities,
+       count(CASE WHEN activity_count = 0 THEN 1 END) AS projects_without_activities
+```
+
+`sum(CASE WHEN ... THEN 1 ELSE 0 END)` also supports conditional totals.
+To test existence without counting every activity, use:
+
+```cypher
+MATCH (p:project)
+RETURN count(CASE WHEN EXISTS {
+         MATCH (p)<-[:in_project]-(:activity)
+       } THEN 1 END) AS projects_with_activities,
+       count(CASE WHEN NOT EXISTS {
+         MATCH (p)<-[:in_project]-(:activity)
+       } THEN 1 END) AS projects_without_activities
+```
+
+Bare pattern expressions such as `WHEN (p)<-[:in_project]-(:activity)` are not
+supported; use EXISTS with MATCH. Multiple matching activities count individually;
+if the graph contains duplicate activity relationships, `count(a)` reflects the
+matching rows rather than a distinct activity count.
+
 ### Scalar functions
 
 Supported scalar functions include `coalesce`, `toLower`, `toUpper`, `trim`, `ltrim`, `rtrim`, `toString`, `toInteger`, `toFloat`, `toBoolean`, `size`, `substring`, `replace`, `left`, `right`, `abs`, `round`, `floor`, and `ceil`. Names are case-insensitive.

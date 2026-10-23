@@ -320,6 +320,18 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitPrimaryExpression([NotNull] CypherParser.PrimaryExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.caseExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitCaseExpression([NotNull] CypherParser.CaseExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.caseAlternative"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitCaseAlternative([NotNull] CypherParser.CaseAlternativeContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.parameter"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
