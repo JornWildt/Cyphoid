@@ -191,6 +191,16 @@ public interface ICypherListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitOrderByItem([NotNull] CypherParser.OrderByItemContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.skipClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSkipClause([NotNull] CypherParser.SkipClauseContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.skipClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSkipClause([NotNull] CypherParser.SkipClauseContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.limitClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

@@ -2,6 +2,10 @@
 
 Changes are listed by version, newest first. Historical dates follow version updates in Git, rather than verified package publication dates. Version 0.10.0 appears in package release notes but has no separate version commit.
 
+## Unreleased
+
+- Added SKIP to WITH and RETURN, including EXISTS subqueries and UNION branches, with integer literal/parameter validation and reference execution after ORDER BY and before LIMIT. SKIP preserves host rows and propagates cancellation/disposal without database pushdown.
+
 ## 1.1.0 ? 2026-10-19
 
 - Rewrote documentation to describe current behavior directly, keeping historical and migration information in this changelog.

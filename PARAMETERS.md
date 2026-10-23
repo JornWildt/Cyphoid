@@ -84,7 +84,7 @@ These filters are bound once for execution and passed as concrete values to
 backend scan and expansion hooks. Null property filters do not match nodes.
 Arbitrary row-dependent expressions in pattern property maps are not supported.
 
-WITH and RETURN LIMIT accept an integer literal or a single parameter:
+WITH and RETURN SKIP and LIMIT accept an integer literal or a single parameter:
 
 ```cypher
 MATCH (n:Person)
@@ -92,9 +92,9 @@ WITH n ORDER BY n.age LIMIT $candidateCount
 RETURN n.name LIMIT $resultCount
 ```
 
-The supplied limit must be an integer from 0 to Int32.MaxValue. Nulls, strings,
+Each supplied SKIP or LIMIT value must be an integer from 0 to Int32.MaxValue. Nulls, strings,
 doubles, negative integers, and oversized integers produce located runtime
-errors. General LIMIT expressions are not supported.
+errors. General SKIP and LIMIT expressions are not supported.
 
 Labels, relationship types, procedure names, and aliases are fixed query
 structure. Use `n[$propertyName]` for a dynamic property key, rather than

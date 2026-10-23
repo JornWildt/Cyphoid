@@ -213,3 +213,18 @@ comparisons using a broader candidate predicate (for example,
 For a null bound value, leave query candidates unrestricted. Retain incompatible
 types for source-located runtime errors. See DATABASE_BACKEND.md for
 translation details.
+
+
+## SKIP execution
+
+SKIP is implemented by a reference row-stream operator after projection,
+aggregation, DISTINCT (for RETURN), and ORDER BY, before LIMIT. WITH WHERE follows
+these modifiers. The operator discards the requested number of rows and passes
+remaining host rows through unchanged, preserving metadata and schemas.
+Cancellation is checked while discarding rows, and early disposal releases the
+upstream enumerator.
+
+SKIP is not pushed into database operators. Node scans and expansions receive no
+offset argument, and backend implementations require no SKIP hook. Applying an
+offset to source nodes or separately to each expansion would not preserve the
+number of result rows discarded by the query.

@@ -128,6 +128,12 @@ public interface ICypherVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitOrderByItem([NotNull] CypherParser.OrderByItemContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CypherParser.skipClause"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSkipClause([NotNull] CypherParser.SkipClauseContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CypherParser.limitClause"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

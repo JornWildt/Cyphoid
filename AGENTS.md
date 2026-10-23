@@ -4,7 +4,7 @@ The Cypher engine is implemented as a pipeline of row-oriented physical operator
 
 ## Supported Cypher subset
 
-- Clauses: MATCH, WHERE, WITH, RETURN, ORDER BY, LIMIT, and CALL ... YIELD with an optional WHERE.
+- Clauses: MATCH, WHERE, WITH, RETURN, ORDER BY, SKIP, LIMIT, and CALL ... YIELD with an optional WHERE.
 - Procedure plugins are installed with `ICypherParser.InstallPlugin`. See `PROCEDURES.md` for the public contracts and supported subset. Procedures return local-schema host rows; the reference call operator maps YIELD fields into query slots and uses `IRow.MergeWith` to preserve host metadata.
 - Combined queries: UNION (also UNION DISTINCT) removes duplicate output rows; UNION ALL retains them. Branches have independent scopes and must return matching column names in matching order. Mixed distinct/ALL chains are rejected.
 - Patterns: node patterns with optional labels and property maps; relationship patterns with direction and optional type.
@@ -25,6 +25,8 @@ The Cypher engine is implemented as a pipeline of row-oriented physical operator
 - `$name` parameters come from `IQueryContext.Parameters`. Execution templates validate required names, snapshot parameters, and bind evaluators once per execution. Aggregate state is execution-local; schemas remain shared. Parameters do not occupy row slots. See `PARAMETERS.md`.
 - Query errors use public `ParseException`/`RuntimeException` with `CypherErrorCode`, phase, and optional source spans. Planning and nested expressions use `CompileEvaluator` to locate runtime failures. Preserve cancellation and primary failures during cleanup; see `ERROR_HANDLING.md`.
 
+- SKIP accepts integer literals or parameters in WITH/RETURN, runs after ORDER BY and before LIMIT, and preserves host rows unchanged. It uses a reference row-stream operator with cancellation/disposal; offsets are not pushed to backend scans or expansions.
+
 ## Backend contract
 
 - Backends implement `IOperatorFactory`; the recommended path is to inherit `ReferenceOperatorFactory`.
@@ -40,4 +42,3 @@ The Cypher engine is implemented as a pipeline of row-oriented physical operator
 
 - Backend example: `Src/Cyphoid.Tests/TestBackend/TestOperatorFactory.cs`
 - Core tests: `Src/Cyphoid.Tests/ExecutionTests.cs`, `Src/Cyphoid.Tests/GroupAndAggregateTests.cs`, `Src/Cyphoid.Tests/RelationshipTests.cs`
-

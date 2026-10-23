@@ -228,6 +228,18 @@ public partial class CypherBaseListener : ICypherListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitOrderByItem([NotNull] CypherParser.OrderByItemContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CypherParser.skipClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSkipClause([NotNull] CypherParser.SkipClauseContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CypherParser.skipClause"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSkipClause([NotNull] CypherParser.SkipClauseContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CypherParser.limitClause"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

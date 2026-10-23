@@ -8,7 +8,8 @@ namespace Cyphoid.Core.SyntaxTree
     IReadOnlyList<ProjectionNode> Projections, 
     OrderByNode? OrderBy,
     ExprNode? Limit,
-    IReadOnlyList<ProjectionNode>? OrderingProjections = null) : AstNode
+    IReadOnlyList<ProjectionNode>? OrderingProjections = null,
+    ExprNode? Skip = null) : AstNode
   {
     public PipelinePlan BuildProjectionPlan(PipelinePlan input)
     {
@@ -23,6 +24,9 @@ namespace Cyphoid.Core.SyntaxTree
 
       if (OrderBy != null)
         input = new OrderByPlan(input, OrderBy.Ordering);
+
+      if (Skip != null)
+        input = new SkipPlan(input, Skip);
 
       if (Limit != null)
         input = new LimitPlan(input, Limit);
@@ -55,6 +59,12 @@ namespace Cyphoid.Core.SyntaxTree
       {
         sb.Append(" ");
         OrderBy.PrettyPrint(sb);
+      }
+
+      if (Skip != null)
+      {
+        sb.Append(" SKIP ");
+        Skip.PrettyPrint(sb);
       }
 
       if (Limit != null)

@@ -45,7 +45,7 @@ whereClause
   ;
 
 withLimitClause
-  : withClause orderingClause? limitClause? whereClause?
+  : withClause orderingClause? skipClause? limitClause? whereClause?
   ;
 
 withClause
@@ -53,7 +53,7 @@ withClause
   ;
 
 returnLimitClause
-  : returnClause orderingClause? limitClause?
+  : returnClause orderingClause? skipClause? limitClause?
   ;
 
 returnClause
@@ -68,6 +68,10 @@ orderByItem
   : expression
   | expression DESC
   | expression ASC
+  ;
+
+skipClause
+  : SKIP_KW (integerLiteral | parameter)
   ;
 
 limitClause
@@ -223,7 +227,7 @@ mapEntry
 
 mapKey
   : identifier
-  | MATCH | CALL | YIELD | UNION | ALL | OPTIONAL | WHERE | RETURN | LIMIT
+  | MATCH | CALL | YIELD | UNION | ALL | OPTIONAL | WHERE | RETURN | SKIP_KW | LIMIT
   | AS | AND | OR | NOT | IS | CONTAINS | STARTS | ENDS | IN | WITH
   | TRUE | FALSE | NULL | ASC | DESC | DISTINCT | EXISTS
   ;
@@ -321,6 +325,7 @@ ALL        : [Aa][Ll][Ll];
 OPTIONAL   : [Oo][Pp][Tt][Ii][Oo][Nn][Aa][Ll];
 WHERE      : [Ww][Hh][Ee][Rr][Ee];
 RETURN     : [Rr][Ee][Tt][Uu][Rr][Nn];
+SKIP_KW       : [Ss][Kk][Ii][Pp];
 LIMIT      : [Ll][Ii][Mm][Ii][Tt];
 AS         : [Aa][Ss];
 AND        : [Aa][Nn][Dd];

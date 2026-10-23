@@ -21,7 +21,7 @@ reuse local names. A null correlated node has no pattern matches.
 ## Supported bodies
 
 The body supports the engine's read clauses: MATCH, OPTIONAL MATCH,
-WHERE, WITH, CALL/YIELD, optional RETURN, ORDER BY, LIMIT, and UNION/UNION ALL.
+WHERE, WITH, CALL/YIELD, optional RETURN, ORDER BY, SKIP, LIMIT, and UNION/UNION ALL.
 RETURN can be omitted, including in UNION branches. If one UNION branch uses
 RETURN, all branches must use it. Mixed UNION/UNION ALL chains are rejected.
 The MATCH keyword can be omitted for a single pattern with an optional WHERE.

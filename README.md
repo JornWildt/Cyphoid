@@ -30,6 +30,29 @@ immutable `QueryParameters`. Queries can use `$name` in expressions, pattern
 property values, procedure arguments, and LIMIT. See [PARAMETERS.md](PARAMETERS.md)
 for host setup, map-based procedure configuration, and execution-plan reuse.
 
+### Pagination with SKIP and LIMIT
+
+SKIP discards a number of rows; LIMIT bounds how many following rows are returned:
+
+```cypher
+MATCH (n:Person)
+RETURN n.name, id(n) AS nodeId
+ORDER BY n.name, nodeId
+SKIP $offset
+LIMIT $pageSize
+```
+
+WITH and RETURN accept `ORDER BY ... SKIP ... LIMIT ...` in that order. SKIP
+also works without LIMIT. Its value is an integer literal or parameter between
+0 and Int32.MaxValue. Null, negative, non-integer, and oversized parameter values
+raise query errors. ORDER BY defines the page order; use a unique tie-breaker
+for stable pages. Without ORDER BY the row order is unspecified.
+
+SKIP applies after projection, aggregation, DISTINCT (for RETURN), and sorting,
+and before LIMIT. A WITH WHERE predicate follows these modifiers. Each UNION
+branch and EXISTS subquery applies its own SKIP. SKIP runs in the row pipeline;
+it is not pushed into backend scans or expansions.
+
 ### Combining queries
 
 Use `UNION` to combine independent query results and remove duplicate rows, or `UNION ALL` to retain duplicates:
@@ -76,7 +99,7 @@ WHERE total > 10
 RETURN country, total
 ```
 
-When combined in one WITH clause, modifiers follow the order `WITH ... ORDER BY ... LIMIT ... WHERE ...`. WHERE sees the projected variables and filters after LIMIT. To filter before sorting or limiting, use a second WITH clause.
+When combined in one WITH clause, modifiers follow the order `WITH ... ORDER BY ... SKIP ... LIMIT ... WHERE ...`. WHERE sees the projected variables and filters after LIMIT. To filter before sorting or limiting, use a second WITH clause.
 
 ### Node labels
 

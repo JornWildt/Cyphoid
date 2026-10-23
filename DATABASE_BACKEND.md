@@ -372,3 +372,12 @@ survives expansion, and that output rows retain the supplied schema instance.
 Inspect generated SQL and database execution plans separately to confirm useful
 indexes are selected. Correct results alone do not establish that the database
 applied the restrictions efficiently.
+
+
+## SKIP and database offsets
+
+Cyphoid executes SKIP in the reference row pipeline. Do not translate a query's
+SKIP into an offset on a node scan or individual expansion. Filtering, expansion,
+aggregation, DISTINCT, and sorting determine the result stream before SKIP runs;
+a database offset at an earlier stage can discard different rows. No SKIP value
+is supplied to scan or expansion operators.

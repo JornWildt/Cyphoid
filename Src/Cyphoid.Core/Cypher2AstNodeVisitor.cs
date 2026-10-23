@@ -164,10 +164,11 @@ namespace Cyphoid.Core
       var with = Visit<WithNode>(context.withClause());
 
       var ordering = context.orderingClause() != null ? Visit<OrderByNode>(context.orderingClause()) : null;
+      var skip = context.skipClause() == null ? null : Visit<SkipNode>(context.skipClause());
       var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
 
       var where = context.whereClause() != null ? Visit<WhereNode>(context.whereClause()) : null;
-      return new WithLimitNode(with.Projections, ordering, limit?.Limit, where?.Expr);
+      return new WithLimitNode(with.Projections, ordering, limit?.Limit, where?.Expr, skip?.Skip);
     }
 
 
@@ -226,8 +227,9 @@ namespace Cyphoid.Core
         OrderingInputVariables = null;
         OrderingProjections = null;
       }
+      var skip = context.skipClause() == null ? null : Visit<SkipNode>(context.skipClause());
       var limit = context.limitClause() != null ? Visit<LimitNode>(context.limitClause()) : null;
-      return new ReturnLimitNode(@return.Distinct, @return.Projections.Projections, ordering, limit?.Limit, hiddenProjections);
+      return new ReturnLimitNode(@return.Distinct, @return.Projections.Projections, ordering, limit?.Limit, hiddenProjections, skip?.Skip);
     }
 
 
@@ -264,6 +266,15 @@ namespace Cyphoid.Core
       return new OrderByItemNode(expression, dir);
     }
 
+
+    public override AstNode VisitSkipClause([NotNull] CypherParser.SkipClauseContext context)
+    {
+      if (context.parameter() != null) return new SkipNode(Visit<ParameterNode>(context.parameter()));
+      var value = Visit<IntLiteralNode>(context.integerLiteral());
+      if (value.Value > int.MaxValue)
+        throw new ParseException($"SKIP must be between 0 and {int.MaxValue}.", CypherErrorCode.InvalidArgumentValue);
+      return new SkipNode(value);
+    }
 
     public override AstNode VisitLimitClause([NotNull] global::CypherParser.LimitClauseContext context)
     {
