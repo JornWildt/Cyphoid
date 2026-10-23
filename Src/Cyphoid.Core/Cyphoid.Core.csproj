@@ -9,7 +9,7 @@
 
     <!-- NuGet package metadata -->
     <PackageId>Cyphoid</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Jørn Wildt</Authors>
     <Description>A parser for the Cypher graph query language. It includes a simple implementation of the query language.</Description>
     <PackageTags>parser cypher query language</PackageTags>
@@ -25,8 +25,8 @@
 
   <PropertyGroup>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>1.1.0: Fixed null propagation in comparisons and IN, and three-valued AND/OR/NOT in scalar and asynchronous EXISTS expressions. WHERE accepts only true; use IS NULL for null checks. Host scan and expansion filters must retain unknown candidates for residual evaluation.
-Renamed relationship-type parameters and operator members to use relationshipType rather than relationLabel. Documentation describes the backend contracts and query semantics, including SQL candidate filtering requirements.
+    <PackageReleaseNotes>1.2.0: Added SKIP to WITH and RETURN, including EXISTS subqueries and UNION branches. Integer literals and parameters are validated; execution preserves host rows, cancellation, and resource disposal without database pushdown.
+Added searched and simple CASE expressions with lazy branch evaluation, null fallback, parameter binding, and asynchronous EXISTS support. CASE arguments enable conditional count/sum aggregation.
 Full changelog: https://github.com/JornWildt/Cyphoid/blob/master/CHANGES.md</PackageReleaseNotes>
   </PropertyGroup>
 
